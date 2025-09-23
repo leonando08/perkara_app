@@ -1,3 +1,4 @@
+
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 /**
@@ -13,60 +14,55 @@ class Auth extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->database();
         $this->load->model('User_model');
-        $this->load->library('session');
+        $this->load->library(['session', 'form_validation']);
         $this->load->helper(['url', 'form']);
     }
 
     public function login()
     {
-        $data = [];
+        // Jika sudah login, redirect sesuai role
+        if ($this->session->userdata('logged_in')) {
+            if ($this->session->userdata('role') === 'admin') {
+                redirect('admin/dashboard');
+            } else {
+                redirect('user/dashboard');
+            }
+        }
 
-        // Generate CAPTCHA kalau belum ada
+        // Generate captcha
         if (!$this->session->userdata('captcha')) {
             $this->session->set_userdata('captcha', rand(1000, 9999));
         }
 
-        if ($this->input->method() === 'post') {
-            $username      = $this->input->post('username', TRUE);
-            $password      = $this->input->post('password', TRUE);
-            $captcha_input = $this->input->post('captcha', TRUE);
+        if ($this->input->post()) {
+            $username = $this->input->post('username', TRUE);
+            $password = $this->input->post('password', TRUE);
+            $captcha  = $this->input->post('captcha', TRUE);
 
-            // Cek CAPTCHA
-            if ($captcha_input != $this->session->userdata('captcha')) {
-                $data['error'] = "Kode CAPTCHA salah!";
+            if ($captcha != $this->session->userdata('captcha')) {
+                $data['error'] = "Captcha salah!";
             } else {
                 $user = $this->User_model->get_by_username($username);
-
                 if ($user && password_verify($password, $user->password)) {
-                    // Simpan session
                     $this->session->set_userdata([
-                        'user_id'   => $user->id,
-                        'username'  => $user->username,
-                        'role'      => $user->role,
+                        'user_id' => $user->id,
+                        'username' => $user->username,
+                        'role' => $user->role,
                         'logged_in' => TRUE
                     ]);
-
-                    // Reset CAPTCHA
                     $this->session->unset_userdata('captcha');
-
-                    // Redirect berdasarkan role
-                    if ($user->role === 'admin') {
-                        redirect('admin/dashboard');
-                    } else {
-                        redirect('user/dashboard');
-                    }
+                    if ($user->role === 'admin') redirect('admin/dashboard_admin');
+                    else redirect('user/dashboard_user1');
                 } else {
                     $data['error'] = "Username atau password salah!";
                 }
             }
-
-            // Generate ulang CAPTCHA setiap POST
+            // regenerate captcha
             $this->session->set_userdata('captcha', rand(1000, 9999));
         }
 
-        $this->load->view('auth/login', $data);
+        $this->load->view('login/login_form', isset($data) ? $data : []);
     }
 
     public function logout()

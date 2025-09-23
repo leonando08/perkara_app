@@ -7,39 +7,33 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @property CI_DB_query_builder $db
  * @property User_model $User_model
  */
-#[\AllowDynamicProperties]
 class Login extends CI_Controller
-
 {
     public function __construct()
     {
         parent::__construct();
-        // kalau sudah autoload session, baris ini HAPUS:
-        // $this->load->library('session');
-
         $this->load->helper(['url', 'form']);
         $this->load->model('User_model');
+        $this->load->library('session');
         $this->load->database();
     }
-
 
     public function index()
     {
         $data = [];
 
-        // --- Generate Captcha setiap kali halaman login dibuka ---
+        // Generate captcha
         $captcha = rand(1000, 9999);
         $this->session->set_userdata('captcha', $captcha);
         $data['captcha'] = $captcha;
 
-        // Kalau form login di-submit
         if ($this->input->post()) {
             $username = $this->input->post('username', TRUE);
             $password = $this->input->post('password', TRUE);
             $inputCaptcha = $this->input->post('captcha', TRUE);
             $savedCaptcha = $this->session->userdata('captcha');
 
-            // Validasi captcha
+            // Validasi CAPTCHA
             if ($inputCaptcha != $savedCaptcha) {
                 $data['error'] = 'Captcha salah!';
                 $this->load->view('login/login_form', $data);
@@ -50,7 +44,7 @@ class Login extends CI_Controller
             $user = $this->User_model->get_by_username($username);
 
             if ($user && password_verify($password, $user->password)) {
-                // Simpan session user
+                // Simpan session
                 $this->session->set_userdata([
                     'user_id'   => $user->id,
                     'username'  => $user->username,
@@ -58,11 +52,11 @@ class Login extends CI_Controller
                     'logged_in' => TRUE
                 ]);
 
-                // Redirect berdasarkan role
+                // Redirect sesuai role
                 if ($user->role === 'admin') {
-                    redirect('admin/dashboard');
+                    redirect('admin/dashboard_admin'); // pastikan controller Admin.php method dashboard_admin
                 } else {
-                    redirect('user/dashboard');
+                    redirect('user/dashboard_user');   // pastikan controller User.php method dashboard_user
                 }
                 return;
             } else {
@@ -70,7 +64,12 @@ class Login extends CI_Controller
             }
         }
 
-        // Tampilkan form login + captcha
         $this->load->view('login/login_form', $data);
+    }
+
+    public function logout()
+    {
+        $this->session->sess_destroy();
+        redirect('login');
     }
 }

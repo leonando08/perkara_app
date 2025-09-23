@@ -128,12 +128,7 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
-                <div class="input-group">
-                    <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
-                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                </div>
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">CAPTCHA</label>
@@ -142,6 +137,7 @@
             </div>
             <button type="submit" class="btn btn-login">Login</button>
             <?= form_close() ?>
+
 
             <div class="mt-3 text-center">
                 <a href="<?= site_url('auth/register') ?>" class="text-decoration-none">Belum punya akun? Daftar</a>
