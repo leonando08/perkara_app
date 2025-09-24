@@ -1,15 +1,7 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Cek login
-if (!isset($_SESSION['user'])) {
-    header("Location: ../public/index.php");
-    exit();
-}
-
-$user = $_SESSION['user'];
+defined('BASEPATH') or exit('No direct script access allowed');
+$username = $this->session->userdata('username');
+$role     = $this->session->userdata('role');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -18,6 +10,7 @@ $user = $_SESSION['user'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Informasi Perkara</title>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -40,6 +33,7 @@ $user = $_SESSION['user'];
         .navbar-brand {
             font-weight: 700;
             font-size: 1.2rem;
+            letter-spacing: 0.5px;
         }
 
         .navbar-text {
@@ -66,13 +60,11 @@ $user = $_SESSION['user'];
             height: 100vh;
             position: fixed;
             top: 70px;
-            /* mulai di bawah navbar */
             left: 0;
-            width: 220px;
+            width: 200px;
             padding: 25px 20px;
             box-shadow: 4px 0 15px rgba(0, 0, 0, 0.08);
             overflow-y: auto;
-            transition: all 0.3s ease-in-out;
             z-index: 999;
         }
 
@@ -113,9 +105,9 @@ $user = $_SESSION['user'];
 
         /* Main content */
         .content {
-            margin-left: 220px;
+            margin-left: 100px;
             /* geser biar tidak ketimpa sidebar */
-            padding: 2rem;
+
         }
     </style>
 </head>
@@ -124,70 +116,77 @@ $user = $_SESSION['user'];
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="../admin/dashboard_admin.php">
-                <img src="https://sepeda.pt-banjarmasin.go.id/assets/logo.ico" alt="Logo" class="me-2" style="height:35px;">
+            <a class="navbar-brand d-flex align-items-center" href="<?= site_url('dashboard'); ?>">
+                <img src="https://sepeda.pt-banjarmasin.go.id/assets/logo.ico"
+                    alt="Logo" class="me-2" style="height: 35px; width: auto;">
                 Sistem Informasi Perkara
             </a>
-            <div class="d-flex align-items-center">
+            <div class="d-flex">
                 <span class="navbar-text text-white me-3">
-                    <?= htmlspecialchars($user['username']) ?> (<?= htmlspecialchars($user['role']) ?>)
+                    <?= htmlspecialchars($username); ?> (<?= htmlspecialchars($role); ?>)
                 </span>
-                <a href="../login/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
+                <a href="<?= site_url('auth/logout'); ?>" class="btn btn-outline-light btn-sm">Logout</a>
             </div>
         </div>
     </nav>
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <h6>📌 Menu</h6>
+        <h6 class="mb-3">📌 Menu</h6>
         <ul class="nav flex-column">
-            <!-- Perkara -->
+            <!-- PERKARA MENU -->
             <li class="nav-item mb-2">
-                <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#submenuPerkara" role="button" aria-expanded="false">
+                <a class="nav-link d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" href="#submenuPerkara" role="button"
+                    aria-expanded="false" aria-controls="submenuPerkara">
                     📂 Perkara <span class="ms-auto">▼</span>
                 </a>
                 <div class="collapse" id="submenuPerkara">
                     <ul class="nav flex-column ms-3 mt-2">
-                        <?php if ($user['role'] == 'user'): ?>
-                            <li><a class="nav-link" href="../user/dashboard_user1.php">📋 Kelola Data</a></li>
-                            <li><a class="nav-link" href="../user/tambah_perkara.php">➕ Tambah</a></li>
-                            <li><a class="nav-link" href="../laporan/laporan.php">📄 Laporan</a></li>
+                        <?php if ($role == 'user'): ?>
+                            <li><a class="nav-link" href="<?= site_url('user/dashboard_user1'); ?>">📋 Kelola Data</a></li>
+                            <li><a class="nav-link" href="<?= site_url('user/tambah_perkara'); ?>">➕ Tambah</a></li>
+                            <li><a class="nav-link" href="<?= site_url('laporan'); ?>">📄 Laporan</a></li>
                         <?php else: ?>
-                            <li><a class="nav-link" href="../admin/dashboard_admin.php">👁 Lihat Data</a></li>
-                            <li><a class="nav-link" href="../laporan/laporan.php">📄 Laporan</a></li>
+                            <li><a class="nav-link" href="<?= site_url('admin/dashboard_admin'); ?>">👁 Lihat Data</a></li>
+                            <li><a class="nav-link" href="<?= site_url('laporan'); ?>">📄 Laporan</a></li>
                         <?php endif; ?>
                     </ul>
                 </div>
             </li>
 
-            <!-- Mediasi -->
+            <!-- MEDIASI MENU -->
             <li class="nav-item mb-2">
-                <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#submenuMediasi" role="button" aria-expanded="false">
+                <a class="nav-link d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" href="#submenuMediasi" role="button"
+                    aria-expanded="false" aria-controls="submenuMediasi">
                     📂 Mediasi <span class="ms-auto">▼</span>
                 </a>
                 <div class="collapse" id="submenuMediasi">
                     <ul class="nav flex-column ms-3 mt-2">
-                        <?php if ($user['role'] == 'user'): ?>
-                            <li><a class="nav-link" href="../views/dashboard_user1.php">📋 Kelola Data</a></li>
-                            <li><a class="nav-link" href="../user/tambah_perkara.php">➕ Tambah</a></li>
-                            <li><a class="nav-link" href="../laporan/laporan.php">📄 Laporan</a></li>
+                        <?php if ($role == 'user'): ?>
+                            <li><a class="nav-link" href="<?= site_url('user/dashboard_user1'); ?>">📋 Kelola Data</a></li>
+                            <li><a class="nav-link" href="<?= site_url('user/tambah_perkara'); ?>">➕ Tambah</a></li>
+                            <li><a class="nav-link" href="<?= site_url('laporan'); ?>">📄 Laporan</a></li>
                         <?php else: ?>
-                            <li><a class="nav-link" href="../admin/dashboard_admin.php">👁 Lihat Data</a></li>
-                            <li><a class="nav-link" href="../laporan/laporan.php">📄 Laporan</a></li>
+                            <li><a class="nav-link" href="<?= site_url('admin'); ?>">👁 Lihat Data</a></li>
+                            <li><a class="nav-link" href="<?= site_url('laporan'); ?>">📄 Laporan</a></li>
                         <?php endif; ?>
                     </ul>
                 </div>
             </li>
 
-            <!-- User menu (admin only) -->
-            <?php if ($user['role'] != 'user'): ?>
+            <!-- USER MENU (ADMIN ONLY) -->
+            <?php if ($role == 'admin'): ?>
                 <li class="nav-item mb-2">
-                    <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#submenuUser" role="button" aria-expanded="false">
+                    <a class="nav-link d-flex justify-content-between align-items-center"
+                        data-bs-toggle="collapse" href="#submenuUser" role="button"
+                        aria-expanded="false" aria-controls="submenuUser">
                         👥 User <span class="ms-auto">▼</span>
                     </a>
                     <div class="collapse" id="submenuUser">
                         <ul class="nav flex-column ms-3 mt-2">
-                            <li><a class="nav-link" href="../admin/kelola_user.php">⚙ Kelola User</a></li>
+                            <li><a class="nav-link" href="<?= site_url('kelola_user'); ?>">⚙ Kelola User</a></li>
                         </ul>
                     </div>
                 </li>

@@ -24,7 +24,7 @@ class Auth extends CI_Controller
         // Jika sudah login, redirect sesuai role
         if ($this->session->userdata('logged_in')) {
             if ($this->session->userdata('role') === 'admin') {
-                redirect('admin/dashboard');
+                redirect('admin/dashboard_admin');
             } else {
                 redirect('user/dashboard');
             }

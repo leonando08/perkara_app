@@ -9,7 +9,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
  */
 class Admin extends CI_Controller
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -24,13 +23,13 @@ class Admin extends CI_Controller
         }
     }
 
-    public function dashboard()
+    public function dashboard_admin()
     {
         $data = [
-            'username' => $this->session->userdata('username'),
-            'perkaras' => $this->Perkara_model->get_all_perkara(),
-            'notif'    => $this->Perkara_model->count_besok(),
-            'terlambat' => $this->Perkara_model->count_terlambat()
+            'username'   => $this->session->userdata('username'),
+            'perkaras'   => $this->Perkara_model->get_all(), // method sudah ada di model
+            'notif'      => $this->Perkara_model->count_besok(),
+            'terlambat'  => $this->Perkara_model->count_terlambat()
         ];
 
         $this->load->view('admin/dashboard_admin', $data);
