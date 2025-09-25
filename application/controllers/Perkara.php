@@ -94,8 +94,8 @@ class Perkara extends CI_Controller
             }
         }
 
-        // kirim data ke view
-        $this->load->view('admin/tambah_perkara', $data);
+        // Load view
+        $this->load->view('perkara/tambah_perkara', $data);
     }
 
     /**

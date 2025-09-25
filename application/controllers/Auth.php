@@ -53,7 +53,7 @@ class Auth extends CI_Controller
                     ]);
                     $this->session->unset_userdata('captcha');
                     if ($user->role === 'admin') redirect('admin/dashboard_admin');
-                    else redirect('user/dashboard_user1');
+                    else redirect('user/dashboard_user');
                 } else {
                     $data['error'] = "Username atau password salah!";
                 }

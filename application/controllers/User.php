@@ -14,6 +14,7 @@ class User extends CI_Controller
         $this->load->model('Perkara_model');
         $this->load->library('session');
         $this->load->helper('url');
+        $this->load->helper('form');
 
         // Hanya user yang bisa akses
         if (!$this->session->userdata('logged_in') || $this->session->userdata('role') != 'user') {
@@ -21,10 +22,139 @@ class User extends CI_Controller
         }
     }
 
+    public function edit($id = null)
+    {
+        if ($id === null) {
+            show_404();
+        }
+
+        // Ambil data perkara dan data parent
+        $data['perkara'] = $this->db->get_where('perkara_banding', ['id' => $id])->row();
+
+        if ($data['perkara'] === null) {
+            show_404();
+        }
+
+        // Ambil daftar jenis perkara untuk dropdown parent
+        $this->db->select('parent_id, nama');
+        $this->db->where('parent_id IS NOT NULL');
+        $this->db->order_by('nama', 'ASC');
+        $data['parents'] = $this->db->get('jenis_perkara')->result();
+
+        if ($this->input->method() === 'post') {
+            // Handle empty dates by setting them to NULL
+            $tgl_register = $this->input->post('tgl_register_banding');
+            $pemberitahuan_putusan = $this->input->post('pemberitahuan_putusan_banding');
+            $permohonan_kasasi = $this->input->post('permohonan_kasasi');
+            $pengiriman_berkas = $this->input->post('pengiriman_berkas_kasasi');
+
+            // Validasi parent_id
+            $parent_id = $this->input->post('parent');
+            if ($parent_id) {
+                // Cek apakah parent_id valid
+                $valid_parent = $this->db->where('parent_id', $parent_id)
+                    ->get('jenis_perkara')
+                    ->row();
+                if (!$valid_parent) {
+                    $this->session->set_flashdata('error', 'Parent yang dipilih tidak valid');
+                    redirect('user/edit/' . $id);
+                    return;
+                }
+            }
+
+            $update_data = [
+                'asal_pengadilan' => $this->input->post('asal_pengadilan'),
+                'nomor_perkara_tk1' => $this->input->post('nomor_perkara_tk1'),
+                'parent' => $parent_id ?: null,
+                'klasifikasi' => $this->input->post('klasifikasi'),
+                'tgl_register_banding' => $tgl_register ?: null,
+                'nomor_perkara_banding' => $this->input->post('nomor_perkara_banding'),
+                'lama_proses' => $this->input->post('lama_proses'),
+                'status_perkara_tk_banding' => $this->input->post('status_perkara_tk_banding'),
+                'pemberitahuan_putusan_banding' => $pemberitahuan_putusan ?: null,
+                'permohonan_kasasi' => $permohonan_kasasi ?: null,
+                'pengiriman_berkas_kasasi' => $pengiriman_berkas ?: null,
+                'status' => $this->input->post('status')
+            ];
+
+            // Validasi data yang required
+            if (empty($update_data['asal_pengadilan']) || empty($update_data['nomor_perkara_tk1']) || empty($update_data['klasifikasi'])) {
+                $this->session->set_flashdata('error', 'Asal Pengadilan, Nomor Perkara Tk1, dan Klasifikasi harus diisi');
+                redirect('user/edit/' . $id);
+                return;
+            }
+
+            $this->db->where('id', $id);
+            if ($this->db->update('perkara_banding', $update_data)) {
+                $this->session->set_flashdata('success', 'Data perkara berhasil diperbarui');
+                redirect('user/dashboard_user');
+            } else {
+                $this->session->set_flashdata('error', 'Gagal memperbarui data perkara');
+                redirect('user/edit/' . $id);
+            }
+        }
+
+        $this->load->view('user/edit_perkara', $data);
+    }
+
+    public function hapus($id = null)
+    {
+        if ($id === null) {
+            show_404();
+        }
+
+        // Cek apakah data ada
+        $perkara = $this->db->get_where('perkara_banding', ['id' => $id])->row();
+        if ($perkara === null) {
+            $this->session->set_flashdata('error', 'Data perkara tidak ditemukan');
+            redirect('user/dashboard_user');
+            return;
+        }
+
+        // Hapus data
+        if ($this->db->delete('perkara_banding', ['id' => $id])) {
+            $this->session->set_flashdata('success', 'Data perkara berhasil dihapus');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal menghapus data perkara');
+        }
+
+        redirect('user/dashboard_user');
+    }
+
     public function dashboard_user()
     {
-        // Ambil data sesuai kebutuhan user
-        $data['perkaras'] = $this->Perkara_model->get_all();
+        // Ambil input pencarian
+        $filters = [];
+        $filters['asal_pengadilan'] = $this->input->get('cari_pengadilan', true);
+        $filters['klasifikasi'] = $this->input->get('cari_klasifikasi', true);
+        $filters['permohonan_kasasi'] = $this->input->get('cari_permohonan', true);
+        $filters['pengiriman_berkas_kasasi'] = $this->input->get('cari_berkas', true);
+
+        // Hapus filter kosong
+        foreach ($filters as $k => $v) {
+            if ($v === null || $v === '') unset($filters[$k]);
+        }
+
+        // Query dengan filter dan join dengan tabel jenis_perkara
+        $this->db->select('p.*, jp.nama as parent_nama');
+        $this->db->from('perkara_banding p');
+        $this->db->join('jenis_perkara jp', 'p.parent = jp.parent_id', 'left');
+
+        if (!empty($filters['asal_pengadilan'])) {
+            $this->db->like('p.asal_pengadilan', $filters['asal_pengadilan']);
+        }
+        if (!empty($filters['klasifikasi'])) {
+            $this->db->like('p.klasifikasi', $filters['klasifikasi']);
+        }
+        if (!empty($filters['permohonan_kasasi'])) {
+            $this->db->where('p.permohonan_kasasi', $filters['permohonan_kasasi']);
+        }
+        if (!empty($filters['pengiriman_berkas_kasasi'])) {
+            $this->db->where('p.pengiriman_berkas_kasasi', $filters['pengiriman_berkas_kasasi']);
+        }
+        $this->db->order_by('p.id', 'ASC');
+        $query = $this->db->get();
+        $data['perkaras'] = $query->result();
         $this->load->view('user/dashboard_user', $data);
     }
 }

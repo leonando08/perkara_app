@@ -1,197 +1,160 @@
-<?php
-include_once("../../config/database.php");
-include_once("../../models/Perkara.php");
+<?php $this->load->view('navbar/header'); ?>
 
-// Cek apakah id dikirim
-if (!isset($_GET['id'])) {
-    header("Location: ../user/dashboard_user1.php");
-    exit();
-}
-
-$perkaraModel = new Perkara($conn);
-$id = $_GET['id'];
-$perkara = $perkaraModel->getById($id);
-
-$error = "";
-$success = "";
-
-// Proses form submit
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $fields = [
-        'asal_pengadilan',
-        'nomor_perkara_tk1',
-        'parent',
-        'klasifikasi',
-        'tgl_register_banding',
-        'nomor_perkara_banding',
-        'lama_proses',
-        'status_perkara_tk_banding',
-        'pemberitahuan_putusan_banding',
-        'permohonan_kasasi',
-        'pengiriman_berkas_kasasi',
-        'status'
-    ];
-
-    $data = [];
-    foreach ($fields as $field) {
-        // untuk tanggal boleh kosong
-        if (in_array($field, ['pemberitahuan_putusan_banding', 'permohonan_kasasi', 'pengiriman_berkas_kasasi'])) {
-            $data[$field] = !empty($_POST[$field]) ? $_POST[$field] : null;
-        } else {
-            if (empty($_POST[$field])) {
-                $error = "Semua kolom wajib diisi (kecuali tanggal kasasi/putusan boleh kosong).";
-                break;
-            }
-            $data[$field] = $_POST[$field];
-        }
-    }
-
-    if (empty($error)) {
-        if ($perkaraModel->update($id, $data)) {
-            $success = "Data berhasil diupdate!";
-        } else {
-            $error = "Gagal mengupdate data.";
-        }
-    }
-}
-
-include("../navbar/header.php");
-?>
-
-<div class="container mt-4">
-    <h2>Edit Perkara</h2>
-
-    <?php if (!empty($error)): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="alertBox">
-            <?= $error ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($success)): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert" id="alertBox">
-            <?= $success ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <script>
-            setTimeout(function() {
-                window.location.href = "../user/dashboard_user1.php";
-            }, 2000);
-        </script>
-    <?php endif; ?>
-
-    <form method="POST">
-        <div class="mb-3">
-            <label>ID Perkara</label>
-            <input type="text" class="form-control" value="<?= htmlspecialchars($perkara['id']) ?>" readonly>
+<div class="content-wrapper">
+    <div class="content-card mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">Edit Data Perkara</h4>
+            <a href="<?= site_url('user/dashboard_user') ?>" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Kembali
+            </a>
         </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label>Asal Pengadilan</label>
-                <input type="text" name="asal_pengadilan" class="form-control"
-                    value="<?= htmlspecialchars($_POST['asal_pengadilan'] ?? $perkara['asal_pengadilan']) ?>" required>
+        <?php if ($this->session->flashdata('error')): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= $this->session->flashdata('error') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        </div>
+        <?php endif; ?>
 
-        <div class="mb-3">
-            <label>Nomor Perkara Tk1</label>
-            <input type="text" name="nomor_perkara_tk1" class="form-control"
-                value="<?= htmlspecialchars($_POST['nomor_perkara_tk1'] ?? $perkara['nomor_perkara_tk1']) ?>" required>
-        </div>
+        <?php if ($this->session->flashdata('success')): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert" id="alertBox">
+                <?= $this->session->flashdata('success') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <script>
+                setTimeout(function() {
+                    window.location.href = "<?= site_url('perkara/dashboard') ?>";
+                }, 2000);
+            </script>
+        <?php endif; ?>
 
-        <div class="mb-3">
-            <label>Parent</label>
-            <input list="parentList" name="parent" class="form-control"
-                placeholder="Ketik atau pilih parent"
-                value="<?= htmlspecialchars($_POST['parent'] ?? $perkara['parent']) ?>" required>
+        <?php if (isset($perkara)): ?>
+            <form method="post" action="<?= current_url() ?>" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label class="form-label">ID Perkara</label>
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($perkara->id) ?>" readonly>
+                </div>
 
-            <datalist id="parentList">
-                <?php
-                $resultParent = $conn->query("SELECT parent_id, nama FROM jenis_perkara ORDER BY nama ASC");
-                while ($row = $resultParent->fetch_assoc()) {
-                    $value = $row['parent_id']; // angka parent_id
-                    $label = $row['parent_id'] . " - " . $row['nama']; // tampil ID - Nama
-                    echo "<option value='" . htmlspecialchars($value) . "' label='" . htmlspecialchars($label) . "'>";
-                }
-                ?>
-            </datalist>
-        </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Asal Pengadilan<span class="text-danger">*</span></label>
+                        <input type="text" name="asal_pengadilan" class="form-control" required
+                            value="<?= htmlspecialchars($perkara->asal_pengadilan) ?>">
+                        <div class="invalid-feedback">Asal pengadilan harus diisi</div>
+                    </div>
 
+                    <div class="col-md-6">
+                        <label class="form-label">Nomor Perkara Tk1<span class="text-danger">*</span></label>
+                        <input type="text" name="nomor_perkara_tk1" class="form-control" required
+                            value="<?= htmlspecialchars($perkara->nomor_perkara_tk1) ?>">
+                        <div class="invalid-feedback">Nomor perkara tk1 harus diisi</div>
+                    </div>
 
+                    <div class="col-md-6">
+                        <label class="form-label">Parent</label>
+                        <select name="parent" class="form-select">
+                            <option value="">-- Pilih Parent --</option>
+                            <?php foreach ($parents as $p): ?>
+                                <option value="<?= $p->parent_id ?>" <?= ($perkara->parent == $p->parent_id) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($p->nama) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="form-text">Pilih parent jenis perkara</div>
+                    </div>
 
-        <div class="mb-3">
-            <label>Klasifikasi</label>
-            <input list="klasifikasiList" name="klasifikasi" class="form-control"
-                placeholder="Pilih atau ketik klasifikasi"
-                value="<?= htmlspecialchars($_POST['klasifikasi'] ?? $perkara['klasifikasi']) ?>" required>
-            <datalist id="klasifikasiList">
-                <?php
-                $result = $conn->query("SELECT nama FROM jenis_perkara ORDER BY nama ASC");
-                while ($row = $result->fetch_assoc()) {
-                    echo "<option value='" . htmlspecialchars($row['nama']) . "'>";
-                }
-                ?>
-            </datalist>
-        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Klasifikasi<span class="text-danger">*</span></label>
+                        <input type="text" name="klasifikasi" class="form-control" required
+                            value="<?= htmlspecialchars($perkara->klasifikasi) ?>">
+                        <div class="invalid-feedback">Klasifikasi harus diisi</div>
+                    </div>
 
-        <div class="mb-3">
-            <label>Tgl Register Banding</label>
-            <input type="date" name="tgl_register_banding" class="form-control"
-                value="<?= htmlspecialchars($_POST['tgl_register_banding'] ?? $perkara['tgl_register_banding']) ?>" required>
-        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tgl Register Banding</label>
+                        <input type="date" name="tgl_register_banding" class="form-control"
+                            value="<?= $perkara->tgl_register_banding ? date('Y-m-d', strtotime($perkara->tgl_register_banding)) : '' ?>">
+                    </div>
 
-        <div class="mb-3">
-            <label>Nomor Perkara Banding</label>
-            <input type="text" name="nomor_perkara_banding" class="form-control"
-                value="<?= htmlspecialchars($_POST['nomor_perkara_banding'] ?? $perkara['nomor_perkara_banding']) ?>" required>
-        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nomor Perkara Banding</label>
+                        <input type="text" name="nomor_perkara_banding" class="form-control"
+                            value="<?= htmlspecialchars($perkara->nomor_perkara_banding) ?>">
+                    </div>
 
-        <div class="mb-3">
-            <label>Lama Proses</label>
-            <input type="text" name="lama_proses" class="form-control"
-                value="<?= htmlspecialchars($_POST['lama_proses'] ?? $perkara['lama_proses']) ?>" required>
-        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Lama Proses</label>
+                        <input type="text" name="lama_proses" class="form-control"
+                            value="<?= htmlspecialchars($perkara->lama_proses) ?>">
+                    </div>
 
-        <div class="mb-3">
-            <label>Status Perkara Tk Banding</label>
-            <input type="text" name="status_perkara_tk_banding" class="form-control"
-                value="<?= htmlspecialchars($_POST['status_perkara_tk_banding'] ?? $perkara['status_perkara_tk_banding']) ?>" required>
-        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Status Perkara Tk Banding</label>
+                        <input type="text" name="status_perkara_tk_banding" class="form-control"
+                            value="<?= htmlspecialchars($perkara->status_perkara_tk_banding) ?>">
+                    </div>
 
-        <div class="mb-3">
-            <label>Pemberitahuan Putusan Banding</label>
-            <input type="date" name="pemberitahuan_putusan_banding" class="form-control"
-                value="<?= htmlspecialchars($_POST['pemberitahuan_putusan_banding'] ?? $perkara['pemberitahuan_putusan_banding']) ?>">
-        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Pemberitahuan Putusan Banding</label>
+                        <input type="date" name="pemberitahuan_putusan_banding" class="form-control"
+                            value="<?= $perkara->pemberitahuan_putusan_banding ? date('Y-m-d', strtotime($perkara->pemberitahuan_putusan_banding)) : '' ?>">
+                    </div>
 
-        <div class="mb-3">
-            <label>Permohonan Kasasi</label>
-            <input type="date" name="permohonan_kasasi" class="form-control"
-                value="<?= htmlspecialchars($_POST['permohonan_kasasi'] ?? $perkara['permohonan_kasasi']) ?>">
-        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Permohonan Kasasi</label>
+                        <input type="date" name="permohonan_kasasi" class="form-control"
+                            value="<?= $perkara->permohonan_kasasi ? date('Y-m-d', strtotime($perkara->permohonan_kasasi)) : '' ?>">
+                    </div>
 
-        <div class="mb-3">
-            <label>Pengiriman Berkas Kasasi</label>
-            <input type="date" name="pengiriman_berkas_kasasi" class="form-control"
-                value="<?= htmlspecialchars($_POST['pengiriman_berkas_kasasi'] ?? $perkara['pengiriman_berkas_kasasi']) ?>">
-        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Pengiriman Berkas Kasasi</label>
+                        <input type="date" name="pengiriman_berkas_kasasi" class="form-control"
+                            value="<?= $perkara->pengiriman_berkas_kasasi ? date('Y-m-d', strtotime($perkara->pengiriman_berkas_kasasi)) : '' ?>">
+                    </div>
 
-        <div class="mb-3">
-            <label>Status</label>
-            <select name="status" class="form-select" required>
-                <option value="Proses" <?= (($_POST['status'] ?? $perkara['status']) == 'Proses') ? 'selected' : '' ?>>Proses</option>
-                <option value="Selesai" <?= (($_POST['status'] ?? $perkara['status']) == 'Selesai') ? 'selected' : '' ?>>Selesai</option>
-                <option value="Ditolak" <?= (($_POST['status'] ?? $perkara['status']) == 'Ditolak') ? 'selected' : '' ?>>Ditolak</option>
-            </select>
-        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select" required>
+                            <option value="Proses" <?= ($perkara->status == 'Proses') ? 'selected' : '' ?>>Proses</option>
+                            <option value="Selesai" <?= ($perkara->status == 'Selesai') ? 'selected' : '' ?>>Selesai</option>
+                            <option value="Ditolak" <?= ($perkara->status == 'Ditolak') ? 'selected' : '' ?>>Ditolak</option>
+                        </select>
+                    </div>
+                </div>
 
-        <button type="submit" class="btn btn-primary">Update</button>
-        <a href="../user/dashboard_user1.php" class="btn btn-secondary">Kembali</a>
-    </form>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Simpan Perubahan
+                    </button>
+                    <a href="<?= site_url('user/dashboard_user') ?>" class="btn btn-light ms-2">Batal</a>
+                </div>
+            </form>
+        <?php else: ?>
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Data perkara tidak ditemukan
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 
 <script>
+    // Form validation
+    (function() {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+
+    // Alert auto-hide
     setTimeout(function() {
         const alertBox = document.getElementById('alertBox');
         if (alertBox) {
@@ -201,4 +164,4 @@ include("../navbar/header.php");
     }, 3000);
 </script>
 
-<?php include("../navbar/footer.php"); ?>
+<?php $this->load->view('navbar/footer'); ?>

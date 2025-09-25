@@ -1,0 +1,143 @@
+/* Wrapper styles */
+.table-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    border-radius: 0.5rem;
+}
+
+.table-responsive-custom {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    margin: 0;
+    padding: 0.5rem;
+}
+
+/* Table base styles */
+.table {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Header styles */
+.table > thead {
+    background-color: #f8f9fa;
+}
+
+.table > thead th {
+    background-color: #f8f9fa;
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Body styles */
+.table > tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    background-color: #fff;
+}
+
+/* Column specific styles */
+.table .number-column {
+    width: 60px;
+    text-align: center;
+}
+
+.table .action-column {
+    width: 110px;
+    text-align: center;
+    position: sticky;
+    right: 0;
+    background-color: #fff;
+    z-index: 1;
+}
+
+.table thead .action-column {
+    background-color: #f8f9fa;
+    z-index: 2;
+}
+
+.table .date-column {
+    width: 130px;
+    white-space: nowrap;
+}
+
+.table .text-column {
+    min-width: 120px;
+}
+
+.table .status-column {
+    width: 100px;
+    text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .table .text-column {
+        min-width: 100px;
+    }
+    .table .date-column {
+        width: 120px;
+    }
+}
+
+@media (max-width: 992px) {
+    .table .text-column {
+        min-width: 80px;
+    }
+    .table .date-column {
+        width: 110px;
+    }
+}
+
+@media (max-width: 768px) {
+    .table {
+        font-size: 14px;
+    }
+    .table .text-column {
+        min-width: 70px;
+    }
+    .table .date-column {
+        width: 100px;
+    }
+    .table > thead th,
+    .table > tbody td {
+        padding: 0.5rem;
+    }
+}
+
+/* Hover effects */
+.table tbody tr:hover td {
+    background-color: rgba(0,0,0,0.075) !important;
+}
+
+/* Shadow indicators for scroll */
+.table-responsive-custom::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 30px;
+    background: linear-gradient(to left, rgba(255,255,255,0.9) 0%, transparent 100%);
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.table-responsive-custom:hover::after {
+    opacity: 1;
+}
+
+/* Fix for action column on hover */
+.table tbody tr:hover .action-column {
+    background-color: rgba(0,0,0,0.075) !important;
+}
