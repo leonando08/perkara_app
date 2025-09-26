@@ -53,6 +53,7 @@
         </form>
     </div>
 
+    <!-- Custom Styles -->
     <style>
         .table-wrapper {
             position: relative;
@@ -63,148 +64,10 @@
         }
 
         .table-responsive-custom {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            overflow: auto;
+            margin: 0;
+            padding: 0.5rem;
             max-width: 100%;
-            margin: 0;
-            padding: 0.5rem;
-        }
-
-        .table {
-            width: 100%;
-            min-width: 1200px;
-            margin-bottom: 0;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        .table>thead {
-            background-color: #f8f9fa;
-            position: sticky;
-            top: 0;
-            z-index: 2;
-        }
-
-        .table>thead th {
-            position: sticky;
-            top: 0;
-            background-color: #f8f9fa;
-            padding: 1rem 0.75rem;
-            white-space: nowrap;
-            vertical-align: middle;
-            border-bottom: 2px solid #dee2e6;
-            font-weight: 600;
-        }
-
-        .table>tbody td {
-            padding: 0.75rem;
-            vertical-align: middle;
-            background-color: #fff;
-        }
-
-        .table .number-column {
-            width: 50px;
-            min-width: 50px;
-            text-align: center;
-            position: sticky;
-            left: 0;
-            z-index: 1;
-            background-color: #fff;
-        }
-
-        .table thead .number-column {
-            background-color: #f8f9fa;
-            z-index: 3;
-            left: 0;
-        }
-
-        .table .action-column {
-            width: 100px;
-            min-width: 100px;
-            text-align: center;
-            position: sticky;
-            right: 0;
-            z-index: 1;
-            background-color: #fff;
-        }
-
-        .table thead .action-column {
-            background-color: #f8f9fa;
-            z-index: 3;
-            right: 0;
-        }
-
-        .table .date-column {
-            width: 120px;
-            min-width: 120px;
-            white-space: nowrap;
-        }
-
-        .table .text-column {
-            min-width: 150px;
-        }
-
-        .table .status-column {
-            width: 100px;
-            min-width: 100px;
-            text-align: center;
-        }
-
-        /* Hover effects */
-        .table tbody tr:hover td {
-            background-color: rgba(0, 0, 0, 0.075) !important;
-        }
-
-        /* Shadow indicators for scroll */
-        .table-responsive-custom::before,
-        .table-responsive-custom::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 30px;
-            z-index: 3;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .table-responsive-custom::before {
-            left: 0;
-            background: linear-gradient(to right, rgba(255, 255, 255, 0.9) 0%, transparent 100%);
-        }
-
-        .table-responsive-custom::after {
-            right: 0;
-            background: linear-gradient(to left, rgba(255, 255, 255, 0.9) 0%, transparent 100%);
-        }
-
-        .table-responsive-custom:hover::before,
-        .table-responsive-custom:hover::after {
-            opacity: 1;
-        }
-
-        /* Fix for sticky columns on hover */
-        .table tbody tr:hover .number-column,
-        .table tbody tr:hover .action-column {
-            background-color: rgba(0, 0, 0, 0.075) !important;
-        }
-    </style>
-
-    <style>
-        .table-wrapper {
-            position: relative;
-            margin-bottom: 1rem;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-            border-radius: 0.5rem;
-        }
-
-        .table-responsive-custom {
-            overflow-x: scroll;
-            overflow-y: visible;
-            margin: 0;
-            padding: 0.5rem;
         }
 
         .table {
@@ -212,6 +75,7 @@
             min-width: 100%;
             margin-bottom: 0;
             background-color: white;
+            border-collapse: collapse;
         }
 
         .table>thead {
@@ -230,20 +94,23 @@
         .table>tbody td {
             padding: 0.75rem;
             vertical-align: middle;
+            border: 1px solid #dee2e6;
         }
 
-        .table .number-column {
-            width: 60px;
+        /* Column widths */
+        .table .id-column {
+            min-width: 60px;
             text-align: center;
         }
 
         .table .action-column {
-            width: 110px;
+            min-width: 120px;
             text-align: center;
+            white-space: nowrap;
         }
 
         .table .date-column {
-            width: 130px;
+            min-width: 130px;
             white-space: nowrap;
         }
 
@@ -252,8 +119,9 @@
         }
 
         .table .status-column {
-            width: 100px;
+            min-width: 100px;
             text-align: center;
+            white-space: nowrap;
         }
 
         /* Hover effects */
@@ -279,32 +147,33 @@
         .table-responsive-custom::-webkit-scrollbar-thumb:hover {
             background: #666;
         }
+
+        /* Alert styling */
+        .alert {
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
     </style>
 
-    <!-- Table Wrapper -->
+    <!-- Table -->
     <div class="table-wrapper">
-        <!-- Loading Overlay -->
-        <div id="loadingOverlay" class="d-none">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
         <div class="table-responsive-custom">
-            <table class="table table-hover table-striped">
+            <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th class="number-column">No</th>
-                        <th class="text-column">Pengadilan</th>
-                        <th class="text-column">Perkara Tk1</th>
-                        <th class="text-column">Parent</th>
-                        <th class="text-column">Klasifikasi</th>
-                        <th class="date-column">Tgl Register</th>
-                        <th class="text-column">Perkara Banding</th>
-                        <th class="text-column">Lama</th>
-                        <th class="text-column">Status Tk Banding</th>
-                        <th class="date-column">Putusan Banding</th>
-                        <th class="date-column">Kasasi</th>
-                        <th class="date-column">Berkas Kasasi</th>
+                        <th>Pengadilan</th>
+                        <th>Perkara Tk1</th>
+                        <th class="parent-column">Parent</th> <!-- kasih class khusus -->
+                        <th>Klasifikasi</th>
+                        <th>Tgl Register</th>
+                        <th>Perkara Banding</th>
+                        <th>Lama</th>
+                        <th>Status Tk Banding</th>
+                        <th>Putusan Banding</th>
+                        <th>Kasasi</th>
+                        <th>Berkas Kasasi</th>
                         <th class="status-column">Status</th>
                         <th class="action-column">Aksi</th>
                     </tr>
@@ -323,17 +192,17 @@
                         foreach ($perkaras as $row): ?>
                             <tr>
                                 <td class="number-column"><?= $no++ ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->asal_pengadilan) ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->nomor_perkara_tk1) ?></td>
-                                <td class="text-column"><?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->klasifikasi) ?></td>
-                                <td class="date-column"><?= $row->tgl_register_banding ? date("d-m-Y", strtotime($row->tgl_register_banding)) : '-' ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->lama_proses) ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
-                                <td class="date-column"><?= $row->pemberitahuan_putusan_banding ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?></td>
-                                <td class="date-column"><?= $row->permohonan_kasasi ? date("d-m-Y", strtotime($row->permohonan_kasasi)) : '-' ?></td>
-                                <td class="date-column"><?= $row->pengiriman_berkas_kasasi ? date("d-m-Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
+                                <td><?= htmlspecialchars($row->asal_pengadilan) ?></td>
+                                <td><?= htmlspecialchars($row->nomor_perkara_tk1) ?></td>
+                                <td class="parent-column"><?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?></td>
+                                <td><?= htmlspecialchars($row->klasifikasi) ?></td>
+                                <td><?= $row->tgl_register_banding ? date("d-m-Y", strtotime($row->tgl_register_banding)) : '-' ?></td>
+                                <td><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
+                                <td><?= htmlspecialchars($row->lama_proses) ?></td>
+                                <td><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
+                                <td><?= $row->pemberitahuan_putusan_banding ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?></td>
+                                <td><?= $row->permohonan_kasasi ? date("d-m-Y", strtotime($row->permohonan_kasasi)) : '-' ?></td>
+                                <td><?= $row->pengiriman_berkas_kasasi ? date("d-m-Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
                                 <td class="text-center">
                                     <?php
                                     switch ($row->status) {
@@ -351,17 +220,14 @@
                                     }
                                     ?>
                                 </td>
-                                <td class="text-center fit-content">
+                                <td class="text-center">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="<?= site_url('user/edit/' . $row->id) ?>"
-                                            class="btn btn-warning"
-                                            title="Edit Perkara">
+                                        <a href="<?= site_url('user/edit/' . $row->id) ?>" class="btn btn-warning" title="Edit Perkara">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <a href="<?= site_url('user/hapus/' . $row->id) ?>"
                                             onclick="return confirm('Yakin ingin menghapus data ini?')"
-                                            class="btn btn-danger"
-                                            title="Hapus Perkara">
+                                            class="btn btn-danger" title="Hapus Perkara">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </div>
@@ -373,5 +239,5 @@
             </table>
         </div>
     </div>
-</div>
-<?php $this->load->view('navbar/footer'); ?>
+
+    <?php $this->load->view('navbar/footer'); ?>

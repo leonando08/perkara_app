@@ -4,7 +4,7 @@ $role = $this->session->userdata('role');
 ?>
 
 <!-- Sidebar -->
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
     <div class="sidebar-header mb-3">
         <h6 class="sidebar-title">
             <i class="fas fa-th-list me-2"></i>Menu Utama
@@ -97,19 +97,27 @@ $role = $this->session->userdata('role');
     </ul>
 </div>
 
+<!-- Overlay untuk mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <style>
+    /* Sidebar Styles */
     .sidebar {
         background: #ffffff;
         height: calc(100vh - 60px);
         position: fixed;
         top: 60px;
         left: 0;
-        width: 250px;
+        width: 260px;
+        /* Standarisasi lebar sidebar */
         padding: 1.5rem 1rem;
-        box-shadow: 1px 0 10px rgba(0, 0, 0, 0.05);
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.08);
         overflow-y: auto;
+        overflow-x: hidden;
+        /* Cegah horizontal overflow */
         transition: all 0.3s ease;
-        z-index: 1000;
+        z-index: 1040;
+        border-right: 1px solid #e5e7eb;
     }
 
     .sidebar-header {
@@ -143,6 +151,9 @@ $role = $this->session->userdata('role');
         align-items: center;
         justify-content: space-between;
         gap: 0.5rem;
+        text-decoration: none;
+        border: none;
+        background: none;
     }
 
     .sidebar .nav-link i {
@@ -151,12 +162,14 @@ $role = $this->session->userdata('role');
         text-align: center;
         color: #718096;
         transition: color 0.2s ease;
+        flex-shrink: 0;
     }
 
     .sidebar .nav-link:hover {
         background: #f7fafc;
         color: #006400;
         transform: translateX(4px);
+        text-decoration: none;
     }
 
     .sidebar .nav-link:hover i {
@@ -186,6 +199,7 @@ $role = $this->session->userdata('role');
         transition: transform 0.2s ease;
         font-size: 0.75rem;
         opacity: 0.75;
+        flex-shrink: 0;
     }
 
     .sidebar .nav-link[aria-expanded="true"] .fa-chevron-down {
@@ -202,16 +216,57 @@ $role = $this->session->userdata('role');
         color: #006400;
     }
 
+    /* Sidebar Overlay */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 60px);
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1035;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Content adjustment */
+    body {
+        margin-left: 260px;
+        /* Sesuaikan dengan lebar sidebar */
+        transition: margin-left 0.3s ease;
+    }
+
+    .main-content {
+        margin-left: 0;
+        /* Reset karena body sudah memiliki margin */
+        width: 100%;
+        min-height: calc(100vh - 60px);
+        background: #f8f9fa;
+    }
+
+    /* Mobile Responsive */
     @media (max-width: 768px) {
+        body {
+            margin-left: 0;
+            /* Reset margin di mobile */
+        }
+
         .sidebar {
-            width: 100%;
+            width: 280px;
             transform: translateX(-100%);
             background: #ffffff;
             padding: 1rem;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
         }
 
         .sidebar.show {
             transform: translateX(0);
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+            opacity: 1;
         }
 
         .sidebar-header {
@@ -220,13 +275,131 @@ $role = $this->session->userdata('role');
         }
 
         .sidebar .nav-link {
-            padding: 0.5rem 0.75rem;
+            padding: 0.6rem 0.75rem;
+        }
+
+        .sidebar .collapse .nav-link {
+            padding-left: 2.5rem;
         }
     }
 
+    /* Tablet */
     @media (min-width: 769px) and (max-width: 1024px) {
         .sidebar {
-            width: 220px;
+            width: 240px;
+        }
+
+        body {
+            margin-left: 240px;
         }
     }
+
+    /* Large screens */
+    @media (min-width: 1200px) {
+        .sidebar {
+            width: 280px;
+        }
+
+        body {
+            margin-left: 280px;
+        }
+    }
+
+    /* Custom scrollbar untuk sidebar */
+    .sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    /* Hover effects */
+    .sidebar .nav-link span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Focus states untuk accessibility */
+    .sidebar .nav-link:focus {
+        outline: 2px solid #006400;
+        outline-offset: 2px;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle sidebar on mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+                document.body.classList.toggle('sidebar-open');
+            });
+        }
+
+        // Close sidebar when clicking overlay
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+                document.body.classList.remove('sidebar-open');
+            });
+        }
+
+        // Close sidebar on mobile when clicking menu item
+        const navLinks = document.querySelectorAll('.sidebar .nav-link:not([data-bs-toggle])');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.classList.remove('sidebar-open');
+                }
+            });
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+                document.body.classList.remove('sidebar-open');
+            }
+        });
+
+        // Set active menu based on current URL
+        const currentPath = window.location.pathname;
+        const menuLinks = document.querySelectorAll('.sidebar .nav-link[href]');
+
+        menuLinks.forEach(link => {
+            if (link.getAttribute('href') && currentPath.includes(link.getAttribute('href').split('/').pop())) {
+                link.classList.add('active');
+
+                // Expand parent collapse if this is a submenu item
+                const parentCollapse = link.closest('.collapse');
+                if (parentCollapse) {
+                    parentCollapse.classList.add('show');
+                    const toggleButton = document.querySelector(`[href="#${parentCollapse.id}"]`);
+                    if (toggleButton) {
+                        toggleButton.setAttribute('aria-expanded', 'true');
+                    }
+                }
+            }
+        });
+    });
+</script>
