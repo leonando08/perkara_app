@@ -16,34 +16,391 @@ $role     = $this->session->userdata('role');
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700        .container-fluid {
+            padding: 0 5px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+                margin-top: 10px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .main-content {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+                padding: 20px;
+                margin-top: 10px;
+            }
+        }" stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8f9fa;
-            padding-top: 60px;
+            padding-top: 80px;
             overflow: hidden;
         }
 
-        /* Table Styles */
+        /* Main Content Layout */
+        .main-content {
+            margin-left: 160px;
+            width: calc(100% - 160px);
+            min-height: calc(100vh - 80px);
+            background: #f8f9fa;
+            padding: 10px;
+            transition: all 0.3s ease;
+            margin-top: 25px;
+            padding-top: 15px;
+        }
+
+        .content-wrapper {
+            padding: 0.5rem;
+            margin: 0;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Filter Card */
+        .filter-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        /* Table Container */
         .table-wrapper {
             position: relative;
-            margin: 1rem 0;
+            margin-bottom: 1rem;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .table-responsive {
+            overflow: auto;
+            margin: 0;
+            padding: 0;
+            max-width: 100%;
+            max-height: 70vh;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+
+        .table {
+            width: max-content;
+            min-width: 100%;
+            margin-bottom: 0;
+            background-color: white;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.875rem;
+        }
+
+        /* Reset semua kolom untuk tidak sticky */
+        .table th,
+        .table td {
+            position: static !important;
+            left: auto !important;
+            right: auto !important;
+        }
+
+        /* Sticky Header */
+        .table thead {
+            background-color: #198754;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table thead th {
+            background-color: #198754;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem;
+            white-space: nowrap;
+            vertical-align: middle;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table tbody td {
+            padding: 0.75rem;
+            vertical-align: middle;
+            border: 1px solid #dee2e6;
+            white-space: nowrap;
+            background-color: white;
+        }
+
+        .table tbody tr:hover td {
+            background-color: rgba(25, 135, 84, 0.05);
+            transition: background-color 0.2s ease;
+        }
+
+        /* Column Widths */
+        .table .number-column {
+            min-width: 60px;
+            max-width: 60px;
+            text-align: center;
+        }
+
+        .table .text-column {
+            min-width: 150px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table .parent-column {
+            min-width: 120px;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table .date-column {
+            min-width: 130px;
+            max-width: 130px;
+        }
+
+        .table .status-column {
+            min-width: 100px;
+            max-width: 100px;
+            text-align: center;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-success {
+            background-color: #198754;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #157347;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5c636a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+        }
+
+        /* Badge */
+        .badge {
+            padding: 0.4rem 0.75rem;
+            font-weight: 500;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+        }
+
+        .bg-warning {
+            background-color: #ffc107 !important;
+        }
+
+        .bg-success {
+            background-color: #198754 !important;
+            color: white !important;
+        }
+
+        .bg-danger {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+
+        .bg-secondary {
+            background-color: #6c757d !important;
+            color: white !important;
+        }
+
+        /* Form controls */
+        .form-control {
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
+            outline: none;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-size: 0.875rem;
+        }
+
+        /* Scrollbar styling */
+        .table-responsive::-webkit-scrollbar {
+            height: 10px;
+            width: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f3f4;
             border-radius: 8px;
-            background: #ffffff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            height: calc(100vh - 250px);
-            /* Adjust based on your header/footer height */
+            margin: 2px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #198754, #157347);
+            border-radius: 8px;
+            border: 1px solid #f1f3f4;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #157347, #0d4b2e);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 1rem;
+            }
+
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1rem;
+            }
+
+            .table-responsive {
+                max-height: 60vh;
+            }
+
+            .table {
+                font-size: 0.813rem;
+            }
+
+            .table thead th,
+            .table tbody td {
+                padding: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .table-responsive {
+                max-height: 55vh;
+            }
+
+            .table thead th,
+            .table tbody td {
+                padding: 0.375rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .main-content {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+                margin-top: 20px;
+                padding: 20px;
+            }
         }
 
         .table-container {
             overflow-x: auto;
             margin: 0;
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 1.5rem;
+            border-radius: 12px;
             height: 100%;
+            width: 100%;
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
         }
 
         .table-container::-webkit-scrollbar {
@@ -170,17 +527,18 @@ $role     = $this->session->userdata('role');
         }
 
         .content-wrapper {
-            max-width: 100%;
-            margin: 0 auto;
+            width: 100%;
+            padding: 0;
         }
 
         /* Card Styles */
         .content-card {
             background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         /* Table Styles */
@@ -228,10 +586,20 @@ $role     = $this->session->userdata('role');
         /* Form Styles */
         .search-card {
             background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            padding: 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
             margin-bottom: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .search-card .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .search-card .btn {
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
         }
 
         .form-label {
@@ -348,9 +716,14 @@ $role     = $this->session->userdata('role');
         /* Navbar Styles */
         .navbar {
             background: linear-gradient(135deg, #006400, #004d00);
-            padding: 0.5rem 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
             height: 60px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1046;
         }
 
         .navbar-brand {
@@ -392,16 +765,44 @@ $role     = $this->session->userdata('role');
 
         /* Main Content Area */
         .main-content {
-            margin-left: 250px;
+            margin-left: 240px;
             padding: 20px;
-            min-height: calc(100vh - 60px);
+            min-height: calc(100vh - 80px);
             background-color: #f8f9fa;
-            transition: margin-left 0.3s ease;
+            width: calc(100% - 240px);
+            overflow-x: hidden;
+            margin-top: 10px;
+        }
+
+        .container-fluid {
+            padding: 0 5px;
+            width: 100%;
         }
 
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
+                width: 100%;
+                padding: 8px;
+                margin-top: 20px;
+                padding-top: 12px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .main-content {
+                margin-left: 160px;
+                width: calc(100% - 160px);
+                padding: 10px;
+                margin-top: 25px;
+                padding-top: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
             }
 
             .navbar-brand {

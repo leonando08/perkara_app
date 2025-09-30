@@ -18,26 +18,27 @@
         <form method="get" action="<?= site_url('user/dashboard_user') ?>">
             <div class="row g-3">
                 <div class="col-md-3">
+                    <label class="form-label">Parent</label>
+                    <select name="parent" id="parent" class="form-select">
+                        <option value="">Semua Parent</option>
+                        <?php foreach ($parents as $p): ?>
+                            <option value="<?= $p->id ?>" <?= isset($filters['parent']) && $filters['parent'] == $p->id ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($p->nama_lengkap ?? $p->nama) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label class="form-label">Asal Pengadilan</label>
                     <input type="text" name="cari_pengadilan" class="form-control"
-                        value="<?= htmlspecialchars($this->input->get('cari_pengadilan')) ?>"
+                        value="<?= htmlspecialchars($filters['asal_pengadilan'] ?? '') ?>"
                         placeholder="Cari pengadilan...">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Klasifikasi</label>
                     <input type="text" name="cari_klasifikasi" class="form-control"
-                        value="<?= htmlspecialchars($this->input->get('cari_klasifikasi')) ?>"
+                        value="<?= htmlspecialchars($filters['klasifikasi'] ?? '') ?>"
                         placeholder="Cari klasifikasi...">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Tanggal Permohonan</label>
-                    <input type="date" name="cari_permohonan" class="form-control"
-                        value="<?= htmlspecialchars($this->input->get('cari_permohonan')) ?>">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Tanggal Berkas</label>
-                    <input type="date" name="cari_berkas" class="form-control"
-                        value="<?= htmlspecialchars($this->input->get('cari_berkas')) ?>">
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <div class="d-flex gap-2 w-100">
@@ -55,189 +56,713 @@
 
     <!-- Custom Styles -->
     <style>
+        body {
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow-x: hidden;
+        }
+
+        .content-wrapper {
+            padding: 15px 0 15px 0;
+            max-width: 100%;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        .content-card {
+            background: white;
+            padding: 15px;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            margin-bottom: 15px;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .content-card.p-0 {
+            padding: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        .search-card {
+            background: white;
+            padding: 15px;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            margin-bottom: 15px;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        /* Table Styles */
         .table-wrapper {
             position: relative;
-            margin-bottom: 1rem;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-            border-radius: 0.5rem;
+            width: 100%;
+            overflow: hidden;
         }
 
         .table-responsive-custom {
-            overflow: auto;
-            margin: 0;
-            padding: 0.5rem;
-            max-width: 100%;
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
         }
 
         .table {
-            width: max-content;
-            min-width: 100%;
-            margin-bottom: 0;
-            background-color: white;
+            width: 100%;
             border-collapse: collapse;
+            margin: 0;
         }
 
-        .table>thead {
-            background-color: #f8f9fa;
-        }
-
-        .table>thead th {
-            background-color: #f8f9fa;
-            padding: 0.75rem;
-            white-space: nowrap;
-            vertical-align: middle;
-            border-bottom: 2px solid #dee2e6;
-            font-weight: 600;
-        }
-
-        .table>tbody td {
-            padding: 0.75rem;
-            vertical-align: middle;
-            border: 1px solid #dee2e6;
-        }
-
-        /* Column widths */
-        .table .id-column {
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .table .action-column {
-            min-width: 120px;
-            text-align: center;
-            white-space: nowrap;
+        /* Make specific columns fixed width */
+        .table .number-column {
+            width: 60px;
         }
 
         .table .date-column {
-            min-width: 130px;
-            white-space: nowrap;
-        }
-
-        .table .text-column {
-            min-width: 150px;
+            width: 120px;
         }
 
         .table .status-column {
-            min-width: 100px;
-            text-align: center;
-            white-space: nowrap;
+            width: 100px;
         }
 
-        /* Hover effects */
-        .table tbody tr:hover td {
-            background-color: rgba(0, 0, 0, 0.075);
+        .table .action-column {
+            width: 100px;
         }
 
-        /* Better scrollbar styling */
+        .table .parent-column {
+            width: 150px;
+        }
+
+        .table .text-column {
+            min-width: 180px;
+        }
+
+        /* Indikator scroll */
+        .table-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 15px;
+            height: 15px;
+            background: #f1f3f4;
+            border-radius: 0 0 0.5rem 0;
+        }
+
         .table-responsive-custom::-webkit-scrollbar {
-            height: 8px;
+            height: 12px;
+            width: 12px;
         }
 
         .table-responsive-custom::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
+            background: #f1f3f4;
+            border-radius: 6px;
+            margin: 2px;
+            border: 1px solid #e0e0e0;
         }
 
         .table-responsive-custom::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
+            background: #007bff;
+            border-radius: 6px;
+            border: 3px solid #f1f3f4;
+            min-height: 40px;
+            min-width: 40px;
         }
 
         .table-responsive-custom::-webkit-scrollbar-thumb:hover {
-            background: #666;
+            background: linear-gradient(135deg, #0056b3, #004085);
+            transform: scale(1.1);
+            transition: all 0.2s ease;
         }
 
-        /* Alert styling */
+        .table-responsive-custom::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(135deg, #004085, #002752);
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-corner {
+            background: #f1f3f4;
+            border-radius: 8px;
+        }
+
+        /* Loading state */
+        .table-loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .table-loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            animation: loading-shimmer 1.5s infinite;
+            z-index: 1000;
+        }
+
+        @keyframes loading-shimmer {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .table td {
+            max-width: 300px;
+            /* Prevent cells from stretching too wide */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table th,
+        .table td {
+            padding: 8px;
+            vertical-align: middle;
+            border: 1px solid #dee2e6;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Responsive table columns */
+        .table td,
+        .table th {
+            padding: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Table header */
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        /* Ensure content doesn't overflow */
+        .table td {
+            max-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Hover effects - Diperbaiki untuk semua kolom */
+        .table tbody tr:hover td {
+            background-color: rgba(0, 123, 255, 0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        /* Scrollbar styling - Diperbaiki dan disempurnakan */
+        .table-responsive-custom::-webkit-scrollbar {
+            height: 12px;
+            width: 12px;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-track {
+            background: #f1f3f4;
+            border-radius: 6px;
+            margin: 2px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-thumb {
+            background: #007bff;
+            border-radius: 6px;
+            border: 3px solid #f1f3f4;
+            min-height: 40px;
+            min-width: 40px;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-corner {
+            background: #f1f3f4;
+        }
+
+        /* Indikator scroll */
+        .table-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 15px;
+            height: 15px;
+            background: #f1f3f4;
+            border-radius: 0 0 0.5rem 0;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+            transform: scale(1.1);
+            transition: all 0.2s ease;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(135deg, #004085, #002752);
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-corner {
+            background: #f1f3f4;
+            border-radius: 8px;
+        }
+
+        /* Shadow untuk scroll indicator - Diperbaiki */
+        .table-wrapper::before,
+        .table-wrapper::after {
+            content: '';
+            position: absolute;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Shadow kanan untuk scroll horizontal */
+        .table-wrapper::before {
+            top: 0;
+            right: 0;
+            width: 15px;
+            height: 100%;
+            background: linear-gradient(to left, rgba(0, 0, 0, 0.15), transparent);
+        }
+
+        /* Shadow bawah untuk scroll vertikal */
+        .table-wrapper::after {
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.15), transparent);
+        }
+
+        .table-wrapper.scrollable-x::before {
+            opacity: 1;
+        }
+
+        .table-wrapper.scrollable-y::after {
+            opacity: 1;
+        }
+
+        /* Alert styling - Diperbaiki */
         .alert {
             border-radius: 0.5rem;
             border: none;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .alert-info {
+            background-color: #e7f3ff;
+            color: #0c5460;
+            border-left: 4px solid #007bff;
+        }
+
+        /* Responsive breakpoints */
+        @media (max-width: 1200px) {
+            .table-wrapper {
+                margin: 0 -15px;
+                /* Compensate for container padding */
+            }
+
+            .table td,
+            .table th {
+                padding: 0.5rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .table {
+                font-size: 0.9rem;
+            }
+
+            .table-responsive-custom {
+                max-height: 60vh;
+            }
+
+            .number-column {
+                width: 40px;
+            }
+
+            .action-column {
+                width: 90px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .table {
+                font-size: 0.85rem;
+            }
+
+            .table td,
+            .table th {
+                padding: 0.4rem;
+            }
+
+            .number-column {
+                width: 35px;
+            }
+
+            .action-column {
+                width: 80px;
+            }
+
+            .table-responsive-custom::-webkit-scrollbar {
+                height: 8px;
+                width: 8px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .table {
+                font-size: 0.8rem;
+            }
+
+            .table td,
+            .table th {
+                padding: 0.3rem;
+            }
+
+            .number-column {
+                width: 30px;
+            }
+
+            .action-column {
+                width: 70px;
+            }
+
+            .table-responsive-custom::-webkit-scrollbar {
+                height: 6px;
+                width: 6px;
+            }
+        }
+
+        /* Tambahan: Styling untuk loading state */
+        .table-loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .table-loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            animation: loading-shimmer 1.5s infinite;
+            z-index: 1000;
+        }
+
+        @keyframes loading-shimmer {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .table>thead th,
+        .table>tbody td {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .table .number-column {
+            min-width: 50px;
+            max-width: 50px;
+        }
+
+        .table .action-column {
+            min-width: 100px;
+            max-width: 100px;
+        }
+
+        @media (max-width: 576px) {
+            .table-responsive-custom {
+                max-height: 50vh;
+            }
+
+            .table>thead th,
+            .table>tbody td {
+                padding: 0.375rem;
+                font-size: 0.8rem;
+            }
         }
     </style>
 
     <!-- Table -->
-    <div class="table-wrapper">
-        <div class="table-responsive-custom">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th class="number-column">No</th>
-                        <th>Pengadilan</th>
-                        <th>Perkara Tk1</th>
-                        <th class="parent-column">Parent</th> <!-- kasih class khusus -->
-                        <th>Klasifikasi</th>
-                        <th>Tgl Register</th>
-                        <th>Perkara Banding</th>
-                        <th>Lama</th>
-                        <th>Status Tk Banding</th>
-                        <th>Putusan Banding</th>
-                        <th>Kasasi</th>
-                        <th>Berkas Kasasi</th>
-                        <th class="status-column">Status</th>
-                        <th class="action-column">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($perkaras)): ?>
+    <div class="content-card p-0">
+        <div class="table-container">
+            <div class="table-responsive-custom" tabindex="0" role="region" aria-label="Tabel data perkara yang dapat di-scroll">
+                <table class="table table-bordered table-striped table-hover m-0">
+                    <thead>
                         <tr>
-                            <td colspan="14" class="text-center py-4">
-                                <div class="d-flex flex-column align-items-center">
-                                    <i class="fas fa-folder-open text-muted mb-2" style="font-size: 2rem;"></i>
-                                    <p class="text-muted mb-0">Belum ada data perkara yang tersedia</p>
-                                </div>
-                            </td>
+                            <th class="number-column text-center align-middle">No</th>
+                            <th class="text-column align-middle">Pengadilan</th>
+                            <th class="text-column align-middle">Perkara Tk1</th>
+                            <th class="parent-column align-middle">Parent</th>
+                            <th class="text-column align-middle">Klasifikasi</th>
+                            <th class="date-column text-center align-middle">Tgl Register</th>
+                            <th class="text-column align-middle">Perkara Banding</th>
+                            <th class="text-column text-center align-middle">Lama</th>
+                            <th class="text-column align-middle">Status Tk Banding</th>
+                            <th class="date-column text-center align-middle">Putusan Banding</th>
+                            <th class="date-column text-center align-middle">Kasasi</th>
+                            <th class="date-column text-center align-middle">Berkas Kasasi</th>
+                            <th class="status-column text-center align-middle">Status</th>
+                            <th class="action-column text-center align-middle">Aksi</th>
                         </tr>
-                        <?php else: $no = 1;
-                        foreach ($perkaras as $row): ?>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($perkaras)): ?>
                             <tr>
-                                <td class="number-column"><?= $no++ ?></td>
-                                <td><?= htmlspecialchars($row->asal_pengadilan) ?></td>
-                                <td><?= htmlspecialchars($row->nomor_perkara_tk1) ?></td>
-                                <td class="parent-column"><?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?></td>
-                                <td><?= htmlspecialchars($row->klasifikasi) ?></td>
-                                <td><?= $row->tgl_register_banding ? date("d-m-Y", strtotime($row->tgl_register_banding)) : '-' ?></td>
-                                <td><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
-                                <td><?= htmlspecialchars($row->lama_proses) ?></td>
-                                <td><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
-                                <td><?= $row->pemberitahuan_putusan_banding ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?></td>
-                                <td><?= $row->permohonan_kasasi ? date("d-m-Y", strtotime($row->permohonan_kasasi)) : '-' ?></td>
-                                <td><?= $row->pengiriman_berkas_kasasi ? date("d-m-Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
-                                <td class="text-center">
-                                    <?php
-                                    switch ($row->status) {
-                                        case "Proses":
-                                            echo '<span class="badge bg-warning text-dark">Proses</span>';
-                                            break;
-                                        case "Selesai":
-                                            echo '<span class="badge bg-success">Selesai</span>';
-                                            break;
-                                        case "Ditolak":
-                                            echo '<span class="badge bg-danger">Ditolak</span>';
-                                            break;
-                                        default:
-                                            echo '<span class="badge bg-secondary">-</span>';
-                                    }
-                                    ?>
-                                </td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="<?= site_url('user/edit/' . $row->id) ?>" class="btn btn-warning" title="Edit Perkara">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="<?= site_url('user/hapus/' . $row->id) ?>"
-                                            onclick="return confirm('Yakin ingin menghapus data ini?')"
-                                            class="btn btn-danger" title="Hapus Perkara">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                <td colspan="14" class="text-center py-4">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="fas fa-folder-open text-muted mb-2" style="font-size: 2rem;"></i>
+                                        <p class="text-muted mb-0">Belum ada data perkara yang tersedia</p>
                                     </div>
                                 </td>
                             </tr>
-                    <?php endforeach;
-                    endif; ?>
-                </tbody>
-            </table>
+                            <?php else: $no = 1;
+                            foreach ($perkaras as $row): ?>
+                                <tr>
+                                    <td class="number-column"><?= $no++ ?></td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->asal_pengadilan) ?>">
+                                        <?= htmlspecialchars($row->asal_pengadilan) ?>
+                                    </td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_tk1) ?>">
+                                        <?= htmlspecialchars($row->nomor_perkara_tk1) ?>
+                                    </td>
+                                    <td class="parent-column" title="<?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?>">
+                                        <?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?>
+                                    </td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->klasifikasi) ?>">
+                                        <?= htmlspecialchars($row->klasifikasi) ?>
+                                    </td>
+                                    <td class="date-column">
+                                        <?= $row->tgl_register_banding ? date("d-m-Y", strtotime($row->tgl_register_banding)) : '-' ?>
+                                    </td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_banding) ?>">
+                                        <?= htmlspecialchars($row->nomor_perkara_banding) ?>
+                                    </td>
+                                    <td class="text-column"><?= htmlspecialchars($row->lama_proses) ?></td>
+                                    <td class="text-column"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
+                                    <td class="date-column">
+                                        <?= $row->pemberitahuan_putusan_banding ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?>
+                                    </td>
+                                    <td class="date-column">
+                                        <?= $row->permohonan_kasasi ? date("d-m-Y", strtotime($row->permohonan_kasasi)) : '-' ?>
+                                    </td>
+                                    <td class="date-column">
+                                        <?= $row->pengiriman_berkas_kasasi ? date("d-m-Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?>
+                                    </td>
+                                    <td class="status-column">
+                                        <?php
+                                        switch ($row->status) {
+                                            case "Proses":
+                                                echo '<span class="badge bg-warning text-dark">Proses</span>';
+                                                break;
+                                            case "Selesai":
+                                                echo '<span class="badge bg-success">Selesai</span>';
+                                                break;
+                                            case "Ditolak":
+                                                echo '<span class="badge bg-danger">Ditolak</span>';
+                                                break;
+                                            default:
+                                                echo '<span class="badge bg-secondary">-</span>';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td class="action-column">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="<?= site_url('user/edit/' . $row->id) ?>"
+                                                class="btn btn-warning"
+                                                title="Edit Perkara">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="<?= site_url('user/hapus/' . $row->id) ?>"
+                                                onclick="return confirm('Yakin ingin menghapus data ini?')"
+                                                class="btn btn-danger"
+                                                title="Hapus Perkara">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                        <?php endforeach;
+                        endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
+
+        <!-- JavaScript untuk Tabel Responsif -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const tableWrapper = document.querySelector('.table-wrapper');
+                const tableContainer = document.querySelector('.table-responsive-custom');
+                const table = document.querySelector('.table');
+
+                if (!tableWrapper || !tableContainer || !table) return;
+
+                // Cek apakah tabel perlu scroll
+                function checkScrollable() {
+                    const isScrollableX = tableContainer.scrollWidth > tableContainer.clientWidth;
+                    const isScrollableY = tableContainer.scrollHeight > tableContainer.clientHeight;
+
+                    // Update class untuk shadow indicators
+                    tableWrapper.classList.toggle('scrollable-x', isScrollableX);
+                    tableWrapper.classList.toggle('scrollable-y', isScrollableY);
+
+                    if (isScrollableX || isScrollableY) {
+                        tableContainer.setAttribute('title', 'Gunakan scroll mouse atau tombol panah untuk navigasi');
+                    } else {
+                        tableContainer.removeAttribute('title');
+                    }
+
+                    updateScrollShadows();
+                }
+
+                // Update shadow indicators berdasarkan posisi scroll
+                function updateScrollShadows() {
+                    const scrollLeft = tableContainer.scrollLeft;
+                    const scrollTop = tableContainer.scrollTop;
+                    const maxScrollLeft = tableContainer.scrollWidth - tableContainer.clientWidth;
+                    const maxScrollTop = tableContainer.scrollHeight - tableContainer.clientHeight;
+
+                    // Hapus semua shadow classes
+                    tableWrapper.classList.remove('scroll-left', 'scroll-right', 'scroll-top', 'scroll-bottom');
+
+                    // Tambahkan shadow berdasarkan posisi untuk scroll horizontal
+                    if (scrollLeft > 5) {
+                        tableWrapper.classList.add('scroll-left');
+                    }
+                    if (scrollLeft < maxScrollLeft - 5) {
+                        tableWrapper.classList.add('scroll-right');
+                    }
+
+                    // Tambahkan shadow berdasarkan posisi untuk scroll vertikal
+                    if (scrollTop > 5) {
+                        tableWrapper.classList.add('scroll-top');
+                    }
+                    if (scrollTop < maxScrollTop - 5) {
+                        tableWrapper.classList.add('scroll-bottom');
+                    }
+                }
+
+                // Event listeners
+                tableContainer.addEventListener('scroll', updateScrollShadows);
+                window.addEventListener('resize', checkScrollable);
+
+                // Inisialisasi
+                checkScrollable();
+
+                // Smooth scrolling untuk mobile
+                if ('ontouchstart' in window) {
+                    tableContainer.style.webkitOverflowScrolling = 'touch';
+                }
+
+                // Keyboard navigation
+                tableContainer.addEventListener('keydown', function(e) {
+                    const scrollAmount = 50;
+
+                    switch (e.key) {
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            tableContainer.scrollLeft -= scrollAmount;
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            tableContainer.scrollLeft += scrollAmount;
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            tableContainer.scrollTop -= scrollAmount;
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            tableContainer.scrollTop += scrollAmount;
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            tableContainer.scrollLeft = 0;
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            tableContainer.scrollLeft = tableContainer.scrollWidth;
+                            break;
+                        case 'PageUp':
+                            e.preventDefault();
+                            tableContainer.scrollTop -= tableContainer.clientHeight * 0.8;
+                            break;
+                        case 'PageDown':
+                            e.preventDefault();
+                            tableContainer.scrollTop += tableContainer.clientHeight * 0.8;
+                            break;
+                    }
+                });
+
+                // Observer untuk perubahan konten tabel
+                if ('MutationObserver' in window) {
+                    const observer = new MutationObserver(checkScrollable);
+                    observer.observe(table, {
+                        childList: true,
+                        subtree: true
+                    });
+                }
+            });
+
+            // Utility function untuk scroll ke kolom tertentu
+            function scrollToColumn(columnIndex) {
+                const table = document.querySelector('.table');
+                const container = document.querySelector('.table-responsive-custom');
+
+                if (!table || !container) return;
+
+                const cells = table.querySelectorAll(`th:nth-child(${columnIndex}), td:nth-child(${columnIndex})`);
+                if (cells.length > 0) {
+                    const firstCell = cells[0];
+                    const cellLeft = firstCell.offsetLeft;
+
+                    container.scrollTo({
+                        left: cellLeft - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+
+            // Utility function untuk scroll ke baris tertentu
+            function scrollToRow(rowIndex) {
+                const container = document.querySelector('.table-responsive-custom');
+                const rows = document.querySelectorAll('tbody tr');
+
+                if (!container || !rows[rowIndex]) return;
+
+                const targetRow = rows[rowIndex];
+                const rowTop = targetRow.offsetTop;
+
+                container.scrollTo({
+                    top: rowTop - 100,
+                    behavior: 'smooth'
+                });
+            }
+        </script>
     </div>
 
-    <?php $this->load->view('navbar/footer'); ?>
+    <?php $this->load->view('navbar/footer');

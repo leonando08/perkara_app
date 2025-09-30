@@ -1,23 +1,19 @@
         </div> <!-- Penutup main-content -->
 
         <!-- Footer -->
-        <footer class="footer">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col-md-6 text-center text-md-start">
-                        <small class="text-muted">© <?= date('Y') ?> Sistem Informasi Perkara</small>
-                    </div>
-                    <div class="col-md-6 text-center text-md-end">
-                        <small class="text-muted">Pengadilan Tinggi Banjarmasin</small>
-                    </div>
-                </div>
-            </div>
+
+        <footer class="footer d-flex justify-content-end align-items-center">
+            <small class="text-muted me-3">Pengadilan Tinggi Banjarmasin</small>
         </footer>
 
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Font Awesome -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+        <!-- Select2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
         <script>
             // Toggle active class untuk menu yang aktif
@@ -28,12 +24,6 @@
                 navLinks.forEach(link => {
                     if (link.getAttribute('href') === currentPath) {
                         link.classList.add('active');
-
-                        // Buka collapse parent jika ada
-                        const collapseParent = link.closest('.collapse');
-                        if (collapseParent) {
-                            collapseParent.classList.add('show');
-                        }
                     }
                 });
 
@@ -53,11 +43,16 @@
             .footer {
                 background-color: #ffffff;
                 border-top: 1px solid rgba(0, 0, 0, 0.1);
-                padding: 0.75rem 0;
+                padding: 0.5rem 0;
                 position: fixed;
                 bottom: 0;
-                width: 100%;
+                left: 160px;
+                right: 0;
+                width: calc(100% - 160px);
                 z-index: 1000;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
             }
 
             .main-content {
@@ -67,8 +62,11 @@
 
             @media (max-width: 768px) {
                 .footer {
+                    left: 0;
+                    width: 100%;
                     font-size: 0.8rem;
                     padding: 0.5rem 0;
+                    justify-content: center;
                 }
             }
         </style>

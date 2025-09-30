@@ -16,12 +16,10 @@ class Laporan extends CI_Controller
         $this->load->helper('url');
         $this->load->library('session');
 
-        // cek login
         if (!$this->session->userdata('logged_in')) {
             redirect('auth/login');
         }
 
-        // FPDF ada di application/third_party/fpdf.php
         require_once(APPPATH . 'third_party/fpdf.php');
     }
 
@@ -66,7 +64,6 @@ class Laporan extends CI_Controller
 
         $perkaras = $this->Perkara_model->get_filtered($filters);
 
-        // Judul laporan
         $judul = "Laporan Perkara";
         if (!empty($filters['bulan'])) {
             $judul .= " Bulan " . date("F Y", strtotime($filters['bulan'] . '-01'));
@@ -81,19 +78,19 @@ class Laporan extends CI_Controller
             $judul .= " | Status: " . $filters['status'];
         }
 
-        // Buat PDF
         $pdf = new FPDF('L', 'mm', 'A4');
         $pdf->AddPage();
         $pdf->SetFont('Arial', 'B', 14);
         $pdf->Cell(0, 10, $judul, 0, 1, 'C');
         $pdf->Ln(5);
 
-        // Header tabel
+        // Header dengan kolom Parent yang menampilkan nama
         $pdf->SetFont('Arial', 'B', 8);
         $header = [
             'No' => 8,
             'Asal Pengadilan' => 28,
             'Nomor Tk1' => 28,
+            'Parent' => 25,
             'Klasifikasi' => 25,
             'Tgl Register' => 20,
             'Nomor Banding' => 28,
@@ -111,16 +108,18 @@ class Laporan extends CI_Controller
         }
         $pdf->Ln();
 
-        // Isi tabel
         $pdf->SetFont('Arial', '', 8);
         $no = 1;
         if (!empty($perkaras)) {
             foreach ($perkaras as $row) {
-                // Hitung tinggi maksimal baris
+                // Gunakan parent_nama, jika kosong tampilkan '-'
+                $parentText = !empty($row->parent_nama) ? $row->parent_nama : '-';
+
                 $heights = [
                     6,
                     $this->getMultiCellHeight($header['Asal Pengadilan'], $row->asal_pengadilan),
                     $this->getMultiCellHeight($header['Nomor Tk1'], $row->nomor_perkara_tk1),
+                    $this->getMultiCellHeight($header['Parent'], $parentText),
                     $this->getMultiCellHeight($header['Klasifikasi'], $row->klasifikasi),
                     6,
                     $this->getMultiCellHeight($header['Nomor Banding'], $row->nomor_perkara_banding),
@@ -136,19 +135,12 @@ class Laporan extends CI_Controller
                 $startX = $pdf->GetX();
                 $startY = $pdf->GetY();
 
-                // Kolom No
                 $pdf->Cell($header['No'], $maxHeight, $no++, 1, 0, 'C');
-
-                // Kolom Asal Pengadilan
                 $this->multiCellColumn($pdf, $header['Asal Pengadilan'], $row->asal_pengadilan);
-
-                // Kolom Nomor Tk1
                 $this->multiCellColumn($pdf, $header['Nomor Tk1'], $row->nomor_perkara_tk1);
-
-                // Kolom Klasifikasi
+                $this->multiCellColumn($pdf, $header['Parent'], $parentText);
                 $this->multiCellColumn($pdf, $header['Klasifikasi'], $row->klasifikasi);
 
-                // Kolom Tgl Register
                 $pdf->Cell(
                     $header['Tgl Register'],
                     $maxHeight,
@@ -158,16 +150,10 @@ class Laporan extends CI_Controller
                     'C'
                 );
 
-                // Kolom Nomor Banding
                 $this->multiCellColumn($pdf, $header['Nomor Banding'], $row->nomor_perkara_banding);
-
-                // Kolom Lama Proses
                 $pdf->Cell($header['Lama Proses'], $maxHeight, $row->lama_proses, 1, 0, 'C');
-
-                // Kolom Status Tk Banding
                 $this->multiCellColumn($pdf, $header['Status Tk Banding'], $row->status_perkara_tk_banding);
 
-                // Kolom tanggal-tanggal
                 $pdf->Cell(
                     $header['Pemberitahuan Putusan'],
                     $maxHeight,
@@ -193,7 +179,6 @@ class Laporan extends CI_Controller
                     'C'
                 );
 
-                // Kolom Status
                 $pdf->SetFont('Arial', 'B', 8);
                 $this->multiCellColumn($pdf, $header['Status'], $row->status, 'C');
                 $pdf->SetFont('Arial', '', 8);
@@ -208,7 +193,7 @@ class Laporan extends CI_Controller
     }
 
     // =========================
-    // Ekspor Excel (HTML table)
+    // Cetak Excel
     // =========================
     public function cetak_excel()
     {
@@ -230,124 +215,109 @@ class Laporan extends CI_Controller
 
         <head>
             <style>
-                @page {
-                    size: A4 landscape;
-                    margin: 0.5cm;
-                }
-
-                body {
-                    font-family: Arial, sans-serif;
-                    font-size: 9pt;
-                }
-
-                h2 {
-                    font-size: 14pt;
-                    text-align: center;
-                    margin-bottom: 5px;
-                }
-
-                p {
-                    margin: 2px 0;
-                    font-size: 9pt;
-                }
-
                 table {
                     border-collapse: collapse;
                     width: 100%;
-                    margin-top: 5px;
                     table-layout: fixed;
+                    font-family: Arial, sans-serif;
                 }
 
                 th,
                 td {
-                    border: 1px solid black;
-                    padding: 4px;
-                    font-size: 8pt;
+                    border: 1px solid #444;
+                    padding: 7px 5px;
+                    font-size: 10pt;
                     word-wrap: break-word;
                 }
 
                 th {
-                    background: #f2f2f2;
+                    background: #198754;
+                    color: #fff;
+                    text-align: center;
                     font-weight: bold;
+                    font-size: 11pt;
+                }
+
+                tr:nth-child(even) td {
+                    background: #f8f9fa;
+                }
+
+                tr:hover td {
+                    background: #e2f0d9;
+                }
+
+                td.center {
                     text-align: center;
                 }
 
-                .shrink {
-                    zoom: 70%;
+                td.bold {
+                    font-weight: bold;
                 }
             </style>
         </head>
 
         <body>
-            <h2>Laporan Perkara</h2>
-            <?php if (!empty($filters['bulan'])): ?>
-                <p>Bulan: <?= date("F Y", strtotime($filters['bulan'] . '-01')) ?></p>
-            <?php endif; ?>
-            <?php if (!empty($filters['asal_pengadilan'])): ?>
-                <p>Asal Pengadilan: <?= $filters['asal_pengadilan'] ?></p>
-            <?php endif; ?>
-            <?php if (!empty($filters['klasifikasi'])): ?>
-                <p>Klasifikasi: <?= $filters['klasifikasi'] ?></p>
-            <?php endif; ?>
-            <?php if (!empty($filters['status'])): ?>
-                <p>Status: <?= $filters['status'] ?></p>
-            <?php endif; ?>
-
-            <div class="shrink">
-                <table>
-                    <thead>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="13" style="text-align:center;font-size:16pt;padding:12px 0 6px 0;letter-spacing:1px;">LAPORAN PERKARA</th>
+                    </tr>
+                    <?php if (!empty($filters['bulan'])): ?>
                         <tr>
-                            <th>No</th>
-                            <th>Asal Pengadilan</th>
-                            <th>Nomor Perkara Tk1</th>
-                            <th>Klasifikasi</th>
-                            <th>Tgl Register Banding</th>
-                            <th>Nomor Perkara Banding</th>
-                            <th>Lama Proses</th>
-                            <th>Status Perkara Tk Banding</th>
-                            <th>Pemberitahuan Putusan Banding</th>
-                            <th>Permohonan Kasasi</th>
-                            <th>Pengiriman Berkas Kasasi</th>
-                            <th>Status</th>
+                            <td colspan="13" style="background:#fff;text-align:center;font-size:11pt;padding-bottom:10px;">Laporan di Bulan <b><?= date('F Y', strtotime($filters['bulan'] . '-01')) ?></b></td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($perkaras)): ?>
-                            <?php $no = 1;
-                            foreach ($perkaras as $row): ?>
-                                <tr>
-                                    <td align="center"><?= $no++ ?></td>
-                                    <td><?= $row->asal_pengadilan ?></td>
-                                    <td><?= $row->nomor_perkara_tk1 ?></td>
-                                    <td><?= $row->klasifikasi ?></td>
-                                    <td align="center"><?= !empty($row->tgl_register_banding) ? date("d-m-Y", strtotime($row->tgl_register_banding)) : '-' ?></td>
-                                    <td><?= $row->nomor_perkara_banding ?></td>
-                                    <td align="center"><?= $row->lama_proses ?></td>
-                                    <td><?= $row->status_perkara_tk_banding ?></td>
-                                    <td align="center"><?= !empty($row->pemberitahuan_putusan_banding) ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?></td>
-                                    <td align="center"><?= !empty($row->permohonan_kasasi) ? date("d-m-Y", strtotime($row->permohonan_kasasi)) : '-' ?></td>
-                                    <td align="center"><?= !empty($row->pengiriman_berkas_kasasi) ? date("d-m-Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
-                                    <td align="center" style="font-weight:bold;"><?= $row->status ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+                    <?php endif; ?>
+                    <tr>
+                        <th style="width:45px;">No</th>
+                        <th style="width:180px;">Asal Pengadilan</th>
+                        <th style="width:160px;">Nomor Perkara Tk1</th>
+                        <th style="width:120px;">Parent</th>
+                        <th style="width:140px;">Klasifikasi</th>
+                        <th style="width:120px;">Tgl Register Banding</th>
+                        <th style="width:160px;">Nomor Perkara Banding</th>
+                        <th style="width:90px;">Lama Proses</th>
+                        <th style="width:150px;">Status Tk Banding</th>
+                        <th style="width:150px;">Putusan Banding</th>
+                        <th style="width:120px;">Permohonan Kasasi</th>
+                        <th style="width:150px;">Pengiriman Berkas Kasasi</th>
+                        <th style="width:90px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($perkaras)): $no = 1;
+                        foreach ($perkaras as $row): ?>
                             <tr>
-                                <td colspan="12" align="center">Tidak ada data perkara</td>
+                                <td class="center"><?= $no++ ?></td>
+                                <td><?= htmlspecialchars($row->asal_pengadilan) ?></td>
+                                <td><?= htmlspecialchars($row->nomor_perkara_tk1) ?></td>
+                                <td><?= !empty($row->parent_nama) ? htmlspecialchars($row->parent_nama) : '-' ?></td>
+                                <td><?= htmlspecialchars($row->klasifikasi) ?></td>
+                                <td class="center"><?= !empty($row->tgl_register_banding) ? date("d-m-Y", strtotime($row->tgl_register_banding)) : '-' ?></td>
+                                <td><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
+                                <td class="center"><?= htmlspecialchars($row->lama_proses) ?></td>
+                                <td><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
+                                <td class="center"><?= !empty($row->pemberitahuan_putusan_banding) ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?></td>
+                                <td class="center"><?= !empty($row->permohonan_kasasi) ? date("d-m-Y", strtotime($row->permohonan_kasasi)) : '-' ?></td>
+                                <td class="center"><?= !empty($row->pengiriman_berkas_kasasi) ? date("d-m-Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
+                                <td class="center bold"><?= htmlspecialchars($row->status) ?></td>
                             </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                        <?php endforeach;
+                    else: ?>
+                        <tr>
+                            <td colspan="13" class="center">Tidak ada data perkara</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </body>
 
         </html>
 <?php
-        $html = ob_get_clean();
-        echo $html;
+        echo ob_get_clean();
     }
 
     // =========================
-    // Helper function
+    // Helper
     // =========================
     private function getMultiCellHeight($w, $txt)
     {

@@ -52,22 +52,23 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Parent</label>
-                        <select name="parent" class="form-select">
+                        <select name="parent" id="parent" class="form-select" required>
                             <option value="">-- Pilih Parent --</option>
                             <?php foreach ($parents as $p): ?>
-                                <option value="<?= $p->parent_id ?>" <?= ($perkara->parent == $p->parent_id) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($p->nama) ?>
+                                <option value="<?= $p->id ?>" <?= ($perkara->parent == $p->id) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($p->nama_lengkap) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <div class="form-text">Pilih parent jenis perkara</div>
+                        <div class="invalid-feedback">Parent harus dipilih</div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Klasifikasi<span class="text-danger">*</span></label>
-                        <input type="text" name="klasifikasi" class="form-control" required
-                            value="<?= htmlspecialchars($perkara->klasifikasi) ?>">
-                        <div class="invalid-feedback">Klasifikasi harus diisi</div>
+                        <select name="klasifikasi" id="klasifikasi" class="form-select" required>
+                            <option value="">-- Pilih Parent Terlebih Dahulu --</option>
+                        </select>
+                        <div class="invalid-feedback">Klasifikasi harus dipilih</div>
                     </div>
 
                     <div class="col-md-6">
@@ -162,6 +163,53 @@
             alertBox.classList.add('hide');
         }
     }, 3000);
+
+    // Fungsi untuk memuat klasifikasi berdasarkan parent yang dipilih
+    document.getElementById('parent').addEventListener('change', function() {
+        var parentId = this.value;
+        var klasifikasiSelect = document.getElementById('klasifikasi');
+        var selectedKlasifikasi = '<?= htmlspecialchars($perkara->klasifikasi) ?>'; // Simpan klasifikasi yang sudah dipilih
+
+        // Reset klasifikasi
+        klasifikasiSelect.innerHTML = '<option value="">-- ' +
+            (parentId ? 'Pilih Klasifikasi' : 'Pilih Parent Terlebih Dahulu') +
+            ' --</option>';
+
+        if (parentId) {
+            // Tambahkan loading state
+            klasifikasiSelect.disabled = true;
+            klasifikasiSelect.innerHTML = '<option value="">Loading...</option>';
+
+            // Fetch klasifikasi berdasarkan parent
+            fetch('<?= site_url("perkara/get_jenis_perkara") ?>?parent_id=' + parentId)
+                .then(response => response.json())
+                .then(data => {
+                    // Reset dan enable kembali
+                    klasifikasiSelect.innerHTML = '<option value="">-- Pilih Klasifikasi --</option>';
+                    klasifikasiSelect.disabled = false;
+
+                    // Tambahkan opsi
+                    data.forEach(item => {
+                        var option = new Option(item.nama_lengkap || item.nama, item.nama);
+                        // Jika ini adalah klasifikasi yang sebelumnya dipilih, set sebagai selected
+                        if (item.nama === selectedKlasifikasi) {
+                            option.selected = true;
+                        }
+                        klasifikasiSelect.add(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    klasifikasiSelect.innerHTML = '<option value="">Error loading data</option>';
+                    klasifikasiSelect.disabled = false;
+                });
+        }
+    });
+
+    // Trigger change event pada load untuk memuat klasifikasi yang sesuai
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('parent').dispatchEvent(new Event('change'));
+    });
 </script>
 
 <?php $this->load->view('navbar/footer'); ?>

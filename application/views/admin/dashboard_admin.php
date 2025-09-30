@@ -1,114 +1,13 @@
-<?php
-defined('BASEPATH') or exit('No direct script access allowed');
-?>
-
 <?php $this->load->view('navbar/header'); ?>
-
-<style>
-    .table-wrapper {
-        position: relative;
-        margin-bottom: 1rem;
-        background: white;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-        border-radius: 0.5rem;
-    }
-
-    .table-responsive-custom {
-        overflow: auto;
-        margin: 0;
-        padding: 0.5rem;
-        max-width: 100%;
-    }
-
-    .table {
-        width: max-content;
-        min-width: 100%;
-        margin-bottom: 0;
-        background-color: white;
-        border-collapse: collapse;
-    }
-
-    .table>thead {
-        background-color: #f8f9fa;
-    }
-
-    .table>thead th {
-        background-color: #f8f9fa;
-        padding: 0.75rem;
-        white-space: nowrap;
-        vertical-align: middle;
-        border-bottom: 2px solid #dee2e6;
-        font-weight: 600;
-    }
-
-    .table>tbody td {
-        padding: 0.75rem;
-        vertical-align: middle;
-        border: 1px solid #dee2e6;
-    }
-
-    /* Column widths */
-    .table .id-column {
-        min-width: 60px;
-        text-align: center;
-    }
-
-    .table .action-column {
-        min-width: 120px;
-        text-align: center;
-        white-space: nowrap;
-    }
-
-    .table .date-column {
-        min-width: 130px;
-        white-space: nowrap;
-    }
-
-    .table .text-column {
-        min-width: 150px;
-    }
-
-    .table .status-column {
-        min-width: 100px;
-        text-align: center;
-        white-space: nowrap;
-    }
-
-    /* Hover effects */
-    .table tbody tr:hover td {
-        background-color: rgba(0, 0, 0, 0.075);
-    }
-
-    /* Better scrollbar styling */
-    .table-responsive-custom::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .table-responsive-custom::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 4px;
-    }
-
-    .table-responsive-custom::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 4px;
-    }
-
-    .table-responsive-custom::-webkit-scrollbar-thumb:hover {
-        background: #666;
-    }
-
-    /* Alert styling */
-    .alert {
-        border-radius: 0.5rem;
-        border: none;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-    }
-</style>
-
-<div class="container mt-4">
-    <h2>Dashboard Admin</h2>
-    <p>Selamat datang, <b><?= htmlspecialchars($username) ?></b> (Admin)</p>
+<div class="content-wrapper">
+    <!-- Welcome Card -->
+    <div class="content-card mb-4">
+        <h4 class="mb-1">Dashboard Admin</h4>
+        <p class="text-muted mb-0">
+            <i class="fas fa-user-circle me-1"></i>
+            <b><?= htmlspecialchars($username) ?></b> (Admin)
+        </p>
+    </div>
 
     <?php if (!empty($notif) && $notif > 0): ?>
         <div class="alert alert-warning">
@@ -116,90 +15,527 @@ defined('BASEPATH') or exit('No direct script access allowed');
         </div>
     <?php endif; ?>
 
+    <!-- Search Card -->
+    <div class="search-card mb-4">
+        <h5 class="mb-3">
+            <i class="fas fa-search me-2"></i>
+            Filter Data
+        </h5>
+        <form method="get" action="<?= site_url('perkara/dashboard') ?>" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Parent</label>
+                <select name="parent" class="form-select">
+                    <option value="">Semua Parent</option>
+                    <?php foreach ($parents as $p): ?>
+                        <option value="<?= $p->id ?>" <?= ($this->input->get('parent') == $p->id) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($p->nama_lengkap) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Asal Pengadilan</label>
+                <input type="text" name="cari_pengadilan" class="form-control"
+                    value="<?= htmlspecialchars($this->input->get('cari_pengadilan')) ?>"
+                    placeholder="Cari pengadilan...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">Semua Status</option>
+                    <option value="Proses" <?= ($this->input->get('status') == 'Proses') ? 'selected' : '' ?>>Proses</option>
+                    <option value="Selesai" <?= ($this->input->get('status') == 'Selesai') ? 'selected' : '' ?>>Selesai</option>
+                    <option value="Ditolak" <?= ($this->input->get('status') == 'Ditolak') ? 'selected' : '' ?>>Ditolak</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <div class="d-flex gap-2 w-100">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-search me-1"></i> Cari
+                    </button>
+                    <a href="<?= site_url('perkara/dashboard') ?>" class="btn btn-secondary flex-grow-1">
+                        <i class="fas fa-redo me-1"></i> Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <?php if (!empty($terlambat) && $terlambat > 0): ?>
         <div class="alert alert-danger">
             ⚠️ Ada <?= $terlambat ?> perkara yang permohonan kasasinya sudah lewat
         </div>
     <?php endif; ?>
 
-    <div class="table-wrapper">
-        <div class="table-responsive-custom">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th class="id-column">ID</th>
-                        <th class="text-column">Asal Pengadilan</th>
-                        <th class="text-column">Nomor Perkara Tk1</th>
-                        <th class="text-column">Klasifikasi</th>
-                        <th class="date-column">Tgl Register Banding</th>
-                        <th class="text-column">Nomor Perkara Banding</th>
-                        <th class="text-column">Lama Proses</th>
-                        <th class="text-column">Status Perkara Tk Banding</th>
-                        <th class="date-column">Pemberitahuan Putusan Banding</th>
-                        <th class="date-column">Permohonan Kasasi</th>
-                        <th class="date-column">Pengiriman Berkas Kasasi</th>
-                        <th class="status-column">Status</th>
-                        <th class="action-column">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($perkaras)): ?>
-                        <?php foreach ($perkaras as $row): ?>
-                            <tr>
-                                <td class="id-column"><?= (int)$row->id ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->asal_pengadilan ?? '-') ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->nomor_perkara_tk1 ?? '-') ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->klasifikasi ?? '-') ?></td>
-                                <td class="date-column">
-                                    <?= !empty($row->tgl_register_banding)
-                                        ? date('d-m-Y', strtotime($row->tgl_register_banding))
-                                        : '-' ?>
-                                </td>
-                                <td class="text-column"><?= htmlspecialchars($row->nomor_perkara_banding ?? '-') ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->lama_proses ?? '-') ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->status_perkara_tk_banding ?? '-') ?></td>
-                                <td class="date-column">
-                                    <?= !empty($row->pemberitahuan_putusan_banding)
-                                        ? date('d-m-Y', strtotime($row->pemberitahuan_putusan_banding))
-                                        : '-' ?>
-                                </td>
-                                <td class="date-column">
-                                    <?= !empty($row->permohonan_kasasi)
-                                        ? date('d-m-Y', strtotime($row->permohonan_kasasi))
-                                        : '-' ?>
-                                </td>
-                                <td class="date-column">
-                                    <?= !empty($row->pengiriman_berkas_kasasi)
-                                        ? date('d-m-Y', strtotime($row->pengiriman_berkas_kasasi))
-                                        : '-' ?>
-                                </td>
-                                <td class="status-column">
-                                    <?php if ($row->status === 'Proses'): ?>
-                                        <span class="badge bg-warning">Proses</span>
-                                    <?php elseif ($row->status === 'Selesai'): ?>
-                                        <span class="badge bg-success">Selesai</span>
-                                    <?php elseif ($row->status === 'Ditolak'): ?>
-                                        <span class="badge bg-danger">Ditolak</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-secondary">-</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="action-column">
-                                    <a href="<?= site_url('perkara/edit/' . $row->id) ?>" class="btn btn-warning btn-sm">Edit</a>
+    <style>
+        .content-card.p-0 {
+            padding: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
 
-                                    <a href="<?= site_url('perkara/hapus/' . $row->id) ?>" class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">Hapus</a>
+        .table-wrapper {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .table-responsive-custom {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
+            width: 100%;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        /* Make specific columns fixed width */
+        .table .number-column {
+            width: 60px;
+        }
+
+        .table .date-column {
+            width: 120px;
+        }
+
+        .table .status-column {
+            width: 100px;
+        }
+
+        .table .action-column {
+            width: 100px;
+        }
+
+        .table .parent-column {
+            width: 150px;
+        }
+
+        .table .text-column {
+            min-width: 180px;
+        }
+
+        /* Indikator scroll */
+        .table-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 15px;
+            height: 15px;
+            background: #f1f3f4;
+            border-radius: 0 0 0.5rem 0;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar {
+            height: 12px;
+            width: 12px;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-track {
+            background: #f1f3f4;
+            border-radius: 6px;
+            margin: 2px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-thumb {
+            background: #007bff;
+            border-radius: 6px;
+            border: 3px solid #f1f3f4;
+            min-height: 40px;
+            min-width: 40px;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+            transform: scale(1.1);
+            transition: all 0.2s ease;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(135deg, #004085, #002752);
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-corner {
+            background: #f1f3f4;
+            border-radius: 8px;
+        }
+
+        /* Loading state */
+        .table-loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .table-loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            animation: loading-shimmer 1.5s infinite;
+            z-index: 1000;
+        }
+
+        @keyframes loading-shimmer {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+    </style>
+
+    <!-- Table -->
+    <style>
+        .content-card.p-0 {
+            padding: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .table-responsive-custom {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
+        }
+
+        .table {
+            margin: 0;
+            width: 100%;
+        }
+
+        /* Fixed column widths */
+        .number-column {
+            width: 60px !important;
+            min-width: 60px !important;
+        }
+
+        .date-column {
+            width: 120px !important;
+            min-width: 120px !important;
+        }
+
+        .status-column {
+            width: 100px !important;
+            min-width: 100px !important;
+        }
+
+        .action-column {
+            width: 100px !important;
+            min-width: 100px !important;
+        }
+
+        .parent-column {
+            width: 150px !important;
+            min-width: 150px !important;
+        }
+
+        .text-column {
+            min-width: 180px !important;
+        }
+
+        /* Scrollbar styling */
+        .table-responsive-custom::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 5px;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+            border: 2px solid #f1f1f1;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+
+    <div class="content-card p-0">
+        <div class="table-container">
+            <div class="table-responsive-custom" tabindex="0" role="region" aria-label="Tabel data perkara yang dapat di-scroll">
+                <table class="table table-bordered table-striped table-hover m-0">
+                    <thead>
+                        <tr>
+                            <th class="number-column text-center align-middle">No</th>
+                            <th class="text-column align-middle">Pengadilan</th>
+                            <th class="text-column align-middle">Perkara Tk1</th>
+                            <th class="parent-column align-middle">Parent</th>
+                            <th class="text-column align-middle">Klasifikasi</th>
+                            <th class="date-column text-center align-middle">Tgl Register</th>
+                            <th class="text-column align-middle">Perkara Banding</th>
+                            <th class="text-column text-center align-middle">Lama</th>
+                            <th class="text-column align-middle">Status Tk Banding</th>
+                            <th class="date-column text-center align-middle">Putusan Banding</th>
+                            <th class="date-column text-center align-middle">Kasasi</th>
+                            <th class="date-column text-center align-middle">Berkas Kasasi</th>
+                            <th class="status-column text-center align-middle">Status</th>
+                            <th class="action-column text-center align-middle">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($perkaras)): ?>
+                            <tr>
+                                <td colspan="14" class="text-center py-4">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="fas fa-folder-open text-muted mb-2" style="font-size: 2rem;"></i>
+                                        <p class="text-muted mb-0">Belum ada data perkara yang tersedia</p>
+                                    </div>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
-
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="13" class="text-center">Tidak ada data</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                            <?php else: $no = 1;
+                            foreach ($perkaras as $row): ?>
+                                <tr>
+                                    <td class="number-column"><?= $no++ ?></td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->asal_pengadilan) ?>">
+                                        <?= htmlspecialchars($row->asal_pengadilan) ?>
+                                    </td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_tk1) ?>">
+                                        <?= htmlspecialchars($row->nomor_perkara_tk1) ?>
+                                    </td>
+                                    <td class="parent-column" title="<?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?>">
+                                        <?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?>
+                                    </td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->klasifikasi) ?>">
+                                        <?= htmlspecialchars($row->klasifikasi) ?>
+                                    </td>
+                                    <td class="date-column">
+                                        <?= $row->tgl_register_banding ? date("d-m-Y", strtotime($row->tgl_register_banding)) : '-' ?>
+                                    </td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_banding) ?>">
+                                        <?= htmlspecialchars($row->nomor_perkara_banding) ?>
+                                    </td>
+                                    <td class="text-column"><?= htmlspecialchars($row->lama_proses) ?></td>
+                                    <td class="text-column"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
+                                    <td class="date-column">
+                                        <?= $row->pemberitahuan_putusan_banding ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?>
+                                    </td>
+                                    <td class="date-column">
+                                        <?= $row->permohonan_kasasi ? date("d-m-Y", strtotime($row->permohonan_kasasi)) : '-' ?>
+                                    </td>
+                                    <td class="date-column">
+                                        <?= $row->pengiriman_berkas_kasasi ? date("d-m-Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?>
+                                    </td>
+                                    <td class="status-column">
+                                        <?php
+                                        switch ($row->status) {
+                                            case "Proses":
+                                                echo '<span class="badge bg-warning text-dark">Proses</span>';
+                                                break;
+                                            case "Selesai":
+                                                echo '<span class="badge bg-success">Selesai</span>';
+                                                break;
+                                            case "Ditolak":
+                                                echo '<span class="badge bg-danger">Ditolak</span>';
+                                                break;
+                                            default:
+                                                echo '<span class="badge bg-secondary">-</span>';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td class="action-column">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="<?= site_url('perkara/edit/' . $row->id) ?>"
+                                                class="btn btn-warning"
+                                                title="Edit Perkara">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="<?= site_url('perkara/hapus/' . $row->id) ?>"
+                                                onclick="return confirm('Yakin ingin menghapus data ini?')"
+                                                class="btn btn-danger"
+                                                title="Hapus Perkara">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                        <?php endforeach;
+                        endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
+        </style>
+
+        <!-- JavaScript untuk Tabel Responsif -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const tableWrapper = document.querySelector('.table-wrapper');
+                const tableContainer = document.querySelector('.table-responsive-custom');
+                const table = document.querySelector('.table');
+
+                if (!tableWrapper || !tableContainer || !table) return;
+
+                // Cek apakah tabel perlu scroll
+                function checkScrollable() {
+                    const isScrollableX = tableContainer.scrollWidth > tableContainer.clientWidth;
+                    const isScrollableY = tableContainer.scrollHeight > tableContainer.clientHeight;
+
+                    // Update class untuk shadow indicators
+                    tableWrapper.classList.toggle('scrollable-x', isScrollableX);
+                    tableWrapper.classList.toggle('scrollable-y', isScrollableY);
+
+                    if (isScrollableX || isScrollableY) {
+                        tableContainer.setAttribute('title', 'Gunakan scroll mouse atau tombol panah untuk navigasi');
+                    } else {
+                        tableContainer.removeAttribute('title');
+                    }
+
+                    updateScrollShadows();
+                }
+
+                // Update shadow indicators berdasarkan posisi scroll
+                function updateScrollShadows() {
+                    const scrollLeft = tableContainer.scrollLeft;
+                    const scrollTop = tableContainer.scrollTop;
+                    const maxScrollLeft = tableContainer.scrollWidth - tableContainer.clientWidth;
+                    const maxScrollTop = tableContainer.scrollHeight - tableContainer.clientHeight;
+
+                    // Hapus semua shadow classes
+                    tableWrapper.classList.remove('scroll-left', 'scroll-right', 'scroll-top', 'scroll-bottom');
+
+                    // Tambahkan shadow berdasarkan posisi untuk scroll horizontal
+                    if (scrollLeft > 5) {
+                        tableWrapper.classList.add('scroll-left');
+                    }
+                    if (scrollLeft < maxScrollLeft - 5) {
+                        tableWrapper.classList.add('scroll-right');
+                    }
+
+                    // Tambahkan shadow berdasarkan posisi untuk scroll vertikal
+                    if (scrollTop > 5) {
+                        tableWrapper.classList.add('scroll-top');
+                    }
+                    if (scrollTop < maxScrollTop - 5) {
+                        tableWrapper.classList.add('scroll-bottom');
+                    }
+                }
+
+                // Horizontal scroll control
+                const scrollTrack = document.querySelector('.scroll-track');
+                const scrollThumb = document.querySelector('.scroll-thumb');
+                let isScrolling = false;
+                let startX;
+                let scrollLeft;
+
+                function updateScrollThumb() {
+                    if (!scrollThumb || !tableContainer) return;
+
+                    const tableWidth = table.offsetWidth;
+                    const containerWidth = tableContainer.offsetWidth;
+                    const scrollPercentage = tableContainer.scrollLeft / (tableWidth - containerWidth);
+                    const thumbWidth = (containerWidth / tableWidth) * scrollTrack.offsetWidth;
+                    const maxOffset = scrollTrack.offsetWidth - thumbWidth;
+
+                    scrollThumb.style.width = `${thumbWidth}px`;
+                    scrollThumb.style.left = `${scrollPercentage * maxOffset}px`;
+                }
+
+                scrollThumb.addEventListener('mousedown', (e) => {
+                    isScrolling = true;
+                    startX = e.pageX - scrollThumb.offsetLeft;
+                    scrollLeft = tableContainer.scrollLeft;
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isScrolling) return;
+
+                    e.preventDefault();
+                    const x = e.pageX - scrollTrack.getBoundingClientRect().left;
+                    const walk = (x - startX);
+                    const tableWidth = table.offsetWidth;
+                    const containerWidth = tableContainer.offsetWidth;
+                    const scrollRatio = (tableWidth - containerWidth) / (scrollTrack.offsetWidth - scrollThumb.offsetWidth);
+
+                    tableContainer.scrollLeft = scrollLeft + (walk * scrollRatio);
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isScrolling = false;
+                });
+
+                // Event listeners
+                tableContainer.addEventListener('scroll', () => {
+                    updateScrollShadows();
+                    updateScrollThumb();
+                });
+                window.addEventListener('resize', () => {
+                    checkScrollable();
+                    updateScrollThumb();
+                });
+
+                // Inisialisasi
+                checkScrollable();
+                updateScrollThumb();
+
+                // Smooth scrolling untuk mobile
+                if ('ontouchstart' in window) {
+                    tableContainer.style.webkitOverflowScrolling = 'touch';
+                }
+
+                // Keyboard navigation
+                tableContainer.addEventListener('keydown', function(e) {
+                    const scrollAmount = 50;
+
+                    switch (e.key) {
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            tableContainer.scrollLeft -= scrollAmount;
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            tableContainer.scrollLeft += scrollAmount;
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            tableContainer.scrollTop -= scrollAmount;
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            tableContainer.scrollTop += scrollAmount;
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            tableContainer.scrollLeft = 0;
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            tableContainer.scrollLeft = tableContainer.scrollWidth;
+                            break;
+                        case 'PageUp':
+                            e.preventDefault();
+                            tableContainer.scrollTop -= tableContainer.clientHeight * 0.8;
+                            break;
+                        case 'PageDown':
+                            e.preventDefault();
+                            tableContainer.scrollTop += tableContainer.clientHeight * 0.8;
+                            break;
+                    }
+                });
+            });
+        </script>
 
         <?php $this->load->view('navbar/footer'); ?>

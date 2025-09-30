@@ -35,11 +35,14 @@ class User extends CI_Controller
             show_404();
         }
 
-        // Ambil daftar jenis perkara untuk dropdown parent
-        $this->db->select('parent_id, nama');
-        $this->db->where('parent_id IS NOT NULL');
-        $this->db->order_by('nama', 'ASC');
-        $data['parents'] = $this->db->get('jenis_perkara')->result();
+        // Ambil daftar parent yang aktif untuk dropdown
+        $data['parents'] = $this->db
+            ->select('id, nama, nama_lengkap')
+            ->where('parent_id IS NULL')
+            ->where('aktif', 'Y')
+            ->order_by('urutan', 'ASC')
+            ->get('jenis_perkara')
+            ->result();
 
         if ($this->input->method() === 'post') {
             // Handle empty dates by setting them to NULL
@@ -123,38 +126,28 @@ class User extends CI_Controller
 
     public function dashboard_user()
     {
+        // Get parent list for dropdown
+        $data['parents'] = $this->db
+            ->where('parent_id IS NULL')
+            ->where('aktif', 'Y')
+            ->order_by('urutan', 'ASC')
+            ->get('jenis_perkara')
+            ->result();
+
         // Ambil input pencarian
-        $filters = [];
-        $filters['asal_pengadilan'] = $this->input->get('cari_pengadilan', true);
-        $filters['klasifikasi'] = $this->input->get('cari_klasifikasi', true);
-        $filters['permohonan_kasasi'] = $this->input->get('cari_permohonan', true);
-        $filters['pengiriman_berkas_kasasi'] = $this->input->get('cari_berkas', true);
+        $filters = [
+            'asal_pengadilan' => $this->input->get('cari_pengadilan', TRUE),
+            'klasifikasi'     => $this->input->get('cari_klasifikasi', TRUE),
+            'parent'          => $this->input->get('parent', TRUE),
+            'user_id'         => $this->session->userdata('user_id') // Filter berdasarkan user yang login
+        ];
 
-        // Hapus filter kosong
-        foreach ($filters as $k => $v) {
-            if ($v === null || $v === '') unset($filters[$k]);
-        }
+        // Get filtered data using model
+        $data['perkaras'] = $this->Perkara_model->get_filtered($filters);
+        $data['filters'] = $filters;
 
-        // Query dengan filter dan join dengan tabel jenis_perkara
-        $this->db->select('p.*, jp.nama as parent_nama');
-        $this->db->from('perkara_banding p');
-        $this->db->join('jenis_perkara jp', 'p.parent = jp.parent_id', 'left');
-
-        if (!empty($filters['asal_pengadilan'])) {
-            $this->db->like('p.asal_pengadilan', $filters['asal_pengadilan']);
-        }
-        if (!empty($filters['klasifikasi'])) {
-            $this->db->like('p.klasifikasi', $filters['klasifikasi']);
-        }
-        if (!empty($filters['permohonan_kasasi'])) {
-            $this->db->where('p.permohonan_kasasi', $filters['permohonan_kasasi']);
-        }
-        if (!empty($filters['pengiriman_berkas_kasasi'])) {
-            $this->db->where('p.pengiriman_berkas_kasasi', $filters['pengiriman_berkas_kasasi']);
-        }
-        $this->db->order_by('p.id', 'ASC');
-        $query = $this->db->get();
-        $data['perkaras'] = $query->result();
+        $this->load->view('navbar/header');
         $this->load->view('user/dashboard_user', $data);
+        $this->load->view('navbar/footer');
     }
 }

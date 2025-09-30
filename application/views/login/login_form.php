@@ -74,14 +74,59 @@
         }
 
         .captcha-box {
-            font-size: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
             font-weight: bold;
-            letter-spacing: 5px;
-            background: #e6ffe6;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #e6e6e6, #ffffff);
             text-align: center;
             border-radius: 8px;
-            padding: 8px;
+            padding: 10px;
             margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            cursor: default;
+            width: 100%;
+        }
+
+        .captcha-box::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(0, 0, 0, 0.05) 10px,
+                    rgba(0, 0, 0, 0.05) 20px);
+            pointer-events: none;
+        }
+
+        .captcha-box::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background: linear-gradient(45deg,
+                    transparent 25%,
+                    rgba(255, 255, 255, 0.1) 25%,
+                    rgba(255, 255, 255, 0.1) 50%,
+                    transparent 50%,
+                    transparent 75%,
+                    rgba(255, 255, 255, 0.1) 75%);
+            background-size: 4px 4px;
+            pointer-events: none;
         }
 
         .login-right {
@@ -160,6 +205,53 @@
                 icon.classList.replace("bi-eye-slash", "bi-eye");
             }
         }
+
+        // Mencegah akses ke captcha
+        document.addEventListener('DOMContentLoaded', function() {
+            const captchaBox = document.querySelector('.captcha-box');
+
+            // Mencegah copy
+            captchaBox.addEventListener('copy', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // Mencegah cut
+            captchaBox.addEventListener('cut', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // Mencegah paste
+            captchaBox.addEventListener('paste', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // Mencegah drag
+            captchaBox.addEventListener('drag', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // Mencegah drop
+            captchaBox.addEventListener('drop', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // Mencegah klik kanan
+            captchaBox.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // Mencegah select
+            captchaBox.addEventListener('selectstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+        });
     </script>
 </body>
 

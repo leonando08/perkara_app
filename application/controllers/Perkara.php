@@ -29,11 +29,20 @@ class Perkara extends CI_Controller
      */
     public function dashboard()
     {
+        // Get parent list for dropdown
+        $data['parents'] = $this->db
+            ->where('parent_id IS NULL')
+            ->where('aktif', 'Y')
+            ->order_by('urutan', 'ASC')
+            ->get('jenis_perkara')
+            ->result();
+
         $filters = [
             'bulan'           => $this->input->get('bulan', true),
             'asal_pengadilan' => $this->input->get('cari_pengadilan', true),
             'klasifikasi'     => $this->input->get('cari_klasifikasi', true),
             'status'          => $this->input->get('status', true),
+            'parent'          => $this->input->get('parent', true),
         ];
 
         // kalau user biasa, filter berdasarkan user_id
@@ -61,6 +70,18 @@ class Perkara extends CI_Controller
         $data['error'] = '';
         $data['success'] = '';
 
+        // Ambil parent yang aktif (parent_id IS NULL dan aktif = Y)
+        $data['parents'] = $this->db
+            ->where('parent_id IS NULL')
+            ->where('aktif', 'Y')
+            ->order_by('urutan', 'ASC')
+            ->get('jenis_perkara')
+            ->result();
+
+        // Cek apakah kolom user_id ada
+        $fields = $this->db->list_fields('perkara_banding');
+        $has_user_id = in_array('user_id', $fields);
+
         if ($this->input->post()) {
             // Validasi sederhana
             $required = ['asal_pengadilan', 'klasifikasi', 'tgl_register_banding', 'status'];
@@ -72,10 +93,14 @@ class Perkara extends CI_Controller
             }
 
             if (empty($data['error'])) {
+                $parent_id = $this->input->post('parent');
+                $klasifikasi = $this->input->post('klasifikasi');
+
                 $insertData = [
                     'asal_pengadilan'               => $this->input->post('asal_pengadilan'),
                     'nomor_perkara_tk1'             => $this->input->post('nomor_perkara_tk1'),
-                    'klasifikasi'                   => $this->input->post('klasifikasi'),
+                    'parent'                        => $parent_id,
+                    'klasifikasi'                   => $klasifikasi,
                     'tgl_register_banding'          => $this->input->post('tgl_register_banding'),
                     'nomor_perkara_banding'         => $this->input->post('nomor_perkara_banding'),
                     'lama_proses'                   => $this->input->post('lama_proses'),
@@ -85,6 +110,11 @@ class Perkara extends CI_Controller
                     'pengiriman_berkas_kasasi'      => $this->input->post('pengiriman_berkas_kasasi'),
                     'status'                        => $this->input->post('status')
                 ];
+
+                // Tambahkan user_id jika kolom ada
+                if ($has_user_id) {
+                    $insertData['user_id'] = $this->session->userdata('user_id');
+                }
 
                 if ($this->Perkara_model->add($insertData)) {
                     $data['success'] = "Data berhasil ditambahkan!";
@@ -159,6 +189,31 @@ class Perkara extends CI_Controller
     {
         $data['perkara'] = $this->Perkara_model->getById($id);
         $this->load->view('perkara/edit_perkara', $data);
+    }
+
+    /**
+     * Get jenis perkara for Select2 dropdown
+     */
+    public function get_jenis_perkara()
+    {
+        $parent_id = $this->input->get('parent_id');
+
+        $this->db->select('id, nama, nama_lengkap');
+        $this->db->from('jenis_perkara');
+
+        if ($parent_id) {
+            $this->db->where('parent_id', $parent_id);
+        } else {
+            $this->db->where('parent_id IS NULL');
+        }
+
+        $this->db->where('aktif', 'Y');
+        $this->db->order_by('urutan', 'ASC');
+
+        $result = $this->db->get()->result();
+
+        header('Content-Type: application/json');
+        echo json_encode($result);
     }
 
 
