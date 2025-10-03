@@ -10,17 +10,17 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'      => '',
-	'hostname' => 'localhost',
-	'username' => 'root',       // default user XAMPP
-	'password' => '',           // default password XAMPP kosong
-	'database' => 'perkara_db', // ganti sesuai nama database kamu
+	'hostname' => 'db', // gunakan nama service di docker-compose
+	'username' => 'perkara_user',
+	'password' => 'perkara_pass',
+	'database' => 'perkara_db',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
 	'db_debug' => (ENVIRONMENT !== 'production'),
 	'cache_on' => FALSE,
 	'cachedir' => '',
-	'char_set' => 'utf8mb4',       // lebih aman untuk UTF-8 lengkap
+	'char_set' => 'utf8mb4',
 	'dbcollat' => 'utf8mb4_general_ci',
 	'swap_pre' => '',
 	'encrypt'  => FALSE,

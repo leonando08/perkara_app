@@ -15,88 +15,88 @@ $current_url = current_url();
     </div>
 
     <ul class="nav flex-column">
-        <!-- PERKARA MENU -->
+
+        <!-- DASHBOARD & DATA PERKARA MENU -->
         <li class="nav-item mb-2">
             <a class="nav-link d-flex justify-content-between align-items-center menu-toggle"
-                data-bs-toggle="collapse" data-bs-target="#submenuPerkara" href="#submenuPerkara" role="button"
-                aria-expanded="false" aria-controls="submenuPerkara">
-                <span><i class="fas fa-folder me-2"></i>Perkara</span>
+                data-bs-toggle="collapse" data-bs-target="#submenuDashboard" href="#submenuDashboard" role="button"
+                aria-expanded="false" aria-controls="submenuDashboard">
+                <span><i class="fas fa-tachometer-alt me-2"></i>Dashboard</span>
                 <i class="fas fa-chevron-down"></i>
             </a>
-            <div class="collapse" id="submenuPerkara">
+            <div class="collapse" id="submenuDashboard">
                 <ul class="nav flex-column ms-3 mt-2">
-                    <?php if ($role == 'user'): ?>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('perkara/dashboard'); ?>" data-menu="perkara">
-                                <i class="fas fa-tasks me-2"></i>Kelola Data Perkara
-                            </a></li>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('perkara/tambah'); ?>" data-menu="perkara">
-                                <i class="fas fa-plus me-2"></i>Tambah Perkara
-                            </a></li>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('laporan'); ?>" data-menu="perkara">
-                                <i class="fas fa-file-alt me-2"></i>Laporan Perkara
+                    <?php if ($role == 'admin'): ?>
+                        <li><a class="nav-link submenu-link" href="<?= site_url('admin/dashboard_admin'); ?>" data-menu="dashboard">
+                                <i class="fas fa-home me-2"></i>Data Perkara
                             </a></li>
                     <?php else: ?>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('perkara/dashboard'); ?>" data-menu="perkara">
-                                <i class="fas fa-eye me-2"></i>Lihat Data Perkara
-                            </a></li>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('laporan'); ?>" data-menu="perkara">
-                                <i class="fas fa-file-alt me-2"></i>Laporan Perkara
+                        <li><a class="nav-link submenu-link" href="<?= site_url('perkara'); ?>" data-menu="dashboard">
+                                <i class="fas fa-home me-2"></i>Data Perkara
                             </a></li>
                     <?php endif; ?>
                 </ul>
             </div>
         </li>
 
-        <!-- MEDIASI MENU -->
+        <!-- TAMBAH PERKARA MENU (User Only) -->
+        <?php if ($role == 'user'): ?>
+            <li class="nav-item mb-2">
+                <a class="nav-link" href="<?= site_url('perkara/tambah'); ?>">
+                    <i class="fas fa-plus me-2"></i>Tambah Perkara
+                </a>
+            </li>
+        <?php endif; ?>
+
+        <!-- LAPORAN MENU -->
         <li class="nav-item mb-2">
             <a class="nav-link d-flex justify-content-between align-items-center menu-toggle"
-                data-bs-toggle="collapse" data-bs-target="#submenuMediasi" href="#submenuMediasi" role="button"
-                aria-expanded="false" aria-controls="submenuMediasi">
-                <span><i class="fas fa-balance-scale me-2"></i>Mediasi</span>
+                data-bs-toggle="collapse" data-bs-target="#submenuLaporan" href="#submenuLaporan" role="button"
+                aria-expanded="false" aria-controls="submenuLaporan">
+                <span><i class="fas fa-chart-line me-2"></i>Laporan</span>
                 <i class="fas fa-chevron-down"></i>
             </a>
-            <div class="collapse" id="submenuMediasi">
+            <div class="collapse" id="submenuLaporan">
                 <ul class="nav flex-column ms-3 mt-2">
-                    <?php if ($role == 'user'): ?>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('mediasi/kelola'); ?>" data-menu="mediasi">
-                                <i class="fas fa-tasks me-2"></i>Kelola Data Mediasi
-                            </a></li>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('mediasi/tambah'); ?>" data-menu="mediasi">
-                                <i class="fas fa-plus me-2"></i>Tambah Mediasi
-                            </a></li>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('mediasi/laporan'); ?>" data-menu="mediasi">
-                                <i class="fas fa-file-alt me-2"></i>Laporan Mediasi
-                            </a></li>
-                    <?php else: ?>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('mediasi/lihat'); ?>" data-menu="mediasi">
-                                <i class="fas fa-eye me-2"></i>Lihat Data Mediasi
-                            </a></li>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('mediasi/laporan'); ?>" data-menu="mediasi">
-                                <i class="fas fa-file-alt me-2"></i>Laporan Mediasi
-                            </a></li>
-                    <?php endif; ?>
+                    <li><a class="nav-link submenu-link" href="<?= site_url('laporan'); ?>" data-menu="laporan">
+                            <i class="fas fa-file-alt me-2"></i>Laporan Detail
+                        </a></li>
+                    <li><a class="nav-link submenu-link" href="<?= site_url('laporan/rekap'); ?>" data-menu="laporan">
+                            <i class="fas fa-chart-bar me-2"></i>Rekap Kasasi
+                        </a></li>
                 </ul>
             </div>
         </li>
 
-        <!-- USER MENU (ADMIN ONLY) -->
+        <!-- USER MANAGEMENT MENU (ADMIN ONLY) -->
         <?php if ($role == 'admin'): ?>
             <li class="nav-item mb-2">
                 <a class="nav-link d-flex justify-content-between align-items-center menu-toggle"
                     data-bs-toggle="collapse" data-bs-target="#submenuUser" href="#submenuUser" role="button"
                     aria-expanded="false" aria-controls="submenuUser">
-                    <span><i class="fas fa-users me-2"></i>User</span>
+                    <span><i class="fas fa-users me-2"></i>Kelola User</span>
                     <i class="fas fa-chevron-down"></i>
                 </a>
                 <div class="collapse" id="submenuUser">
                     <ul class="nav flex-column ms-3 mt-2">
-                        <li><a class="nav-link submenu-link" href="<?= site_url('kelola_user'); ?>" data-menu="user">
-                                <i class="fas fa-user-cog me-2"></i>Kelola User
+                        <li><a class="nav-link submenu-link" href="<?= site_url('admin/kelola_user'); ?>" data-menu="user">
+                                <i class="fas fa-list me-2"></i>Daftar User
+                            </a></li>
+                        <li><a class="nav-link submenu-link" href="<?= site_url('admin/tambah_user'); ?>" data-menu="user">
+                                <i class="fas fa-user-plus me-2"></i>Tambah User
                             </a></li>
                     </ul>
                 </div>
             </li>
         <?php endif; ?>
+
+        <!-- LOGOUT MENU -->
+        <li class="nav-item mt-4 pt-3" style="border-top: 1px solid #e5e7eb;">
+            <a class="nav-link text-danger" href="<?= site_url('auth/logout'); ?>"
+                onclick="return confirm('Yakin ingin logout?')">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
+        </li>
     </ul>
 </div>
 
@@ -339,6 +339,26 @@ $current_url = current_url();
         body {
             margin-left: 280px;
         }
+    }
+
+    /* Logout menu styling */
+    .sidebar .nav-link.text-danger {
+        color: #dc3545 !important;
+        font-weight: 500;
+    }
+
+    .sidebar .nav-link.text-danger:hover {
+        background: #fee2e2;
+        color: #b91c1c !important;
+        transform: translateX(4px);
+    }
+
+    .sidebar .nav-link.text-danger i {
+        color: #dc3545 !important;
+    }
+
+    .sidebar .nav-link.text-danger:hover i {
+        color: #b91c1c !important;
     }
 
     /* Custom scrollbar untuk sidebar */

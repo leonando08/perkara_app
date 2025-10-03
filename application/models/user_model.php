@@ -9,9 +9,19 @@ class User_model extends CI_Model
         return $this->db->get_where('users', ['username' => $username])->row();
     }
 
+    public function get_by_id($id)
+    {
+        return $this->db->get_where('users', ['id' => $id])->row();
+    }
+
     public function get_all()
     {
         return $this->db->order_by('id', 'ASC')->get('users')->result_array();
+    }
+
+    public function add($data)
+    {
+        return $this->db->insert('users', $data);
     }
 
     public function insert($data)

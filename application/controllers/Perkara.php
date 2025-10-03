@@ -52,6 +52,7 @@ class Perkara extends CI_Controller
 
         $data['perkaras'] = $this->Perkara_model->get_filtered($filters);
         $data['filters']  = $filters;
+        $data['username'] = $this->session->userdata('username');
 
         $this->load->view('navbar/header');
         if ($this->session->userdata('role') === 'admin') {

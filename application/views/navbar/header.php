@@ -930,10 +930,6 @@ $role     = $this->session->userdata('role');
                     <?= htmlspecialchars($username); ?>
                     <small class="ms-1">(<?= htmlspecialchars($role); ?>)</small>
                 </span>
-                <a href="<?= site_url('auth/logout'); ?>" class="btn btn-logout">
-                    <i class="fas fa-sign-out-alt me-1"></i>
-                    <span class="d-none d-sm-inline">Logout</span>
-                </a>
             </div>
         </div>
     </nav>

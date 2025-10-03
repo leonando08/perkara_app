@@ -23,7 +23,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://localhost/perkara_app/';
+$config['base_url'] = 'http://localhost:8080/';
 
 
 /*
@@ -385,7 +385,7 @@ $config['encryption_key'] = '';
 |
 */
 $config['sess_driver'] = 'files';
-$config['sess_save_path'] = null;
+$config['sess_save_path'] = '/tmp';
 $config['sess_cookie_name'] = 'ci_session';
 $config['sess_expiration'] = 7200;
 $config['sess_match_ip'] = FALSE;

@@ -1,4 +1,3 @@
-
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 /**
@@ -26,7 +25,7 @@ class Auth extends CI_Controller
             if ($this->session->userdata('role') === 'admin') {
                 redirect('admin/dashboard_admin');
             } else {
-                redirect('user/dashboard');
+                redirect('perkara');
             }
         }
 
@@ -53,7 +52,7 @@ class Auth extends CI_Controller
                     ]);
                     $this->session->unset_userdata('captcha');
                     if ($user->role === 'admin') redirect('admin/dashboard_admin');
-                    else redirect('user/dashboard_user');
+                    else redirect('perkara');
                 } else {
                     $data['error'] = "Username atau password salah!";
                 }
