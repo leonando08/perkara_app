@@ -10,21 +10,35 @@
         </div>
 
         <?php if ($this->session->flashdata('error')): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <?= $this->session->flashdata('error') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: '<?= addslashes($this->session->flashdata('error')) ?>',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc3545'
+                    });
+                });
+            </script>
         <?php endif; ?>
 
         <?php if ($this->session->flashdata('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert" id="alertBox">
-                <?= $this->session->flashdata('success') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
             <script>
-                setTimeout(function() {
-                    window.location.href = "<?= site_url('perkara/dashboard') ?>";
-                }, 2000);
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: '<?= $this->session->flashdata('success') ?>',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        toast: true,
+                        position: 'top-end'
+                    }).then(() => {
+                        window.location.href = "<?= site_url('user/dashboard_user') ?>";
+                    });
+                });
             </script>
         <?php endif; ?>
 
@@ -51,24 +65,34 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Parent</label>
-                        <select name="parent" id="parent" class="form-select" required>
-                            <option value="">-- Pilih Parent --</option>
-                            <?php foreach ($parents as $p): ?>
-                                <option value="<?= $p->id ?>" <?= ($perkara->parent == $p->id) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($p->nama_lengkap) ?>
-                                </option>
-                            <?php endforeach; ?>
+                        <label class="form-label">Jenis Perkara<span class="text-danger">*</span></label>
+                        <select name="perkara" id="perkara" class="form-select" required>
+                            <option value="">-- Pilih Jenis Perkara --</option>
+                            <option value="PIDANA" <?= ($perkara->perkara == 'PIDANA') ? 'selected' : '' ?>>PIDANA</option>
+                            <option value="PERDATA" <?= ($perkara->perkara == 'PERDATA') ? 'selected' : '' ?>>PERDATA</option>
+                            <option value="ANAK" <?= ($perkara->perkara == 'ANAK') ? 'selected' : '' ?>>ANAK</option>
+                            <option value="TIPIKOR" <?= ($perkara->perkara == 'TIPIKOR') ? 'selected' : '' ?>>TIPIKOR</option>
                         </select>
-                        <div class="invalid-feedback">Parent harus dipilih</div>
+                        <div class="invalid-feedback">Jenis Perkara harus dipilih</div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Klasifikasi<span class="text-danger">*</span></label>
-                        <select name="klasifikasi" id="klasifikasi" class="form-select" required>
-                            <option value="">-- Pilih Parent Terlebih Dahulu --</option>
-                        </select>
-                        <div class="invalid-feedback">Klasifikasi harus dipilih</div>
+                        <input type="text"
+                            name="klasifikasi"
+                            id="klasifikasi"
+                            class="form-control"
+                            list="klasifikasi-options"
+                            value="<?= htmlspecialchars($perkara->klasifikasi) ?>"
+                            placeholder="Pilih atau ketik klasifikasi..."
+                            required>
+                        <datalist id="klasifikasi-options">
+                            <?php foreach ($jenis_perkara as $jp): ?>
+                                <option value="<?= htmlspecialchars($jp->nama) ?>">
+                                <?php endforeach; ?>
+                        </datalist>
+                        <div class="invalid-feedback">Klasifikasi harus diisi</div>
+                        <small class="form-text text-muted">Pilih dari dropdown atau ketik klasifikasi baru</small>
                     </div>
 
                     <div class="col-md-6">
@@ -163,53 +187,6 @@
             alertBox.classList.add('hide');
         }
     }, 3000);
-
-    // Fungsi untuk memuat klasifikasi berdasarkan parent yang dipilih
-    document.getElementById('parent').addEventListener('change', function() {
-        var parentId = this.value;
-        var klasifikasiSelect = document.getElementById('klasifikasi');
-        var selectedKlasifikasi = '<?= htmlspecialchars($perkara->klasifikasi) ?>'; // Simpan klasifikasi yang sudah dipilih
-
-        // Reset klasifikasi
-        klasifikasiSelect.innerHTML = '<option value="">-- ' +
-            (parentId ? 'Pilih Klasifikasi' : 'Pilih Parent Terlebih Dahulu') +
-            ' --</option>';
-
-        if (parentId) {
-            // Tambahkan loading state
-            klasifikasiSelect.disabled = true;
-            klasifikasiSelect.innerHTML = '<option value="">Loading...</option>';
-
-            // Fetch klasifikasi berdasarkan parent
-            fetch('<?= site_url("perkara/get_jenis_perkara") ?>?parent_id=' + parentId)
-                .then(response => response.json())
-                .then(data => {
-                    // Reset dan enable kembali
-                    klasifikasiSelect.innerHTML = '<option value="">-- Pilih Klasifikasi --</option>';
-                    klasifikasiSelect.disabled = false;
-
-                    // Tambahkan opsi
-                    data.forEach(item => {
-                        var option = new Option(item.nama_lengkap || item.nama, item.nama);
-                        // Jika ini adalah klasifikasi yang sebelumnya dipilih, set sebagai selected
-                        if (item.nama === selectedKlasifikasi) {
-                            option.selected = true;
-                        }
-                        klasifikasiSelect.add(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    klasifikasiSelect.innerHTML = '<option value="">Error loading data</option>';
-                    klasifikasiSelect.disabled = false;
-                });
-        }
-    });
-
-    // Trigger change event pada load untuk memuat klasifikasi yang sesuai
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('parent').dispatchEvent(new Event('change'));
-    });
 </script>
 
 <?php $this->load->view('navbar/footer'); ?>

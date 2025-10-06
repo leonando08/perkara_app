@@ -18,14 +18,13 @@
         <form method="get" action="<?= site_url('user/dashboard_user') ?>">
             <div class="row g-3">
                 <div class="col-md-3">
-                    <label class="form-label">Parent</label>
-                    <select name="parent" id="parent" class="form-select">
-                        <option value="">Semua Parent</option>
-                        <?php foreach ($parents as $p): ?>
-                            <option value="<?= $p->id ?>" <?= isset($filters['parent']) && $filters['parent'] == $p->id ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($p->nama_lengkap ?? $p->nama) ?>
-                            </option>
-                        <?php endforeach; ?>
+                    <label class="form-label">Jenis Perkara</label>
+                    <select name="perkara" class="form-select">
+                        <option value="">Semua Jenis</option>
+                        <option value="PIDANA" <?= isset($filters['perkara']) && $filters['perkara'] == 'PIDANA' ? 'selected' : '' ?>>PIDANA</option>
+                        <option value="PERDATA" <?= isset($filters['perkara']) && $filters['perkara'] == 'PERDATA' ? 'selected' : '' ?>>PERDATA</option>
+                        <option value="ANAK" <?= isset($filters['perkara']) && $filters['perkara'] == 'ANAK' ? 'selected' : '' ?>>ANAK</option>
+                        <option value="TIPIKOR" <?= isset($filters['perkara']) && $filters['perkara'] == 'TIPIKOR' ? 'selected' : '' ?>>TIPIKOR</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -515,8 +514,8 @@
                         <tr>
                             <th class="number-column text-center align-middle">No</th>
                             <th class="text-column align-middle">Pengadilan</th>
+                            <th class="parent-column align-middle">Jenis Perkara</th>
                             <th class="text-column align-middle">Perkara Tk1</th>
-                            <th class="parent-column align-middle">Parent</th>
                             <th class="text-column align-middle">Klasifikasi</th>
                             <th class="date-column text-center align-middle">Tgl Register</th>
                             <th class="text-column align-middle">Perkara Banding</th>
@@ -546,11 +545,11 @@
                                     <td class="text-column" title="<?= htmlspecialchars($row->asal_pengadilan) ?>">
                                         <?= htmlspecialchars($row->asal_pengadilan) ?>
                                     </td>
+                                    <td class="parent-column" title="<?= htmlspecialchars($row->perkara) ?>">
+                                        <?= htmlspecialchars($row->perkara) ?>
+                                    </td>
                                     <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_tk1) ?>">
                                         <?= htmlspecialchars($row->nomor_perkara_tk1) ?>
-                                    </td>
-                                    <td class="parent-column" title="<?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?>">
-                                        <?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?>
                                     </td>
                                     <td class="text-column" title="<?= htmlspecialchars($row->klasifikasi) ?>">
                                         <?= htmlspecialchars($row->klasifikasi) ?>

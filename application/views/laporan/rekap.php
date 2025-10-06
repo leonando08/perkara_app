@@ -244,9 +244,6 @@ $this->load->view('navbar/header');
                 </p>
             </div>
             <div class="action-buttons">
-                <a href="<?= site_url('laporan/cetak_rekap?tahun=' . $tahun . (isset($bulan) && $bulan ? '&bulan=' . $bulan : '')); ?>" class="btn btn-primary">
-                    <i class="fas fa-print"></i> Cetak PDF
-                </a>
                 <a href="<?= site_url('laporan/cetak_rekap_excel?tahun=' . $tahun . (isset($bulan) && $bulan ? '&bulan=' . $bulan : '')); ?>" class="btn btn-success">
                     <i class="fas fa-file-excel"></i> Ekspor Excel
                 </a>

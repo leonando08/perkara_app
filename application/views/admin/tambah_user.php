@@ -21,21 +21,36 @@
     <!-- Form Card -->
     <div class="content-card">
         <div class="card-body">
-            <!-- Alert Messages -->
+            <!-- Alert Messages with SweetAlert -->
             <?php if (!empty($error)): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <?= $error ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            html: '<?= addslashes($error) ?>',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#dc3545'
+                        });
+                    });
+                </script>
             <?php endif; ?>
 
             <?php if (!empty($success)): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>
-                    <?= $success ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: '<?= addslashes($success) ?>',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            toast: true,
+                            position: 'top-end'
+                        });
+                    });
+                </script>
             <?php endif; ?>
 
             <!-- Form -->
@@ -224,34 +239,62 @@
             const passwordVal = password.value;
             const confirmPasswordVal = confirmPassword.value;
 
-            // Basic validation
+            // Basic validation dengan SweetAlert
             if (username.length < 3) {
                 e.preventDefault();
-                alert('Username minimal 3 karakter!');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Username Tidak Valid',
+                    text: 'Username minimal 3 karakter!',
+                    confirmButtonColor: '#ffc107'
+                });
                 return false;
             }
 
             if (passwordVal.length < 6) {
                 e.preventDefault();
-                alert('Password minimal 6 karakter!');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Password Tidak Valid',
+                    text: 'Password minimal 6 karakter!',
+                    confirmButtonColor: '#ffc107'
+                });
                 return false;
             }
 
             if (passwordVal !== confirmPasswordVal) {
                 e.preventDefault();
-                alert('Password dan konfirmasi password tidak sama!');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Password Tidak Sama',
+                    text: 'Password dan konfirmasi password tidak sama!',
+                    confirmButtonColor: '#dc3545'
+                });
                 return false;
             }
 
             if (!role) {
                 e.preventDefault();
-                alert('Pilih role untuk user!');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Role Belum Dipilih',
+                    text: 'Pilih role untuk user!',
+                    confirmButtonColor: '#ffc107'
+                });
                 return false;
             }
 
-            // Show loading state
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
-            submitBtn.disabled = true;
+            // Show loading state dengan SweetAlert
+            Swal.fire({
+                title: 'Menyimpan User...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
         });
 
         // Real-time password match validation

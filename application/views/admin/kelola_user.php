@@ -18,21 +18,36 @@
         </div>
     </div>
 
-    <!-- Flash Messages -->
+    <!-- Flash Messages with SweetAlert -->
     <?php if ($this->session->flashdata('success')): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            <?= $this->session->flashdata('success') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: '<?= addslashes($this->session->flashdata('success')) ?>',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    toast: true,
+                    position: 'top-end'
+                });
+            });
+        </script>
     <?php endif; ?>
 
     <?php if ($this->session->flashdata('error')): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <?= $this->session->flashdata('error') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: '<?= addslashes($this->session->flashdata('error')) ?>',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#dc3545'
+                });
+            });
+        </script>
     <?php endif; ?>
 
     <!-- Users Table -->
@@ -104,10 +119,11 @@
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <?php if ($row['id'] != $this->session->userdata('user_id')): ?>
-                                                <a href="<?= site_url('admin/hapus_user/' . $row['id']) ?>"
-                                                    class="btn btn-sm btn-outline-danger"
+                                                <a href="javascript:void(0)"
+                                                    class="btn btn-sm btn-outline-danger btn-hapus-user"
                                                     title="Hapus User"
-                                                    onclick="return confirm('Yakin ingin menghapus user <?= htmlspecialchars($row['username']) ?>?')">
+                                                    data-url="<?= site_url('admin/hapus_user/' . $row['id']) ?>"
+                                                    data-username="<?= htmlspecialchars($row['username']) ?>">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             <?php else: ?>
@@ -138,5 +154,47 @@
         </div>
     </div>
 </div>
+
+<!-- SweetAlert Scripts -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Konfirmasi hapus user dengan SweetAlert
+        document.querySelectorAll('.btn-hapus-user').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const url = this.getAttribute('data-url');
+                const username = this.getAttribute('data-username');
+
+                Swal.fire({
+                    title: 'Konfirmasi Hapus User',
+                    html: `Apakah Anda yakin ingin menghapus user <strong>${username}</strong>?<br><small class="text-danger">Tindakan ini tidak dapat dibatalkan!</small>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Tampilkan loading
+                        Swal.fire({
+                            title: 'Menghapus User...',
+                            text: 'Mohon tunggu sebentar',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Redirect ke URL hapus
+                        window.location.href = url;
+                    }
+                });
+            });
+        });
+    });
+</script>
 
 <?php $this->load->view('navbar/footer'); ?>

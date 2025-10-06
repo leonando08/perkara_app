@@ -27,9 +27,24 @@ class Admin extends CI_Controller
 
     public function dashboard_admin()
     {
+        // Proses filter
+        $filters = [];
+        if ($this->input->get('perkara')) {
+            $filters['perkara'] = $this->input->get('perkara');
+        }
+        if ($this->input->get('cari_pengadilan')) {
+            $filters['asal_pengadilan'] = $this->input->get('cari_pengadilan');
+        }
+        if ($this->input->get('status')) {
+            $filters['status'] = $this->input->get('status');
+        }
+
+        // Ambil data perkara dengan filter
+        $perkaras = empty($filters) ? $this->Perkara_model->get_all() : $this->Perkara_model->get_filtered($filters);
+
         $data = [
             'username'   => $this->session->userdata('username'),
-            'perkaras'   => $this->Perkara_model->get_all(), // method sudah ada di model
+            'perkaras'   => $perkaras,
             'notif'      => $this->Perkara_model->count_besok(),
             'terlambat'  => $this->Perkara_model->count_terlambat()
         ];
@@ -158,5 +173,73 @@ class Admin extends CI_Controller
         }
 
         redirect('admin/kelola_user');
+    }
+
+    public function edit_perkara($id)
+    {
+        // Ambil data perkara berdasarkan ID
+        $data['perkara'] = $this->Perkara_model->getById($id);
+
+        if (!$data['perkara']) {
+            show_404();
+        }
+
+        if ($this->input->post()) {
+            // Set validation rules
+            $this->form_validation->set_rules('asal_pengadilan', 'Asal Pengadilan', 'required');
+            $this->form_validation->set_rules('perkara', 'Jenis Perkara', 'required|in_list[PIDANA,PERDATA,ANAK,TIPIKOR]');
+            $this->form_validation->set_rules('nomor_perkara_tk1', 'Nomor Perkara Tk1', 'required');
+            $this->form_validation->set_rules('klasifikasi', 'Klasifikasi', 'required');
+            $this->form_validation->set_rules('status', 'Status', 'required|in_list[Proses,Selesai,Ditolak]');
+
+            if ($this->form_validation->run() == TRUE) {
+                $update_data = [
+                    'asal_pengadilan' => $this->input->post('asal_pengadilan', TRUE),
+                    'perkara' => $this->input->post('perkara', TRUE),
+                    'nomor_perkara_tk1' => $this->input->post('nomor_perkara_tk1', TRUE),
+                    'klasifikasi' => $this->input->post('klasifikasi', TRUE),
+                    'tgl_register_banding' => $this->input->post('tgl_register_banding') ?: null,
+                    'nomor_perkara_banding' => $this->input->post('nomor_perkara_banding', TRUE),
+                    'lama_proses' => $this->input->post('lama_proses', TRUE),
+                    'status_perkara_tk_banding' => $this->input->post('status_perkara_tk_banding', TRUE),
+                    'pemberitahuan_putusan_banding' => $this->input->post('pemberitahuan_putusan_banding') ?: null,
+                    'permohonan_kasasi' => $this->input->post('permohonan_kasasi') ?: null,
+                    'pengiriman_berkas_kasasi' => $this->input->post('pengiriman_berkas_kasasi') ?: null,
+                    'status' => $this->input->post('status', TRUE)
+                ];
+
+                if ($this->Perkara_model->update($id, $update_data)) {
+                    $this->session->set_flashdata('success', 'Data perkara berhasil diupdate!');
+                } else {
+                    $this->session->set_flashdata('error', 'Gagal mengupdate data perkara. Silakan coba lagi.');
+                }
+
+                // Reload data perkara
+                $data['perkara'] = $this->Perkara_model->getById($id);
+            } else {
+                $this->session->set_flashdata('error', validation_errors());
+            }
+        }
+
+        // Ambil data jenis perkara untuk datalist
+        $data['jenis_perkara'] = $this->Perkara_model->getAllJenisPerkara();
+
+        $this->load->view('admin/edit_perkara', $data);
+    }
+
+    public function hapus_perkara($id)
+    {
+        $perkara = $this->Perkara_model->getById($id);
+        if (!$perkara) {
+            show_404();
+        }
+
+        if ($this->Perkara_model->delete($id)) {
+            $this->session->set_flashdata('success', 'Data perkara berhasil dihapus!');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal menghapus data perkara!');
+        }
+
+        redirect('admin/dashboard_admin');
     }
 }

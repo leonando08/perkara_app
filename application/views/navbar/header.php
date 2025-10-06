@@ -15,40 +15,418 @@ $role     = $this->session->userdata('role');
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700        .container-fluid {
-            padding: 0 5px;
-            width: 100%;
-        }
 
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-                padding: 20px;
-                margin-top: 10px;
-            }
-        }
+    <!-- Google Fonts - Professional Typography System -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-        @media (min-width: 769px) {
-            .main-content {
-                margin-left: 200px;
-                width: calc(100% - 200px);
-                padding: 20px;
-                margin-top: 10px;
-            }
-        }" stylesheet">
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <!-- Global Typography System -->
+    <link href="<?= base_url('assets/css/global-typography.css'); ?>" rel="stylesheet" />
+
     <style>
+        /* ==============================================
+           GLOBAL TYPOGRAPHY SYSTEM - PERKARA APP
+           Professional Font System for Legal/Government App
+           ============================================== */
+
+        /* CSS Custom Properties untuk Font Management */
+        :root {
+            --font-primary: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-heading: 'Poppins', sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+            /* Typography Scale */
+            --text-xs: 0.75rem;
+            /* 12px */
+            --text-sm: 0.875rem;
+            /* 14px */
+            --text-base: 1rem;
+            /* 16px */
+            --text-lg: 1.125rem;
+            /* 18px */
+            --text-xl: 1.25rem;
+            /* 20px */
+            --text-2xl: 1.5rem;
+            /* 24px */
+            --text-3xl: 1.875rem;
+            /* 30px */
+            --text-4xl: 2.25rem;
+            /* 36px */
+
+            /* Font Weights */
+            --font-light: 300;
+            --font-normal: 400;
+            --font-medium: 500;
+            --font-semibold: 600;
+            --font-bold: 700;
+            --font-extrabold: 800;
+
+            /* Line Heights */
+            --leading-tight: 1.25;
+            --leading-normal: 1.5;
+            --leading-relaxed: 1.625;
+            --leading-loose: 2;
+        }
+
+        /* Base Typography untuk seluruh aplikasi */
+        * {
+            font-family: var(--font-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-primary);
+            font-size: var(--text-base);
+            line-height: var(--leading-normal);
+            color: #2d3748;
             background-color: #f8f9fa;
             padding-top: 80px;
             overflow: hidden;
         }
+
+        /* Headings Typography */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: var(--font-heading);
+            font-weight: var(--font-semibold);
+            line-height: var(--leading-tight);
+            color: #1a202c;
+            margin-bottom: 0.5em;
+        }
+
+        h1 {
+            font-size: var(--text-4xl);
+            font-weight: var(--font-bold);
+        }
+
+        h2 {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-bold);
+        }
+
+        h3 {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-semibold);
+        }
+
+        h4 {
+            font-size: var(--text-xl);
+            font-weight: var(--font-semibold);
+        }
+
+        h5 {
+            font-size: var(--text-lg);
+            font-weight: var(--font-medium);
+        }
+
+        h6 {
+            font-size: var(--text-base);
+            font-weight: var(--font-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Paragraph and Text */
+        p {
+            font-family: var(--font-primary);
+            line-height: var(--leading-relaxed);
+            margin-bottom: 1rem;
+        }
+
+        .lead {
+            font-size: var(--text-lg);
+            font-weight: var(--font-normal);
+            line-height: var(--leading-relaxed);
+        }
+
+        .small,
+        small {
+            font-size: var(--text-sm);
+        }
+
+        /* Button Typography */
+        .btn {
+            font-family: var(--font-primary);
+            font-weight: var(--font-medium);
+            font-size: var(--text-sm);
+            letter-spacing: 0.025em;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            border: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-lg {
+            font-size: var(--text-base);
+            padding: 0.75rem 1.5rem;
+        }
+
+        .btn-sm {
+            font-size: var(--text-xs);
+            padding: 0.5rem 1rem;
+        }
+
+        /* Form Elements Typography */
+        .form-control,
+        .form-select {
+            font-family: var(--font-primary);
+            font-size: var(--text-sm);
+            font-weight: var(--font-normal);
+            line-height: var(--leading-normal);
+        }
+
+        .form-label {
+            font-family: var(--font-primary);
+            font-weight: var(--font-medium);
+            font-size: var(--text-sm);
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-text {
+            font-size: var(--text-xs);
+            color: #6b7280;
+        }
+
+        /* Table Typography */
+        .table {
+            font-family: var(--font-primary);
+            font-size: var(--text-sm);
+        }
+
+        .table th {
+            font-family: var(--font-heading);
+            font-weight: var(--font-semibold);
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table td {
+            font-weight: var(--font-normal);
+        }
+
+        /* Data Fields (Nomor Perkara, Tanggal, etc.) */
+        .data-field,
+        .nomor-perkara,
+        .tanggal,
+        .numeric-data,
+        code,
+        pre {
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            font-weight: var(--font-normal);
+        }
+
+        /* Navbar Typography */
+        .navbar-brand {
+            font-family: var(--font-heading);
+            font-weight: var(--font-semibold);
+            font-size: var(--text-lg);
+        }
+
+        .navbar-text {
+            font-family: var(--font-primary);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+        }
+
+        /* Badge Typography */
+        .badge {
+            font-family: var(--font-primary);
+            font-weight: var(--font-medium);
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        /* Alert Typography */
+        .alert {
+            font-family: var(--font-primary);
+            font-size: var(--text-sm);
+        }
+
+        .alert-heading {
+            font-family: var(--font-heading);
+            font-weight: var(--font-semibold);
+        }
+
+        /* Card Typography */
+        .card-title {
+            font-family: var(--font-heading);
+            font-weight: var(--font-semibold);
+        }
+
+        .card-subtitle {
+            font-family: var(--font-primary);
+            font-weight: var(--font-normal);
+        }
+
+        .card-text {
+            font-family: var(--font-primary);
+            line-height: var(--leading-relaxed);
+        }
+
+        /* Breadcrumb Typography */
+        .breadcrumb {
+            font-family: var(--font-primary);
+            font-size: var(--text-sm);
+        }
+
+        /* List Group Typography */
+        .list-group-item {
+            font-family: var(--font-primary);
+            font-size: var(--text-sm);
+        }
+
+        /* Dropdown Typography */
+        .dropdown-item {
+            font-family: var(--font-primary);
+            font-size: var(--text-sm);
+        }
+
+        /* Modal Typography */
+        .modal-title {
+            font-family: var(--font-heading);
+            font-weight: var(--font-semibold);
+        }
+
+        .modal-body {
+            font-family: var(--font-primary);
+            line-height: var(--leading-relaxed);
+        }
+
+        /* Utility Classes */
+        .font-mono {
+            font-family: var(--font-mono);
+        }
+
+        .font-heading {
+            font-family: var(--font-heading);
+        }
+
+        .font-primary {
+            font-family: var(--font-primary);
+        }
+
+        .text-xs {
+            font-size: var(--text-xs);
+        }
+
+        .text-sm {
+            font-size: var(--text-sm);
+        }
+
+        .text-base {
+            font-size: var(--text-base);
+        }
+
+        .text-lg {
+            font-size: var(--text-lg);
+        }
+
+        .text-xl {
+            font-size: var(--text-xl);
+        }
+
+        .text-2xl {
+            font-size: var(--text-2xl);
+        }
+
+        .text-3xl {
+            font-size: var(--text-3xl);
+        }
+
+        .text-4xl {
+            font-size: var(--text-4xl);
+        }
+
+        .font-light {
+            font-weight: var(--font-light);
+        }
+
+        .font-normal {
+            font-weight: var(--font-normal);
+        }
+
+        .font-medium {
+            font-weight: var(--font-medium);
+        }
+
+        .font-semibold {
+            font-weight: var(--font-semibold);
+        }
+
+        .font-bold {
+            font-weight: var(--font-bold);
+        }
+
+        .font-extrabold {
+            font-weight: var(--font-extrabold);
+        }
+
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            body {
+                font-size: var(--text-sm);
+            }
+
+            h1 {
+                font-size: var(--text-3xl);
+            }
+
+            h2 {
+                font-size: var(--text-2xl);
+            }
+
+            h3 {
+                font-size: var(--text-xl);
+            }
+
+            h4 {
+                font-size: var(--text-lg);
+            }
+
+            h5 {
+                font-size: var(--text-base);
+            }
+
+            h6 {
+                font-size: var(--text-sm);
+            }
+
+            .navbar-brand {
+                font-size: var(--text-base);
+            }
+
+            .btn {
+                font-size: var(--text-xs);
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        /* ==============================================
+           EXISTING STYLES (Updated with new typography)
+           ============================================== */
 
         /* Main Content Layout */
         .main-content {

@@ -21,16 +21,15 @@
             <i class="fas fa-search me-2"></i>
             Filter Data
         </h5>
-        <form method="get" action="<?= site_url('perkara/dashboard') ?>" class="row g-3">
+        <form method="get" action="<?= site_url('admin/dashboard_admin') ?>" class="row g-3">
             <div class="col-md-3">
-                <label class="form-label">Parent</label>
-                <select name="parent" class="form-select">
-                    <option value="">Semua Parent</option>
-                    <?php foreach ($parents as $p): ?>
-                        <option value="<?= $p->id ?>" <?= ($this->input->get('parent') == $p->id) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($p->nama_lengkap) ?>
-                        </option>
-                    <?php endforeach; ?>
+                <label class="form-label">Jenis Perkara</label>
+                <select name="perkara" class="form-select">
+                    <option value="">Semua Jenis</option>
+                    <option value="PIDANA" <?= ($this->input->get('perkara') == 'PIDANA') ? 'selected' : '' ?>>PIDANA</option>
+                    <option value="PERDATA" <?= ($this->input->get('perkara') == 'PERDATA') ? 'selected' : '' ?>>PERDATA</option>
+                    <option value="ANAK" <?= ($this->input->get('perkara') == 'ANAK') ? 'selected' : '' ?>>ANAK</option>
+                    <option value="TIPIKOR" <?= ($this->input->get('perkara') == 'TIPIKOR') ? 'selected' : '' ?>>TIPIKOR</option>
                 </select>
             </div>
             <div class="col-md-3">
@@ -53,7 +52,7 @@
                     <button type="submit" class="btn btn-primary flex-grow-1">
                         <i class="fas fa-search me-1"></i> Cari
                     </button>
-                    <a href="<?= site_url('perkara/dashboard') ?>" class="btn btn-secondary flex-grow-1">
+                    <a href="<?= site_url('admin/dashboard_admin') ?>" class="btn btn-secondary flex-grow-1">
                         <i class="fas fa-redo me-1"></i> Reset
                     </a>
                 </div>
@@ -282,8 +281,8 @@
                         <tr>
                             <th class="number-column text-center align-middle">No</th>
                             <th class="text-column align-middle">Pengadilan</th>
+                            <th class="parent-column align-middle">Jenis Perkara</th>
                             <th class="text-column align-middle">Perkara Tk1</th>
-                            <th class="parent-column align-middle">Parent</th>
                             <th class="text-column align-middle">Klasifikasi</th>
                             <th class="date-column text-center align-middle">Tgl Register</th>
                             <th class="text-column align-middle">Perkara Banding</th>
@@ -313,11 +312,11 @@
                                     <td class="text-column" title="<?= htmlspecialchars($row->asal_pengadilan) ?>">
                                         <?= htmlspecialchars($row->asal_pengadilan) ?>
                                     </td>
+                                    <td class="parent-column" title="<?= $row->perkara ? htmlspecialchars($row->perkara) : '-' ?>">
+                                        <?= $row->perkara ? htmlspecialchars($row->perkara) : '-' ?>
+                                    </td>
                                     <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_tk1) ?>">
                                         <?= htmlspecialchars($row->nomor_perkara_tk1) ?>
-                                    </td>
-                                    <td class="parent-column" title="<?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?>">
-                                        <?= $row->parent_nama ? htmlspecialchars($row->parent_nama) : '-' ?>
                                     </td>
                                     <td class="text-column" title="<?= htmlspecialchars($row->klasifikasi) ?>">
                                         <?= htmlspecialchars($row->klasifikasi) ?>
@@ -358,14 +357,14 @@
                                     </td>
                                     <td class="action-column">
                                         <div class="btn-group btn-group-sm">
-                                            <a href="<?= site_url('perkara/edit/' . $row->id) ?>"
+                                            <a href="<?= site_url('admin/edit_perkara/' . $row->id) ?>"
                                                 class="btn btn-warning"
                                                 title="Edit Perkara">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="<?= site_url('perkara/hapus/' . $row->id) ?>"
-                                                onclick="return confirm('Yakin ingin menghapus data ini?')"
-                                                class="btn btn-danger"
+                                            <a href="javascript:void(0)"
+                                                data-url="<?= site_url('admin/hapus_perkara/' . $row->id) ?>"
+                                                class="btn btn-danger btn-hapus"
                                                 title="Hapus Perkara">
                                                 <i class="fas fa-trash"></i>
                                             </a>
@@ -534,6 +533,72 @@
                             tableContainer.scrollTop += tableContainer.clientHeight * 0.8;
                             break;
                     }
+                });
+            });
+        </script>
+
+        <!-- SweetAlert Scripts -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // SweetAlert untuk flashdata success
+                <?php if ($this->session->flashdata('success')): ?>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: '<?= addslashes($this->session->flashdata('success')) ?>',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                <?php endif; ?>
+
+                // SweetAlert untuk flashdata error
+                <?php if ($this->session->flashdata('error')): ?>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: '<?= addslashes($this->session->flashdata('error')) ?>',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc3545'
+                    });
+                <?php endif; ?>
+
+                // Konfirmasi hapus dengan SweetAlert
+                document.querySelectorAll('.btn-hapus').forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        const url = this.getAttribute('data-url');
+
+                        Swal.fire({
+                            title: 'Konfirmasi Hapus',
+                            text: 'Apakah Anda yakin ingin menghapus data perkara ini?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#dc3545',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Ya, Hapus!',
+                            cancelButtonText: 'Batal',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Tampilkan loading
+                                Swal.fire({
+                                    title: 'Menghapus...',
+                                    text: 'Mohon tunggu sebentar',
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false,
+                                    showConfirmButton: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+
+                                // Redirect ke URL hapus
+                                window.location.href = url;
+                            }
+                        });
+                    });
                 });
             });
         </script>

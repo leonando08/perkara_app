@@ -146,13 +146,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
         text-overflow: ellipsis;
     }
 
-    .table .parent-column {
-        min-width: 120px;
-        max-width: 150px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
     .table .date-column {
         min-width: 130px;
         max-width: 130px;
@@ -216,6 +209,30 @@ defined('BASEPATH') or exit('No direct script access allowed');
         background-color: #0b5ed7;
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .btn-warning:hover {
+        background-color: #ffca2c;
+        color: #212529;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+    }
+
+    .btn-info {
+        background-color: #0dcaf0;
+        color: #212529;
+    }
+
+    .btn-info:hover {
+        background-color: #31d2f2;
+        color: #212529;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(13, 202, 240, 0.3);
     }
 
     /* Badge */
@@ -360,8 +377,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
             </p>
         </div>
         <div class="action-buttons">
-            <a href="<?= site_url('laporan/cetak_laporan?' . $_SERVER['QUERY_STRING']); ?>" class="btn btn-primary">
-                <i class="fas fa-print"></i> Cetak PDF
+            <a href="<?= site_url('laporan/laporan_data'); ?>" class="btn btn-primary">
+                <i class="fas fa-chart-line"></i> Laporan Data
+            </a>
+            <a href="<?= site_url('laporan/rekap'); ?>" class="btn btn-info">
+                <i class="fas fa-chart-bar"></i> Rekap Kasasi
+            </a>
+            <a href="<?= site_url('laporan/rekapitulasi'); ?>" class="btn btn-warning">
+                <i class="fas fa-file-alt"></i> Rekapitulasi Data
             </a>
             <a href="<?= site_url('laporan/cetak_excel?' . $_SERVER['QUERY_STRING']); ?>" class="btn btn-success">
                 <i class="fas fa-file-excel"></i> Ekspor Excel
@@ -376,6 +399,16 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 <label class="form-label">Bulan</label>
                 <input type="month" name="bulan" class="form-control"
                     value="<?= htmlspecialchars($filters['bulan'] ?? ''); ?>">
+            </div>
+            <div>
+                <label class="form-label">Jenis Perkara</label>
+                <select name="perkara" class="form-control">
+                    <option value="">Semua Jenis</option>
+                    <option value="PIDANA" <?= ($filters['perkara'] ?? '') == 'PIDANA' ? 'selected' : '' ?>>PIDANA</option>
+                    <option value="PERDATA" <?= ($filters['perkara'] ?? '') == 'PERDATA' ? 'selected' : '' ?>>PERDATA</option>
+                    <option value="ANAK" <?= ($filters['perkara'] ?? '') == 'ANAK' ? 'selected' : '' ?>>ANAK</option>
+                    <option value="TIPIKOR" <?= ($filters['perkara'] ?? '') == 'TIPIKOR' ? 'selected' : '' ?>>TIPIKOR</option>
+                </select>
             </div>
             <div>
                 <label class="form-label">Asal Pengadilan</label>
@@ -402,8 +435,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     <tr>
                         <th class="number-column">No</th>
                         <th class="text-column">Pengadilan</th>
+                        <th class="text-column">Jenis Perkara</th>
                         <th class="text-column">Perkara Tk1</th>
-                        <th class="parent-column">Parent</th>
                         <th class="text-column">Klasifikasi</th>
                         <th class="date-column">Tgl Register</th>
                         <th class="text-column">Perkara Banding</th>
@@ -432,11 +465,11 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                 <td class="text-column" title="<?= htmlspecialchars($row->asal_pengadilan) ?>">
                                     <?= htmlspecialchars($row->asal_pengadilan) ?>
                                 </td>
+                                <td class="text-column" title="<?= htmlspecialchars($row->perkara ?? 'PIDANA') ?>">
+                                    <?= htmlspecialchars($row->perkara ?? 'PIDANA') ?>
+                                </td>
                                 <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_tk1) ?>">
                                     <?= htmlspecialchars($row->nomor_perkara_tk1) ?>
-                                </td>
-                                <td class="parent-column" title="<?= htmlspecialchars($row->parent_nama ?? '-') ?>">
-                                    <?= htmlspecialchars($row->parent_nama ?? '-') ?>
                                 </td>
                                 <td class="text-column" title="<?= htmlspecialchars($row->klasifikasi) ?>">
                                     <?= htmlspecialchars($row->klasifikasi) ?>

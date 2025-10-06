@@ -28,21 +28,12 @@ class User extends CI_Controller
             show_404();
         }
 
-        // Ambil data perkara dan data parent
+        // Ambil data perkara
         $data['perkara'] = $this->db->get_where('perkara_banding', ['id' => $id])->row();
 
         if ($data['perkara'] === null) {
             show_404();
         }
-
-        // Ambil daftar parent yang aktif untuk dropdown
-        $data['parents'] = $this->db
-            ->select('id, nama, nama_lengkap')
-            ->where('parent_id IS NULL')
-            ->where('aktif', 'Y')
-            ->order_by('urutan', 'ASC')
-            ->get('jenis_perkara')
-            ->result();
 
         if ($this->input->method() === 'post') {
             // Handle empty dates by setting them to NULL
@@ -51,24 +42,10 @@ class User extends CI_Controller
             $permohonan_kasasi = $this->input->post('permohonan_kasasi');
             $pengiriman_berkas = $this->input->post('pengiriman_berkas_kasasi');
 
-            // Validasi parent_id
-            $parent_id = $this->input->post('parent');
-            if ($parent_id) {
-                // Cek apakah parent_id valid
-                $valid_parent = $this->db->where('parent_id', $parent_id)
-                    ->get('jenis_perkara')
-                    ->row();
-                if (!$valid_parent) {
-                    $this->session->set_flashdata('error', 'Parent yang dipilih tidak valid');
-                    redirect('user/edit/' . $id);
-                    return;
-                }
-            }
-
             $update_data = [
                 'asal_pengadilan' => $this->input->post('asal_pengadilan'),
+                'perkara' => $this->input->post('perkara'),
                 'nomor_perkara_tk1' => $this->input->post('nomor_perkara_tk1'),
-                'parent' => $parent_id ?: null,
                 'klasifikasi' => $this->input->post('klasifikasi'),
                 'tgl_register_banding' => $tgl_register ?: null,
                 'nomor_perkara_banding' => $this->input->post('nomor_perkara_banding'),
@@ -81,8 +58,8 @@ class User extends CI_Controller
             ];
 
             // Validasi data yang required
-            if (empty($update_data['asal_pengadilan']) || empty($update_data['nomor_perkara_tk1']) || empty($update_data['klasifikasi'])) {
-                $this->session->set_flashdata('error', 'Asal Pengadilan, Nomor Perkara Tk1, dan Klasifikasi harus diisi');
+            if (empty($update_data['asal_pengadilan']) || empty($update_data['nomor_perkara_tk1']) || empty($update_data['klasifikasi']) || empty($update_data['perkara'])) {
+                $this->session->set_flashdata('error', 'Asal Pengadilan, Jenis Perkara, Nomor Perkara Tk1, dan Klasifikasi harus diisi');
                 redirect('user/edit/' . $id);
                 return;
             }
@@ -96,6 +73,9 @@ class User extends CI_Controller
                 redirect('user/edit/' . $id);
             }
         }
+
+        // Ambil data jenis perkara untuk datalist
+        $data['jenis_perkara'] = $this->Perkara_model->getAllJenisPerkara();
 
         $this->load->view('user/edit_perkara', $data);
     }
@@ -126,19 +106,11 @@ class User extends CI_Controller
 
     public function dashboard_user()
     {
-        // Get parent list for dropdown
-        $data['parents'] = $this->db
-            ->where('parent_id IS NULL')
-            ->where('aktif', 'Y')
-            ->order_by('urutan', 'ASC')
-            ->get('jenis_perkara')
-            ->result();
-
         // Ambil input pencarian
         $filters = [
             'asal_pengadilan' => $this->input->get('cari_pengadilan', TRUE),
             'klasifikasi'     => $this->input->get('cari_klasifikasi', TRUE),
-            'parent'          => $this->input->get('parent', TRUE),
+            'perkara'         => $this->input->get('perkara', TRUE),
             'user_id'         => $this->session->userdata('user_id') // Filter berdasarkan user yang login
         ];
 

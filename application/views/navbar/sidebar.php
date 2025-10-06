@@ -31,22 +31,16 @@ $current_url = current_url();
                                 <i class="fas fa-home me-2"></i>Data Perkara
                             </a></li>
                     <?php else: ?>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('perkara'); ?>" data-menu="dashboard">
+                        <li><a class="nav-link submenu-link" href="<?= site_url('user/dashboard_user'); ?>" data-menu="dashboard">
                                 <i class="fas fa-home me-2"></i>Data Perkara
+                            </a></li>
+                        <li><a class="nav-link submenu-link" href="<?= site_url('perkara/tambah'); ?>" data-menu="dashboard">
+                                <i class="fas fa-plus me-2"></i>Tambah Perkara
                             </a></li>
                     <?php endif; ?>
                 </ul>
             </div>
         </li>
-
-        <!-- TAMBAH PERKARA MENU (User Only) -->
-        <?php if ($role == 'user'): ?>
-            <li class="nav-item mb-2">
-                <a class="nav-link" href="<?= site_url('perkara/tambah'); ?>">
-                    <i class="fas fa-plus me-2"></i>Tambah Perkara
-                </a>
-            </li>
-        <?php endif; ?>
 
         <!-- LAPORAN MENU -->
         <li class="nav-item mb-2">
@@ -60,6 +54,9 @@ $current_url = current_url();
                 <ul class="nav flex-column ms-3 mt-2">
                     <li><a class="nav-link submenu-link" href="<?= site_url('laporan'); ?>" data-menu="laporan">
                             <i class="fas fa-file-alt me-2"></i>Laporan Detail
+                        </a></li>
+                    <li><a class="nav-link submenu-link" href="<?= site_url('laporan/laporan_data'); ?>" data-menu="laporan">
+                            <i class="fas fa-table me-2"></i>Data Perkara
                         </a></li>
                     <li><a class="nav-link submenu-link" href="<?= site_url('laporan/rekap'); ?>" data-menu="laporan">
                             <i class="fas fa-chart-bar me-2"></i>Rekap Kasasi
@@ -398,9 +395,32 @@ $current_url = current_url();
         cursor: pointer;
     }
 
-    /* Smooth transition for collapse */
+    /* Prevent double click effects */
+    .nav-link {
+        pointer-events: auto;
+    }
+
+    .nav-link:active {
+        transform: scale(0.98);
+    }
+
+    /* Ensure collapse animation is smooth and doesn't duplicate */
+    .collapse {
+        transition: height 0.35s ease;
+    }
+
     .collapsing {
         transition: height 0.35s ease;
+    }
+
+    /* Prevent menu flickering */
+    .collapse.show {
+        display: block;
+    }
+
+    /* Smooth transition for menu states */
+    .menu-toggle[aria-expanded="true"] {
+        transition: all 0.2s ease;
     }
 </style>
 
@@ -436,31 +456,96 @@ $current_url = current_url();
             });
         });
 
+        // Prevent menu toggle dari navigasi dan handle collapse manually
+        const menuToggles = document.querySelectorAll('.menu-toggle');
+        menuToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const target = this.getAttribute('data-bs-target');
+                const collapse = document.querySelector(target);
+
+                if (collapse) {
+                    const bsCollapse = bootstrap.Collapse.getInstance(collapse) || new bootstrap.Collapse(collapse, {
+                        toggle: false
+                    });
+
+                    if (collapse.classList.contains('show')) {
+                        bsCollapse.hide();
+                        this.setAttribute('aria-expanded', 'false');
+                        this.classList.remove('parent-active');
+                    } else {
+                        bsCollapse.show();
+                        this.setAttribute('aria-expanded', 'true');
+                        this.classList.add('parent-active');
+                    }
+                }
+            });
+        });
+
         // Set active menu based on current URL
         const currentUrl = window.location.href;
+        const currentPath = window.location.pathname;
         const submenuLinks = document.querySelectorAll('.submenu-link');
 
         submenuLinks.forEach(link => {
             const linkHref = link.getAttribute('href');
 
-            // Check if current URL matches this link
-            if (linkHref && currentUrl.includes(linkHref)) {
-                // Mark this link as active
-                link.classList.add('active');
+            if (linkHref) {
+                // Ekstrak path dari link href
+                let linkPath;
+                try {
+                    linkPath = new URL(linkHref, window.location.origin).pathname;
+                } catch (e) {
+                    // Jika URL relatif
+                    linkPath = linkHref.replace(window.location.origin, '');
+                }
 
-                // Find and expand parent collapse
-                const parentCollapse = link.closest('.collapse');
-                if (parentCollapse) {
-                    const bsCollapse = bootstrap.Collapse.getInstance(parentCollapse) || new bootstrap.Collapse(parentCollapse, {
-                        toggle: false
-                    });
-                    bsCollapse.show();
+                // Improved logic matching untuk CodeIgniter URLs
+                let isMatch = false;
 
-                    // Mark parent toggle as active
-                    const parentToggle = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
-                    if (parentToggle) {
-                        parentToggle.classList.add('parent-active');
-                        parentToggle.setAttribute('aria-expanded', 'true');
+                // Handle CodeIgniter URL structure
+                const currentSegments = currentPath.split('/').filter(s => s);
+                const linkSegments = linkHref.split('/').filter(s => s);
+
+                // Special case untuk laporan/rekap
+                if (currentPath.includes('/laporan/rekap') && linkHref.includes('/laporan/rekap')) {
+                    isMatch = true;
+                }
+                // Special case untuk laporan (bukan rekap)
+                else if (currentPath.includes('/laporan') && !currentPath.includes('/rekap') &&
+                    linkHref.includes('/laporan') && !linkHref.includes('/rekap')) {
+                    isMatch = true;
+                }
+                // Untuk URL lainnya, match berdasarkan segment terakhir
+                else if (currentSegments.length > 0 && linkSegments.length > 0) {
+                    const currentLast = currentSegments[currentSegments.length - 1];
+                    const linkLast = linkSegments[linkSegments.length - 1];
+
+                    if (currentLast === linkLast) {
+                        isMatch = true;
+                    }
+                }
+
+                if (isMatch) {
+                    // Mark this link as active
+                    link.classList.add('active');
+
+                    // Find and expand parent collapse
+                    const parentCollapse = link.closest('.collapse');
+                    if (parentCollapse) {
+                        const bsCollapse = bootstrap.Collapse.getInstance(parentCollapse) || new bootstrap.Collapse(parentCollapse, {
+                            toggle: false
+                        });
+                        bsCollapse.show();
+
+                        // Mark parent toggle as active
+                        const parentToggle = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
+                        if (parentToggle) {
+                            parentToggle.classList.add('parent-active');
+                            parentToggle.setAttribute('aria-expanded', 'true');
+                        }
                     }
                 }
             }
@@ -469,15 +554,12 @@ $current_url = current_url();
         // Handle submenu link clicks - add visual feedback but don't close menu
         submenuLinks.forEach(link => {
             link.addEventListener('click', function(e) {
-                // Jangan hentikan default action (navigasi)
-                // Hanya tambahkan efek visual
+                // Stop event bubbling untuk mencegah efek ganda
+                e.stopPropagation();
 
-                // Remove active class from other links in same menu
-                const siblingLinks = this.closest('.collapse').querySelectorAll('.submenu-link');
-                siblingLinks.forEach(sibling => {
-                    if (sibling !== this) {
-                        sibling.classList.remove('active');
-                    }
+                // Remove active class from ALL submenu links first
+                document.querySelectorAll('.submenu-link').forEach(otherLink => {
+                    otherLink.classList.remove('active');
                 });
 
                 // Add active class to clicked link
@@ -496,6 +578,9 @@ $current_url = current_url();
                         document.body.classList.remove('sidebar-open');
                     }, 500);
                 }
+
+                // Allow normal navigation
+                return true;
             });
         });
 
@@ -546,14 +631,6 @@ $current_url = current_url();
                 sidebarOverlay.classList.remove('show');
                 document.body.classList.remove('sidebar-open');
             }
-        });
-
-        // Prevent menu toggle dari navigasi
-        const menuToggles = document.querySelectorAll('.menu-toggle');
-        menuToggles.forEach(toggle => {
-            toggle.addEventListener('click', function(e) {
-                e.preventDefault();
-            });
         });
     });
 </script>

@@ -16,7 +16,7 @@ class Perkara_model extends CI_Model
     }
 
     // ======================
-    // Ambil semua data dengan parent name
+    // Ambil semua data
     // ======================
     public function get_all()
     {
@@ -24,9 +24,8 @@ class Perkara_model extends CI_Model
             ->select('
                 pb.id,
                 pb.asal_pengadilan,
+                pb.perkara,
                 pb.nomor_perkara_tk1,
-                pb.parent,
-                jp.nama as parent_nama,
                 pb.klasifikasi, 
                 pb.tgl_register_banding,
                 pb.nomor_perkara_banding,
@@ -38,14 +37,13 @@ class Perkara_model extends CI_Model
                 pb.status
             ')
             ->from($this->table . ' pb')
-            ->join('jenis_perkara jp', 'pb.parent = jp.id', 'left')
             ->order_by('pb.id', 'ASC')
             ->get()
             ->result();
     }
 
     // ======================
-    // Ambil data berdasarkan ID dengan parent name
+    // Ambil data berdasarkan ID
     // ======================
     public function getById($id)
     {
@@ -53,9 +51,8 @@ class Perkara_model extends CI_Model
             ->select('
                 pb.id,
                 pb.asal_pengadilan,
+                pb.perkara,
                 pb.nomor_perkara_tk1,
-                pb.parent,
-                jp.nama as parent_nama,
                 pb.klasifikasi,
                 pb.tgl_register_banding,
                 pb.nomor_perkara_banding,
@@ -67,23 +64,21 @@ class Perkara_model extends CI_Model
                 pb.status
             ')
             ->from($this->table . ' pb')
-            ->join('jenis_perkara jp', 'pb.parent = jp.id', 'left')
             ->where('pb.id', $id)
             ->get()
             ->row();
     }
 
     // ======================
-    // Ambil data dengan filter (untuk laporan) dengan parent name
+    // Ambil data dengan filter (untuk laporan)
     // ======================
     public function get_filtered($filters = [])
     {
         $this->db->select('
             pb.id,
             pb.asal_pengadilan,
+            pb.perkara,
             pb.nomor_perkara_tk1,
-            pb.parent,
-            jp.nama as parent_nama,
             pb.klasifikasi,
             pb.tgl_register_banding,
             pb.nomor_perkara_banding,
@@ -95,10 +90,12 @@ class Perkara_model extends CI_Model
             pb.status
         ');
         $this->db->from($this->table . ' pb');
-        $this->db->join('jenis_perkara jp', 'pb.parent = jp.id', 'left');
 
         if (!empty($filters['bulan'])) {
             $this->db->like('pb.tgl_register_banding', $filters['bulan'], 'after');
+        }
+        if (!empty($filters['tahun'])) {
+            $this->db->where('YEAR(pb.tgl_register_banding)', $filters['tahun']);
         }
         if (!empty($filters['asal_pengadilan'])) {
             $this->db->like('pb.asal_pengadilan', $filters['asal_pengadilan']);
@@ -109,8 +106,8 @@ class Perkara_model extends CI_Model
         if (!empty($filters['status'])) {
             $this->db->like('pb.status', $filters['status']);
         }
-        if (!empty($filters['parent'])) {
-            $this->db->where('pb.parent', $filters['parent']);
+        if (!empty($filters['perkara'])) {
+            $this->db->where('pb.perkara', $filters['perkara']);
         }
         if (!empty($filters['user_id'])) {
             // Cek apakah kolom user_id ada
@@ -119,9 +116,6 @@ class Perkara_model extends CI_Model
                 $this->db->where('pb.user_id', $filters['user_id']);
             }
         }
-
-        // Pastikan data terfilter berdasarkan parent yang aktif
-        $this->db->where('(jp.aktif = "Y" OR jp.aktif IS NULL)');
 
         return $this->db->order_by('pb.id', 'ASC')->get()->result();
     }
@@ -179,7 +173,7 @@ class Perkara_model extends CI_Model
     }
 
     // ======================
-    // Cari berdasarkan asal pengadilan dengan parent name
+    // Cari berdasarkan asal pengadilan
     // ======================
     public function search_by_pengadilan($keyword)
     {
@@ -187,9 +181,8 @@ class Perkara_model extends CI_Model
             ->select('
                 pb.id,
                 pb.asal_pengadilan,
+                pb.perkara,
                 pb.nomor_perkara_tk1,
-                pb.parent,
-                jp.nama as parent_nama,
                 pb.klasifikasi,
                 pb.tgl_register_banding,
                 pb.nomor_perkara_banding,
@@ -201,16 +194,14 @@ class Perkara_model extends CI_Model
                 pb.status
             ')
             ->from($this->table . ' pb')
-            ->join('jenis_perkara jp', 'pb.parent = jp.id', 'left')
             ->like('pb.asal_pengadilan', $keyword)
-            ->where('(jp.aktif = "Y" OR jp.aktif IS NULL)')
             ->order_by('pb.id', 'ASC')
             ->get()
             ->result();
     }
 
     // ======================
-    // Ambil berdasarkan bulan dengan parent name
+    // Ambil berdasarkan bulan
     // ======================
     public function get_by_month($bulan)
     {
@@ -218,9 +209,8 @@ class Perkara_model extends CI_Model
             ->select('
                 pb.id,
                 pb.asal_pengadilan,
+                pb.perkara,
                 pb.nomor_perkara_tk1,
-                pb.parent,
-                jp.nama as parent_nama,
                 pb.klasifikasi,
                 pb.tgl_register_banding,
                 pb.nomor_perkara_banding,
@@ -232,10 +222,19 @@ class Perkara_model extends CI_Model
                 pb.status
             ')
             ->from($this->table . ' pb')
-            ->join('jenis_perkara jp', 'pb.parent = jp.id', 'left')
             ->like('pb.tgl_register_banding', $bulan, 'after')
-            ->where('(jp.aktif = "Y" OR jp.aktif IS NULL)')
             ->order_by('pb.id', 'ASC')
+            ->get()
+            ->result();
+    }
+
+    public function getAllJenisPerkara()
+    {
+        return $this->db
+            ->select('nama')
+            ->from('jenis_perkara')
+            ->where('aktif', 'Y')
+            ->order_by('nama', 'ASC')
             ->get()
             ->result();
     }

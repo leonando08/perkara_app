@@ -10,21 +10,35 @@
         </div>
 
         <?php if (!empty($error)): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <?= $error ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        html: '<?= addslashes($error) ?>',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc3545'
+                    });
+                });
+            </script>
         <?php endif; ?>
 
         <?php if (!empty($success)): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert" id="alertBox">
-                <?= $success ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
             <script>
-                setTimeout(function() {
-                    window.location.href = "<?= site_url('perkara/dashboard') ?>";
-                }, 2000);
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: '<?= addslashes($success) ?>',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        toast: true,
+                        position: 'top-end'
+                    }).then(() => {
+                        window.location.href = "<?= site_url('perkara/dashboard') ?>";
+                    });
+                });
             </script>
         <?php endif; ?>
 
