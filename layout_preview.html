@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout Preview - Sistem Informasi Perkara</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Global Layout CSS -->
+    <link href="assets/css/global-layout.css" rel="stylesheet">
+    
+    <style>
+        /* Simple test styles */
+        .test-navbar {
+            background: #28a745 !important;
+            color: white;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+        
+        .test-sidebar {
+            background: white;
+            border-right: 1px solid #ddd;
+            height: calc(100vh - 60px);
+            width: 280px;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            z-index: 1020;
+            padding: 20px;
+        }
+        
+        .test-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .test-alert {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Test Navbar -->
+    <div class="test-navbar">
+        <i class="fas fa-gavel me-2"></i>
+        <strong>Sistem Informasi Perkara - Layout Test</strong>
+        <div class="ms-auto">
+            <i class="fas fa-user me-1"></i> admin1 (admin)
+        </div>
+    </div>
+    
+    <!-- Test Sidebar -->
+    <div class="test-sidebar">
+        <h6><i class="fas fa-bars me-2"></i>MENU UTAMA</h6>
+        <ul class="list-unstyled mt-3">
+            <li class="mb-2"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</li>
+            <li class="mb-2"><i class="fas fa-chart-line me-2"></i>Laporan</li>
+            <li class="mb-2"><i class="fas fa-users me-2"></i>Kelola User</li>
+        </ul>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <div class="test-alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Layout Test Berhasil!</strong> Main content sekarang tidak tertimpa navbar dan sidebar.
+            </div>
+            
+            <div class="test-content">
+                <h2><i class="fas fa-chart-line me-2"></i>Laporan Perkara</h2>
+                <p>Selamat datang, <strong>admin1</strong> (Admin)</p>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100">
+                            <i class="fas fa-chart-line"></i> Laporan Data
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-success w-100">
+                            <i class="fas fa-chart-bar"></i> Rekap Kasasi
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-info w-100">
+                            <i class="fas fa-file-alt"></i> Rekapitulasi Data
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-warning w-100">
+                            <i class="fas fa-clock"></i> Putus Tepat Waktu
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Test Filter Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-filter me-2"></i>Filter Data</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Bulan</label>
+                                <input type="month" class="form-control" value="2024-10">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Jenis Perkara</label>
+                                <select class="form-select">
+                                    <option>Semua Jenis</option>
+                                    <option>PIDANA</option>
+                                    <option>PERDATA</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Asal Pengadilan</label>
+                                <input type="text" class="form-control" placeholder="Cari pengadilan...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <button class="btn btn-primary w-100">
+                                    <i class="fas fa-search"></i> Filter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Test Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-table me-2"></i>Data Perkara</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Pengadilan</th>
+                                        <th>Jenis Perkara</th>
+                                        <th>Nomor Perkara</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>PARINGIN</td>
+                                        <td>PIDANA</td>
+                                        <td>78/Pid.Sus/2024/PN Prn</td>
+                                        <td><span class="badge bg-success">Selesai</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>PARINGIN</td>
+                                        <td>PIDANA</td>
+                                        <td>93/Pid.Sus/2024/PN Prn</td>
+                                        <td><span class="badge bg-warning">Proses</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>KANDANGAN</td>
+                                        <td>PERDATA</td>
+                                        <td>20/Pdt.G/2024/PN Kdg</td>
+                                        <td><span class="badge bg-info">Review</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

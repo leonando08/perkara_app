@@ -1,0 +1,409 @@
+/*
+ * Global Layout CSS - Sistem Informasi Perkara
+ * File ini mengatur positioning dan layout utama untuk semua halaman
+ * Menggantikan CSS inline di sidebar.php dan view lainnya
+ */
+
+/* =================================
+   ROOT VARIABLES 
+   ================================= */
+:root {
+    /* Layout dimensions */
+    --sidebar-width: 280px;
+    --sidebar-width-tablet: 240px;
+    --navbar-height: 60px;
+    
+    /* Layout spacing */
+    --main-content-padding: 20px;
+    --main-content-margin: 290px; /* 280px sidebar + 10px gap */
+    --main-content-margin-tablet: 250px; /* 240px sidebar + 10px gap */
+    
+    /* Background colors */
+    --main-bg: #f8f9fa;
+    --sidebar-bg: #ffffff;
+    
+    /* Transitions */
+    --layout-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Z-index layering */
+    --z-navbar: 1030;
+    --z-sidebar: 1020;
+    --z-overlay: 1015;
+    --z-main-content: 1;
+}
+
+/* =================================
+   GLOBAL LAYOUT SYSTEM
+   ================================= */
+
+/* Reset untuk mencegah konflik layout */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--main-bg);
+}
+
+/* =================================
+   MAIN CONTENT LAYOUT
+   ================================= */
+
+.main-content {
+    /* Positioning */
+    position: relative;
+    margin-left: var(--main-content-margin) !important;
+    padding-top: var(--navbar-height) !important;
+    width: calc(100% - var(--main-content-margin)) !important;
+    min-height: calc(100vh - var(--navbar-height)) !important;
+    
+    /* Styling */
+    background: var(--main-bg);
+    padding-left: var(--main-content-padding) !important;
+    padding-right: var(--main-content-padding) !important;
+    padding-bottom: var(--main-content-padding) !important;
+    
+    /* Layout behavior */
+    box-sizing: border-box !important;
+    transition: var(--layout-transition);
+    z-index: var(--z-main-content);
+    
+    /* Prevent content overflow */
+    overflow-x: auto;
+}
+
+/* Higher specificity for inline overrides */
+body .main-content {
+    position: relative;
+    margin-left: var(--main-content-margin) !important;
+    padding-top: var(--navbar-height) !important;
+    width: calc(100% - var(--main-content-margin)) !important;
+    padding-left: var(--main-content-padding) !important;
+    padding-right: var(--main-content-padding) !important;
+    padding-bottom: var(--main-content-padding) !important;
+}
+
+/* Content container untuk membatasi lebar maksimal */
+.main-content .container-fluid {
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Content wrapper global styling */
+.content-wrapper {
+    padding: 1.5rem !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-height: calc(100vh - var(--navbar-height) - 40px);
+}
+
+/* EMERGENCY FIX: Handle orphaned content-wrapper (without main-content parent) */
+body > .content-wrapper,
+.content-wrapper:not(.main-content .content-wrapper) {
+    position: relative;
+    margin-left: var(--main-content-margin) !important;
+    padding-top: calc(var(--navbar-height) + 1.5rem) !important;
+    width: calc(100% - var(--main-content-margin)) !important;
+    min-height: calc(100vh - var(--navbar-height)) !important;
+    background: var(--main-bg);
+    box-sizing: border-box !important;
+}
+
+/* Mobile emergency fix for orphaned content-wrapper */
+@media (max-width: 768px) {
+    body > .content-wrapper,
+    .content-wrapper:not(.main-content .content-wrapper) {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+}
+
+/* Ensure no page-level wrappers interfere with main content positioning */
+.main-content > *:not(.content-wrapper) {
+    position: relative;
+    z-index: 1;
+}
+
+/* Card container spacing */
+.main-content .card {
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Table container responsive */
+.main-content .table-responsive {
+    margin-bottom: 1rem;
+}
+
+/* =================================
+   SIDEBAR POSITIONING
+   ================================= */
+
+.sidebar {
+    position: fixed;
+    top: var(--navbar-height);
+    left: 0;
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--navbar-height));
+    background: var(--sidebar-bg);
+    border-right: 1px solid rgba(0, 0, 0, 0.125);
+    z-index: var(--z-sidebar);
+    transition: var(--layout-transition);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Sidebar scrollbar styling */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* =================================
+   NAVBAR POSITIONING
+   ================================= */
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--navbar-height);
+    z-index: var(--z-navbar);
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* =================================
+   RESPONSIVE BREAKPOINTS
+   ================================= */
+
+/* Mobile devices (≤ 768px) */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: var(--navbar-height) !important;
+        width: 100% !important;
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        padding-bottom: 15px !important;
+    }
+    
+    body .main-content {
+        margin-left: 0 !important;
+        padding-top: var(--navbar-height) !important;
+        width: 100% !important;
+    }
+    
+    .sidebar {
+        width: var(--sidebar-width);
+        transform: translateX(-100%);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        border-right: none;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    /* Mobile overlay */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: var(--z-overlay);
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .sidebar-overlay.show {
+        display: block;
+        opacity: 1;
+    }
+}
+
+/* Tablet devices (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    :root {
+        --sidebar-width: var(--sidebar-width-tablet);
+        --main-content-margin: var(--main-content-margin-tablet);
+    }
+    
+    .main-content {
+        margin-left: var(--main-content-margin-tablet) !important;
+        padding-top: var(--navbar-height) !important;
+        width: calc(100% - var(--main-content-margin-tablet)) !important;
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+        padding-bottom: 18px !important;
+    }
+    
+    body .main-content {
+        margin-left: var(--main-content-margin-tablet) !important;
+        padding-top: var(--navbar-height) !important;
+        width: calc(100% - var(--main-content-margin-tablet)) !important;
+    }
+    
+    .sidebar {
+        width: var(--sidebar-width-tablet);
+    }
+}
+
+/* Large desktop screens (≥ 1200px) */
+@media (min-width: 1200px) {
+    .main-content {
+        padding: 24px;
+    }
+    
+    .main-content .container-fluid {
+        max-width: 1400px;
+    }
+}
+
+/* Extra large screens (≥ 1400px) */
+@media (min-width: 1400px) {
+    .main-content {
+        padding: 30px;
+    }
+    
+    .main-content .container-fluid {
+        max-width: 1600px;
+    }
+}
+
+/* =================================
+   LAYOUT UTILITIES
+   ================================= */
+
+/* Utility untuk konten yang membutuhkan spacing khusus */
+.main-content.compact {
+    padding: 10px;
+}
+
+.main-content.spacious {
+    padding: 40px;
+}
+
+/* Utility untuk halaman yang membutuhkan full width */
+.main-content.full-width {
+    margin-left: 0;
+    width: 100%;
+}
+
+.main-content.full-width .sidebar {
+    display: none;
+}
+
+/* =================================
+   PRINT STYLES
+   ================================= */
+
+@media print {
+    .sidebar {
+        display: none;
+    }
+    
+    .navbar {
+        display: none;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        min-height: auto;
+        background: white;
+        padding: 0;
+    }
+    
+    .main-content .card {
+        border: none;
+        box-shadow: none;
+    }
+}
+
+/* =================================
+   ACCESSIBILITY IMPROVEMENTS
+   ================================= */
+
+/* Focus states untuk navigasi keyboard */
+.sidebar .nav-link:focus,
+.main-content button:focus,
+.main-content .btn:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+/* Reduced motion untuk pengguna yang sensitif terhadap animasi */
+@media (prefers-reduced-motion: reduce) {
+    .main-content,
+    .sidebar {
+        transition: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .main-content {
+        background: white;
+    }
+    
+    .sidebar {
+        border-right: 2px solid #000;
+    }
+    
+    .navbar {
+        border-bottom: 2px solid #000;
+    }
+}
+
+/* =================================
+   BROWSER-SPECIFIC FIXES
+   ================================= */
+
+/* Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    .main-content {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Firefox specific fixes */
+@-moz-document url-prefix() {
+    .sidebar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+}
+
+/* Edge specific fixes */
+@supports (-ms-overflow-style: none) {
+    .sidebar {
+        -ms-overflow-style: -ms-autohiding-scrollbar;
+    }
+}

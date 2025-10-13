@@ -118,8 +118,6 @@ class User extends CI_Controller
         $data['perkaras'] = $this->Perkara_model->get_filtered($filters);
         $data['filters'] = $filters;
 
-        $this->load->view('navbar/header');
         $this->load->view('user/dashboard_user', $data);
-        $this->load->view('navbar/footer');
     }
 }

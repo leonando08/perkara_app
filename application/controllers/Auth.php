@@ -5,6 +5,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @property CI_Input $input
  * @property CI_DB_query_builder $db
  * @property User_model $User_model
+ * @property CI_Form_validation $form_validation
  */
 
 class Auth extends CI_Controller
@@ -51,6 +52,10 @@ class Auth extends CI_Controller
                         'logged_in' => TRUE
                     ]);
                     $this->session->unset_userdata('captcha');
+
+                    // Set flash message untuk login berhasil
+                    $this->session->set_flashdata('login_success', 'Login berhasil! Selamat datang ' . $user->username);
+
                     if ($user->role === 'admin') redirect('admin/dashboard_admin');
                     else redirect('user/dashboard_user');
                 } else {
@@ -68,5 +73,41 @@ class Auth extends CI_Controller
     {
         $this->session->sess_destroy();
         redirect('auth/login');
+    }
+
+    public function register()
+    {
+        // Jika sudah login, redirect sesuai role
+        if ($this->session->userdata('logged_in')) {
+            if ($this->session->userdata('role') === 'admin') {
+                redirect('admin/dashboard_admin');
+            } else {
+                redirect('user/dashboard_user');
+            }
+        }
+
+        if ($this->input->post()) {
+            $this->form_validation->set_rules('username', 'Username', 'required|is_unique[users.username]');
+            $this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
+            $this->form_validation->set_rules('confirm_password', 'Konfirmasi Password', 'required|matches[password]');
+
+            if ($this->form_validation->run()) {
+                $data = [
+                    'username' => $this->input->post('username', TRUE),
+                    'password' => password_hash($this->input->post('password', TRUE), PASSWORD_DEFAULT),
+                    'role' => 'user', // default role
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+
+                if ($this->User_model->add($data)) {
+                    $this->session->set_flashdata('success', 'Registrasi berhasil! Silakan login.');
+                    redirect('auth/login');
+                } else {
+                    $data['error'] = 'Registrasi gagal! Silakan coba lagi.';
+                }
+            }
+        }
+
+        $this->load->view('login/register', isset($data) ? $data : []);
     }
 }

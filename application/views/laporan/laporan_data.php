@@ -5,6 +5,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <?php $this->load->view('navbar/header'); ?>
 
 <style>
+    /* Force refresh CSS - Version 7.0 - FIXED LAYOUT */
+
     /* Print styles */
     @media print {
         body * {
@@ -61,29 +63,26 @@ defined('BASEPATH') or exit('No direct script access allowed');
         }
     }
 
-    /* Screen styles */
+    /* FIX: Main Content Layout */
     .main-content {
         margin-left: 0;
+        padding: 1.5rem;
         width: 100%;
-        min-height: calc(100vh - 60px);
-        background: #f8f9fa;
-        padding: 0;
-        transition: all 0.3s ease;
+        min-height: 100vh;
+        background-color: #f5f5f5;
     }
 
     .content-wrapper {
-        padding: 1rem;
+        max-width: 100%;
         margin: 0;
-        width: 100%;
-        box-sizing: border-box;
-        max-width: 100vw;
-        overflow-x: hidden;
+        padding: 0;
     }
 
+    /* Page Header */
     .page-header {
         background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         padding: 1.5rem;
         margin-bottom: 1.5rem;
         display: flex;
@@ -91,6 +90,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
         align-items: flex-start;
         flex-wrap: wrap;
         gap: 1rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     .page-title {
@@ -100,6 +100,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
         margin-bottom: 0.5rem;
     }
 
+    /* Filter Card */
     .filter-card {
         background: white;
         border-radius: 0.5rem;
@@ -115,6 +116,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
         align-items: end;
     }
 
+    /* Table Wrapper */
     .table-wrapper {
         position: relative;
         margin-bottom: 1rem;
@@ -135,8 +137,11 @@ defined('BASEPATH') or exit('No direct script access allowed');
         position: relative;
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
     }
 
+    /* Table Styles */
     .table {
         width: 100%;
         margin-bottom: 0;
@@ -144,6 +149,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
         border-collapse: collapse;
         font-size: 0.875rem;
         table-layout: auto;
+        min-width: 1200px;
     }
 
     .table thead {
@@ -189,78 +195,109 @@ defined('BASEPATH') or exit('No direct script access allowed');
         background-color: #f8f9fa;
     }
 
-    /* Scrollbar styling for better UX */
+    /* Scrollbar Styling */
     .table-responsive::-webkit-scrollbar {
-        height: 8px;
-        width: 8px;
+        height: 12px;
+        width: 12px;
     }
 
     .table-responsive::-webkit-scrollbar-track {
         background: #f1f3f4;
-        border-radius: 4px;
+        border-radius: 6px;
+        margin: 2px;
+        border: 1px solid #e0e0e0;
     }
 
     .table-responsive::-webkit-scrollbar-thumb {
         background: #198754;
-        border-radius: 4px;
-        border: 1px solid #f1f3f4;
+        border-radius: 6px;
+        border: 2px solid #f1f3f4;
+        min-height: 40px;
+        min-width: 40px;
     }
 
     .table-responsive::-webkit-scrollbar-thumb:hover {
         background: #157347;
     }
 
-    /* Column specific styles */
-    .col-no {
-        width: 3%;
+    .table-responsive::-webkit-scrollbar-corner {
+        background: #f1f3f4;
+    }
+
+    /* Column Specific Styles */
+    .table th,
+    .table td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 0.5rem 0.25rem;
+        word-wrap: break-word;
+        white-space: normal;
+    }
+
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 50px;
         min-width: 40px;
-        text-align: center;
     }
 
-    .col-pengadilan {
-        width: 12%;
-        min-width: 100px;
-        text-align: left;
-    }
-
-    .col-nomor-tk1 {
-        width: 15%;
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 150px;
         min-width: 120px;
         text-align: left;
     }
 
-    .col-tgl-register {
-        width: 8%;
-        min-width: 80px;
-        text-align: center;
-    }
-
-    .col-nomor-banding {
-        width: 15%;
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 140px;
         min-width: 120px;
         text-align: left;
     }
 
-    .col-lama {
-        width: 6%;
-        min-width: 60px;
-        text-align: center;
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 100px;
+        min-width: 90px;
     }
 
-    .col-status-banding {
-        width: 10%;
-        min-width: 80px;
-        text-align: center;
+    .table th:nth-child(5),
+    .table td:nth-child(5) {
+        width: 140px;
+        min-width: 120px;
+        text-align: left;
     }
 
-    .col-putusan,
-    .col-kasasi,
-    .col-berkas {
-        width: 8%;
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        width: 80px;
         min-width: 70px;
-        text-align: center;
     }
 
+    .table th:nth-child(7),
+    .table td:nth-child(7) {
+        width: 120px;
+        min-width: 100px;
+    }
+
+    .table th:nth-child(8),
+    .table td:nth-child(8) {
+        width: 100px;
+        min-width: 90px;
+    }
+
+    .table th:nth-child(9),
+    .table td:nth-child(9) {
+        width: 100px;
+        min-width: 90px;
+    }
+
+    .table th:nth-child(10),
+    .table td:nth-child(10) {
+        width: 120px;
+        min-width: 100px;
+    }
+
+    /* Button Styles */
     .btn {
         display: inline-flex;
         align-items: center;
@@ -308,12 +345,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
         box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
     }
 
+    /* Form Styles */
     .form-control {
         padding: 0.625rem 0.875rem;
         border: 1px solid #ced4da;
         border-radius: 0.375rem;
         font-size: 0.875rem;
         transition: all 0.2s ease;
+        width: 100%;
     }
 
     .form-control:focus {
@@ -327,6 +366,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
         margin-bottom: 0.5rem;
         color: #495057;
         font-size: 0.875rem;
+        display: block;
     }
 
     .action-buttons {
@@ -335,20 +375,24 @@ defined('BASEPATH') or exit('No direct script access allowed');
         flex-wrap: wrap;
     }
 
+    /* Report Headers */
     .report-header {
         text-align: center;
         margin-bottom: 20px;
+        padding: 1rem 0;
     }
 
     .report-title {
         font-size: 16pt;
         font-weight: bold;
         margin-bottom: 5px;
+        color: #2d3748;
     }
 
     .report-subtitle {
         font-size: 12pt;
         margin-bottom: 5px;
+        color: #4a5568;
     }
 
     .filter-info {
@@ -356,12 +400,17 @@ defined('BASEPATH') or exit('No direct script access allowed');
         margin-bottom: 15px;
         font-size: 12pt;
         font-weight: bold;
+        color: #2d3748;
     }
 
-    /* Responsive */
+    /* Responsive Design */
     @media (max-width: 768px) {
+        .main-content {
+            padding: 0.75rem;
+        }
+
         .content-wrapper {
-            padding: 0.5rem;
+            padding: 0;
         }
 
         .filter-form {
@@ -380,6 +429,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
         .table {
             font-size: 0.7rem;
+            min-width: 800px;
         }
 
         .table thead th,
@@ -392,28 +442,23 @@ defined('BASEPATH') or exit('No direct script access allowed');
             flex-direction: column;
             gap: 0.5rem;
         }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
     }
 
-    /* Remove sidebar margins for all screen sizes */
+    /* Jika ada sidebar, sesuaikan dengan class dari sidebar.php */
     @media (min-width: 769px) {
-        .main-content {
-            margin-left: 0;
-            width: 100%;
+        body.has-sidebar .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
         }
 
-        .content-wrapper {
-            padding: 1.5rem;
-        }
-    }
-
-    @media (min-width: 1025px) {
-        .main-content {
-            margin-left: 0;
-            width: 100%;
-        }
-
-        .content-wrapper {
-            padding: 2rem;
+        body.sidebar-collapsed .main-content {
+            margin-left: 70px;
+            width: calc(100% - 70px);
         }
     }
 </style>
@@ -545,7 +590,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                 <th rowspan="2" class="col-lama">Lama Proses</th>
                                 <th rowspan="2" class="col-status-banding">Status Perkara Tk Banding</th>
                                 <th colspan="3">Pemberitahuan</th>
-                                <th rowspan="2" class="col-berkas">Pengiriman Berkas Kasasi</th>
                             </tr>
                             <tr>
                                 <th class="col-putusan">Putusan Banding</th>
@@ -556,7 +600,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         <tbody>
                             <?php if (empty($perkaras)): ?>
                                 <tr>
-                                    <td colspan="11" class="text-center py-4">
+                                    <td colspan="10" class="text-center py-4">
                                         <div class="d-flex flex-column align-items-center">
                                             <i class="fas fa-folder-open text-muted mb-2" style="font-size: 2rem;"></i>
                                             <p class="text-muted mb-0">Belum ada data perkara yang tersedia</p>
@@ -572,25 +616,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                         <td style="text-align: left; word-wrap: break-word; max-width: 120px;"><?= htmlspecialchars($row->asal_pengadilan) ?></td>
                                         <td style="text-align: left; word-wrap: break-word; max-width: 140px;"><?= htmlspecialchars($row->nomor_perkara_tk1) ?></td>
                                         <td>
-                                            <?php
-                                            if ($row->tgl_register_banding) {
-                                                $bulan_indo = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
-                                                $tanggal = date('j', strtotime($row->tgl_register_banding));
-                                                $bulan = $bulan_indo[date('n', strtotime($row->tgl_register_banding))];
-                                                $tahun = date('Y', strtotime($row->tgl_register_banding));
-                                                echo $tanggal . ' ' . $bulan . ' ' . $tahun;
-                                            } else {
-                                                echo '-';
-                                            }
-                                            ?>
+                                            <?= $row->tgl_register_banding ? date('d-m-Y', strtotime($row->tgl_register_banding)) : '-' ?>
                                         </td>
                                         <td style="text-align: left; word-wrap: break-word; max-width: 140px;"><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
                                         <td><?= htmlspecialchars($row->lama_proses) ?> hari</td>
                                         <td style="word-wrap: break-word; max-width: 100px;"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
-                                        <td><?= $row->pemberitahuan_putusan_banding ? date("d M Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?></td>
-                                        <td><?= $row->permohonan_kasasi ? date("d M Y", strtotime($row->permohonan_kasasi)) : '-' ?></td>
-                                        <td><?= $row->pengiriman_berkas_kasasi ? date("d M Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
-                                        <td><?= $row->pengiriman_berkas_kasasi ? date("d M Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
+                                        <td><?= $row->pemberitahuan_putusan_banding ? date('d-m-Y', strtotime($row->pemberitahuan_putusan_banding)) : '-' ?></td>
+                                        <td><?= $row->permohonan_kasasi ? date('d-m-Y', strtotime($row->permohonan_kasasi)) : '-' ?></td>
+                                        <td><?= $row->pengiriman_berkas_kasasi ? date('d-m-Y', strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
                                     </tr>
                             <?php endforeach;
                             endif; ?>
@@ -617,6 +650,69 @@ defined('BASEPATH') or exit('No direct script access allowed');
             window.addEventListener('beforeprint', function() {
                 document.title = 'Laporan Data Perkara Pidana Banding ' + new Date().getFullYear();
             });
+
+            // Table responsive enhancements
+            const tableWrapper = document.querySelector('.table-wrapper');
+            const tableContainer = document.querySelector('.table-responsive');
+            const table = document.querySelector('.table');
+
+            if (tableWrapper && tableContainer && table) {
+                // Add scroll indicators
+                function updateScrollIndicators() {
+                    const isScrollableX = tableContainer.scrollWidth > tableContainer.clientWidth;
+                    const isScrollableY = tableContainer.scrollHeight > tableContainer.clientHeight;
+
+                    if (isScrollableX || isScrollableY) {
+                        tableContainer.setAttribute('title', 'Gunakan scroll mouse atau tombol panah untuk navigasi');
+                    } else {
+                        tableContainer.removeAttribute('title');
+                    }
+                }
+
+                // Initialize scroll indicators
+                updateScrollIndicators();
+                window.addEventListener('resize', updateScrollIndicators);
+
+                // Smooth scrolling untuk mobile
+                if ('ontouchstart' in window) {
+                    tableContainer.style.webkitOverflowScrolling = 'touch';
+                }
+
+                // Keyboard navigation
+                tableContainer.addEventListener('keydown', function(e) {
+                    const scrollAmount = 50;
+
+                    switch (e.key) {
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            tableContainer.scrollLeft -= scrollAmount;
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            tableContainer.scrollLeft += scrollAmount;
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            tableContainer.scrollTop -= scrollAmount;
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            tableContainer.scrollTop += scrollAmount;
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            tableContainer.scrollLeft = 0;
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            tableContainer.scrollLeft = tableContainer.scrollWidth;
+                            break;
+                    }
+                });
+
+                // Make table focusable for keyboard navigation
+                tableContainer.setAttribute('tabindex', '0');
+            }
         });
     </script>
 

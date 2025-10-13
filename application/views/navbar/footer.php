@@ -1,5 +1,3 @@
-        </div> <!-- Penutup main-content -->
-
         <!-- Footer -->
 
         <footer class="footer d-flex justify-content-end align-items-center">
@@ -57,10 +55,7 @@
                 align-items: center;
             }
 
-            .main-content {
-                padding-bottom: 50px;
-                /* Memberikan ruang untuk footer */
-            }
+            /* Main content padding handled by global-layout.css */
 
             @media (max-width: 768px) {
                 .footer {

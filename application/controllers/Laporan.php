@@ -24,6 +24,19 @@ class Laporan extends CI_Controller
     }
 
     // =========================
+    // Helper untuk format tanggal konsisten
+    // =========================
+    private function format_tanggal($tanggal)
+    {
+        if (empty($tanggal) || $tanggal === '0000-00-00' || $tanggal === null) {
+            return '-';
+        }
+
+        // Pastikan format selalu d-m-Y
+        return date('d-m-Y', strtotime($tanggal));
+    }
+
+    // =========================
     // Halaman laporan
     // =========================
     public function index()
@@ -169,7 +182,7 @@ class Laporan extends CI_Controller
                 $pdf->Cell(
                     $header['Tgl Register'],
                     $maxHeight,
-                    !empty($row->tgl_register_banding) ? date('d-m-Y', strtotime($row->tgl_register_banding)) : '-',
+                    $this->format_tanggal($row->tgl_register_banding),
                     1,
                     0,
                     'C'
@@ -182,7 +195,7 @@ class Laporan extends CI_Controller
                 $pdf->Cell(
                     $header['Pemberitahuan Putusan'],
                     $maxHeight,
-                    !empty($row->pemberitahuan_putusan_banding) ? date('d-m-Y', strtotime($row->pemberitahuan_putusan_banding)) : '-',
+                    $this->format_tanggal($row->pemberitahuan_putusan_banding),
                     1,
                     0,
                     'C'
@@ -190,7 +203,7 @@ class Laporan extends CI_Controller
                 $pdf->Cell(
                     $header['Permohonan Kasasi'],
                     $maxHeight,
-                    !empty($row->permohonan_kasasi) ? date('d-m-Y', strtotime($row->permohonan_kasasi)) : '-',
+                    $this->format_tanggal($row->permohonan_kasasi),
                     1,
                     0,
                     'C'
@@ -198,7 +211,7 @@ class Laporan extends CI_Controller
                 $pdf->Cell(
                     $header['Pengiriman Berkas'],
                     $maxHeight,
-                    !empty($row->pengiriman_berkas_kasasi) ? date('d-m-Y', strtotime($row->pengiriman_berkas_kasasi)) : '-',
+                    $this->format_tanggal($row->pengiriman_berkas_kasasi),
                     1,
                     0,
                     'C'
@@ -301,14 +314,14 @@ class Laporan extends CI_Controller
                 $pdf->Cell(12, 8, $no++, 1, 0, 'C');
                 $pdf->Cell(30, 8, substr($row->asal_pengadilan, 0, 20), 1, 0, 'L');
                 $pdf->Cell(40, 8, substr($row->nomor_perkara_tk1, 0, 25), 1, 0, 'L');
-                $pdf->Cell(22, 8, $row->tgl_register_banding ? date('d M Y', strtotime($row->tgl_register_banding)) : '-', 1, 0, 'C');
+                $pdf->Cell(22, 8, $this->format_tanggal($row->tgl_register_banding), 1, 0, 'C');
                 $pdf->Cell(40, 8, substr($row->nomor_perkara_banding, 0, 25), 1, 0, 'L');
                 $pdf->Cell(18, 8, $row->lama_proses . ' hari', 1, 0, 'C');
                 $pdf->Cell(30, 8, substr($row->status_perkara_tk_banding, 0, 15), 1, 0, 'C');
-                $pdf->Cell(20, 8, $row->pemberitahuan_putusan_banding ? date('d Ja Y', strtotime($row->pemberitahuan_putusan_banding)) : '-', 1, 0, 'C');
-                $pdf->Cell(20, 8, $row->permohonan_kasasi ? date('d Ja Y', strtotime($row->permohonan_kasasi)) : '-', 1, 0, 'C');
-                $pdf->Cell(20, 8, $row->pengiriman_berkas_kasasi ? date('d Ja Y', strtotime($row->pengiriman_berkas_kasasi)) : '-', 1, 0, 'C');
-                $pdf->Cell(25, 8, $row->pengiriman_berkas_kasasi ? date('d Ja Y', strtotime($row->pengiriman_berkas_kasasi)) : '-', 1, 1, 'C');
+                $pdf->Cell(20, 8, $this->format_tanggal($row->pemberitahuan_putusan_banding), 1, 0, 'C');
+                $pdf->Cell(20, 8, $this->format_tanggal($row->permohonan_kasasi), 1, 0, 'C');
+                $pdf->Cell(20, 8, $this->format_tanggal($row->pengiriman_berkas_kasasi), 1, 0, 'C');
+                $pdf->Cell(25, 8, $this->format_tanggal($row->pengiriman_berkas_kasasi), 1, 1, 'C');
             }
         } else {
             $pdf->Cell(277, 8, 'Tidak ada data perkara', 1, 1, 'C');
@@ -377,8 +390,10 @@ class Laporan extends CI_Controller
         }
         $filename .= '.xls';
 
-        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
         header("Content-Disposition: attachment; filename=" . $filename);
+        header("Pragma: no-cache");
+        header("Expires: 0");
 
         ob_start();
 ?>
@@ -430,21 +445,26 @@ class Laporan extends CI_Controller
                 .text-left {
                     text-align: left;
                 }
+
+                .date-cell {
+                    mso-number-format: "dd\-mm\-yyyy";
+                    text-align: center;
+                }
             </style>
         </head>
 
         <body>
             <table>
                 <tr>
-                    <td colspan="11" class="title">DATA PERKARA PIDANA BANDING PUTUSAN TAHUN <?= $filters['tahun'] ?? date('Y') ?></td>
+                    <td colspan="10" class="title">DATA PERKARA PIDANA BANDING PUTUSAN TAHUN <?= $filters['tahun'] ?? date('Y') ?></td>
                 </tr>
                 <tr>
-                    <td colspan="11" class="subtitle">YANG TIDAK MENGAJUKAN UPAYA HUKUM KASASI TAHUN <?= $filters['tahun'] ?? date('Y') ?></td>
+                    <td colspan="10" class="subtitle">YANG TIDAK MENGAJUKAN UPAYA HUKUM KASASI TAHUN <?= $filters['tahun'] ?? date('Y') ?></td>
                 </tr>
 
                 <?php if (!empty(array_filter($filters))): ?>
                     <tr>
-                        <td colspan="11" class="filter-info">
+                        <td colspan="10" class="filter-info">
                             <?php
                             $filterText = '';
                             if (!empty($filters['bulan'])) {
@@ -486,7 +506,6 @@ class Laporan extends CI_Controller
                     <th rowspan="2">Lama Proses</th>
                     <th rowspan="2">Status Perkara Tk Banding</th>
                     <th colspan="3">Pemberitahuan</th>
-                    <th rowspan="2">Pengiriman Berkas Kasasi</th>
                 </tr>
                 <tr>
                     <th>Putusan Banding</th>
@@ -503,19 +522,18 @@ class Laporan extends CI_Controller
                             <td><?= $no++ ?></td>
                             <td class="text-left"><?= htmlspecialchars($row->asal_pengadilan) ?></td>
                             <td class="text-left"><?= htmlspecialchars($row->nomor_perkara_tk1) ?></td>
-                            <td><?= $row->tgl_register_banding ? date("d M Y", strtotime($row->tgl_register_banding)) : '-' ?></td>
+                            <td class="date-cell"><?= $this->format_tanggal($row->tgl_register_banding) ?></td>
                             <td class="text-left"><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
                             <td><?= htmlspecialchars($row->lama_proses) ?> hari</td>
                             <td><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
-                            <td><?= $row->pemberitahuan_putusan_banding ? date("d M Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?></td>
-                            <td><?= $row->permohonan_kasasi ? date("d M Y", strtotime($row->permohonan_kasasi)) : '-' ?></td>
-                            <td><?= $row->pengiriman_berkas_kasasi ? date("d M Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
-                            <td><?= $row->pengiriman_berkas_kasasi ? date("d M Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
+                            <td class="date-cell"><?= $this->format_tanggal($row->pemberitahuan_putusan_banding) ?></td>
+                            <td class="date-cell"><?= $this->format_tanggal($row->permohonan_kasasi) ?></td>
+                            <td class="date-cell"><?= $this->format_tanggal($row->pengiriman_berkas_kasasi) ?></td>
                         </tr>
                     <?php endforeach;
                 else: ?>
                     <tr>
-                        <td colspan="11">Tidak ada data perkara</td>
+                        <td colspan="10">Tidak ada data perkara</td>
                     </tr>
                 <?php endif; ?>
             </table>
@@ -540,8 +558,10 @@ class Laporan extends CI_Controller
 
         $perkaras = $this->Perkara_model->get_filtered($filters);
 
-        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
         header("Content-Disposition: attachment; filename=Laporan_Perkara.xls");
+        header("Pragma: no-cache");
+        header("Expires: 0");
 
         ob_start();
     ?>
@@ -587,6 +607,11 @@ class Laporan extends CI_Controller
                 td.bold {
                     font-weight: bold;
                 }
+
+                .date-cell {
+                    mso-number-format: "dd\-mm\-yyyy";
+                    text-align: center;
+                }
             </style>
         </head>
 
@@ -604,8 +629,8 @@ class Laporan extends CI_Controller
                     <tr>
                         <th style="width:45px;">No</th>
                         <th style="width:180px;">Asal Pengadilan</th>
+                        <th style="width:120px;">Jenis Perkara</th>
                         <th style="width:160px;">Nomor Perkara Tk1</th>
-                        <th style="width:120px;">Parent</th>
                         <th style="width:140px;">Klasifikasi</th>
                         <th style="width:120px;">Tgl Register Banding</th>
                         <th style="width:160px;">Nomor Perkara Banding</th>
@@ -623,16 +648,16 @@ class Laporan extends CI_Controller
                             <tr>
                                 <td class="center"><?= $no++ ?></td>
                                 <td><?= htmlspecialchars($row->asal_pengadilan) ?></td>
+                                <td><?= htmlspecialchars($row->perkara ?? 'PIDANA') ?></td>
                                 <td><?= htmlspecialchars($row->nomor_perkara_tk1) ?></td>
-                                <td><?= !empty($row->parent_nama) ? htmlspecialchars($row->parent_nama) : '-' ?></td>
                                 <td><?= htmlspecialchars($row->klasifikasi) ?></td>
-                                <td class="center"><?= !empty($row->tgl_register_banding) ? date("d-m-Y", strtotime($row->tgl_register_banding)) : '-' ?></td>
+                                <td class="date-cell"><?= $this->format_tanggal($row->tgl_register_banding) ?></td>
                                 <td><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
                                 <td class="center"><?= htmlspecialchars($row->lama_proses) ?></td>
                                 <td><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
-                                <td class="center"><?= !empty($row->pemberitahuan_putusan_banding) ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?></td>
-                                <td class="center"><?= !empty($row->permohonan_kasasi) ? date("d-m-Y", strtotime($row->permohonan_kasasi)) : '-' ?></td>
-                                <td class="center"><?= !empty($row->pengiriman_berkas_kasasi) ? date("d-m-Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>
+                                <td class="date-cell"><?= $this->format_tanggal($row->pemberitahuan_putusan_banding) ?></td>
+                                <td class="date-cell"><?= $this->format_tanggal($row->permohonan_kasasi) ?></td>
+                                <td class="date-cell"><?= $this->format_tanggal($row->pengiriman_berkas_kasasi) ?></td>
                                 <td class="center bold"><?= htmlspecialchars($row->status) ?></td>
                             </tr>
                         <?php endforeach;
@@ -1326,6 +1351,347 @@ class Laporan extends CI_Controller
     }
 
     // =========================
+    // Laporan Putus Tepat Waktu
+    // =========================
+    public function laporan_putus_tepat_waktu()
+    {
+        $filters = [
+            'bulan'      => $this->input->get('bulan', TRUE),
+            'tahun'      => $this->input->get('tahun', TRUE),
+            'perkara'    => $this->input->get('perkara', TRUE),
+            'pengadilan' => $this->input->get('pengadilan', TRUE)
+        ];
+
+        // Get all data first
+        $all_data = $this->Perkara_model->get_all();
+
+        // Filter semua data (tepat waktu dan tidak tepat waktu)
+        $filtered_perkaras = [];
+        $stats = [
+            'total_tepat_waktu' => 0,
+            'pidana_tepat_waktu' => 0,
+            'perdata_tepat_waktu' => 0,
+            'anak_tipikor_tepat_waktu' => 0
+        ];
+
+        foreach ($all_data as $perkara) {
+            // Parse lama proses untuk mendapatkan angka hari
+            $lama_proses_hari = 0;
+            if (!empty($perkara->lama_proses)) {
+                preg_match('/(\d+)/', $perkara->lama_proses, $matches);
+                if (isset($matches[1])) {
+                    $lama_proses_hari = intval($matches[1]);
+                }
+            }
+
+            // Tampilkan SEMUA data yang memiliki lama proses (tepat waktu dan tidak tepat waktu)
+            if ($lama_proses_hari > 0) {
+                $include = true;
+
+                // Apply filters
+                if (!empty($filters['bulan'])) {
+                    $bulan_register = date('m', strtotime($perkara->tgl_register_banding));
+                    if ($bulan_register !== $filters['bulan']) {
+                        $include = false;
+                    }
+                }
+
+                if (!empty($filters['tahun'])) {
+                    $tahun_register = date('Y', strtotime($perkara->tgl_register_banding));
+                    if ($tahun_register !== $filters['tahun']) {
+                        $include = false;
+                    }
+                }
+
+                if (!empty($filters['perkara'])) {
+                    if (strtoupper($perkara->perkara) !== strtoupper($filters['perkara'])) {
+                        $include = false;
+                    }
+                }
+
+                if (!empty($filters['pengadilan'])) {
+                    if (stripos($perkara->asal_pengadilan, $filters['pengadilan']) === false) {
+                        $include = false;
+                    }
+                }
+
+                if ($include) {
+                    $filtered_perkaras[] = $perkara;
+
+                    // Hanya hitung stats untuk yang tepat waktu (< 90 hari)
+                    if ($lama_proses_hari < 90) {
+                        $stats['total_tepat_waktu']++;
+
+                        // Count by type
+                        switch (strtoupper($perkara->perkara)) {
+                            case 'PIDANA':
+                                $stats['pidana_tepat_waktu']++;
+                                break;
+                            case 'PERDATA':
+                                $stats['perdata_tepat_waktu']++;
+                                break;
+                            case 'ANAK':
+                            case 'TIPIKOR':
+                                $stats['anak_tipikor_tepat_waktu']++;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        $data = [
+            'perkaras' => $filtered_perkaras,
+            'filters' => $filters,
+            'total_tepat_waktu' => $stats['total_tepat_waktu'],
+            'pidana_tepat_waktu' => $stats['pidana_tepat_waktu'],
+            'perdata_tepat_waktu' => $stats['perdata_tepat_waktu'],
+            'anak_tipikor_tepat_waktu' => $stats['anak_tipikor_tepat_waktu']
+        ];
+
+        $this->load->view('laporan/laporan_putus_tepat_waktu', $data);
+    }
+
+    // =========================
+    // Export Excel Putus Tepat Waktu
+    // =========================
+    public function export_excel_tepat_waktu()
+    {
+        $filters = [
+            'bulan'       => $this->input->post('bulan', TRUE),
+            'tahun'       => $this->input->post('tahun', TRUE),
+            'perkara'     => $this->input->post('perkara', TRUE),
+            'pengadilan'  => $this->input->post('pengadilan', TRUE),
+            'status_waktu' => $this->input->post('status_waktu', TRUE)
+        ];
+
+        // Get all data first
+        $all_data = $this->Perkara_model->get_all();
+
+        // Filter semua data (tepat waktu dan tidak tepat waktu)
+        $perkaras_export = [];
+
+        foreach ($all_data as $perkara) {
+            // Parse lama proses untuk mendapatkan angka hari
+            $lama_proses_hari = 0;
+            if (!empty($perkara->lama_proses)) {
+                preg_match('/(\d+)/', $perkara->lama_proses, $matches);
+                if (isset($matches[1])) {
+                    $lama_proses_hari = intval($matches[1]);
+                }
+            }
+
+            // Tampilkan SEMUA data yang memiliki lama proses (tepat waktu dan tidak tepat waktu)
+            if ($lama_proses_hari > 0) {
+                $include = true;
+
+                // Apply filters
+                if (!empty($filters['bulan'])) {
+                    $bulan_register = date('m', strtotime($perkara->tgl_register_banding));
+                    if ($bulan_register !== $filters['bulan']) {
+                        $include = false;
+                    }
+                }
+
+                if (!empty($filters['tahun'])) {
+                    $tahun_register = date('Y', strtotime($perkara->tgl_register_banding));
+                    if ($tahun_register !== $filters['tahun']) {
+                        $include = false;
+                    }
+                }
+
+                if (!empty($filters['perkara'])) {
+                    if (strtoupper($perkara->perkara) !== strtoupper($filters['perkara'])) {
+                        $include = false;
+                    }
+                }
+
+                if (!empty($filters['pengadilan'])) {
+                    if (stripos($perkara->asal_pengadilan, $filters['pengadilan']) === false) {
+                        $include = false;
+                    }
+                }
+
+                // Filter berdasarkan status waktu
+                if (!empty($filters['status_waktu'])) {
+                    $is_tepat_waktu = $lama_proses_hari < 90;
+                    if ($filters['status_waktu'] == 'tepat_waktu' && !$is_tepat_waktu) {
+                        $include = false;
+                    } elseif ($filters['status_waktu'] == 'tidak_tepat_waktu' && $is_tepat_waktu) {
+                        $include = false;
+                    }
+                }
+
+                if ($include) {
+                    $perkaras_export[] = $perkara;
+                }
+            }
+        }
+
+        // Generate filename with filters
+        $filename = 'Laporan_Waktu_Penyelesaian_Perkara_' . date('Y-m-d_H-i-s');
+        if (!empty($filters['tahun'])) {
+            $filename .= '_' . $filters['tahun'];
+        }
+        if (!empty($filters['bulan'])) {
+            $bulan_names = [
+                '01' => 'Januari',
+                '02' => 'Februari',
+                '03' => 'Maret',
+                '04' => 'April',
+                '05' => 'Mei',
+                '06' => 'Juni',
+                '07' => 'Juli',
+                '08' => 'Agustus',
+                '09' => 'September',
+                '10' => 'Oktober',
+                '11' => 'November',
+                '12' => 'Desember'
+            ];
+            $filename .= '_' . $bulan_names[$filters['bulan']];
+        }
+        if (!empty($filters['perkara'])) {
+            $filename .= '_' . $filters['perkara'];
+        }
+        if (!empty($filters['status_waktu'])) {
+            $status_name = $filters['status_waktu'] == 'tepat_waktu' ? 'TepatWaktu' : 'TidakTepatWaktu';
+            $filename .= '_' . $status_name;
+        }
+
+        // Create CSV content
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="' . $filename . '.xls"');
+        header('Cache-Control: max-age=0');
+
+        // Build dynamic title
+        $jenis_perkara = !empty($filters['perkara']) ? strtoupper($filters['perkara']) : 'SEMUA JENIS';
+        $tahun = !empty($filters['tahun']) ? $filters['tahun'] : date('Y');
+
+        // Dynamic status based on filter
+        $status_waktu_text = 'SEMUA WAKTU PENYELESAIAN';
+        if (!empty($filters['status_waktu'])) {
+            $status_waktu_text = $filters['status_waktu'] == 'tepat_waktu' ? 'TEPAT WAKTU' : 'TIDAK TEPAT WAKTU';
+        }
+
+        $title = "PERKARA {$jenis_perkara} PUTUS {$status_waktu_text} PENGADILAN TINGGI BANJARMASIN TAHUN {$tahun}";
+
+        // Build subtitle with filter info
+        $subtitle_parts = [];
+        if (!empty($filters['bulan'])) {
+            $bulan_names = [
+                '01' => 'Januari',
+                '02' => 'Februari',
+                '03' => 'Maret',
+                '04' => 'April',
+                '05' => 'Mei',
+                '06' => 'Juni',
+                '07' => 'Juli',
+                '08' => 'Agustus',
+                '09' => 'September',
+                '10' => 'Oktober',
+                '11' => 'November',
+                '12' => 'Desember'
+            ];
+            $subtitle_parts[] = 'Bulan: ' . $bulan_names[$filters['bulan']];
+        }
+        if (!empty($filters['pengadilan'])) {
+            $subtitle_parts[] = 'Pengadilan: ' . strtoupper($filters['pengadilan']);
+        }
+        if (!empty($filters['status_waktu'])) {
+            $status_text = $filters['status_waktu'] == 'tepat_waktu' ? 'Tepat Waktu (< 90 hari)' : 'Tidak Tepat Waktu (≥ 90 hari)';
+            $subtitle_parts[] = 'Status: ' . $status_text;
+        } else {
+            $subtitle_parts[] = 'Kriteria: Semua Waktu Penyelesaian';
+        }
+        $subtitle_parts[] = 'Total Data: ' . count($perkaras_export) . ' Perkara';
+
+        $subtitle = implode(' | ', $subtitle_parts);
+
+        // Start output with title
+        echo '<table border="1">';
+
+        // Title row
+        echo '<tr>';
+        echo '<td colspan="13" style="background-color: #28a745; color: white; font-weight: bold; font-size: 16px; text-align: center; padding: 10px;">';
+        echo $title;
+        echo '</td>';
+        echo '</tr>';
+
+        // Subtitle row
+        echo '<tr>';
+        echo '<td colspan="13" style="background-color: #20c997; color: white; font-size: 12px; text-align: center; padding: 5px;">';
+        echo $subtitle;
+        echo '</td>';
+        echo '</tr>';
+
+        // Empty row for spacing
+        echo '<tr>';
+        echo '<td colspan="13" style="height: 10px;"></td>';
+        echo '</tr>';
+
+        // Header row
+        echo '<tr style="background-color: #28a745; color: white; font-weight: bold;">';
+        echo '<td>No</td>';
+        echo '<td>Pengadilan</td>';
+        echo '<td>Jenis Perkara</td>';
+        echo '<td>Perkara Tk1</td>';
+        echo '<td>Klasifikasi</td>';
+        echo '<td>Tgl Register</td>';
+        echo '<td>Perkara Banding</td>';
+        echo '<td>Lama Proses</td>';
+        echo '<td>Status Tk Banding</td>';
+        echo '<td>Putusan Banding</td>';
+        echo '<td>Kasasi</td>';
+        echo '<td>Berkas Kasasi</td>';
+        echo '<td>Status</td>';
+        echo '</tr>';
+
+        // Data rows
+        $no = 1;
+        foreach ($perkaras_export as $row) {
+            // Parse lama proses untuk menentukan status
+            $lama_proses_hari = 0;
+            if (!empty($row->lama_proses)) {
+                preg_match('/(\d+)/', $row->lama_proses, $matches);
+                if (isset($matches[1])) {
+                    $lama_proses_hari = intval($matches[1]);
+                }
+            }
+
+            $status_waktu = ($lama_proses_hari > 0 && $lama_proses_hari < 90) ? 'TEPAT WAKTU' : 'TIDAK TEPAT WAKTU';
+
+            echo '<tr>';
+            echo '<td>' . $no++ . '</td>';
+            echo '<td>' . htmlspecialchars($row->asal_pengadilan) . '</td>';
+            echo '<td>' . htmlspecialchars($row->perkara) . '</td>';
+            echo '<td>' . htmlspecialchars($row->nomor_perkara_tk1) . '</td>';
+            echo '<td>' . htmlspecialchars($row->klasifikasi) . '</td>';
+            echo '<td>' . ($row->tgl_register_banding ? $this->format_tanggal($row->tgl_register_banding) : '-') . '</td>';
+            echo '<td>' . htmlspecialchars($row->nomor_perkara_banding) . '</td>';
+            echo '<td>' . $status_waktu . ' - ' . htmlspecialchars($row->lama_proses) . '</td>';
+            echo '<td>' . htmlspecialchars($row->status_perkara_tk_banding) . '</td>';
+            echo '<td>' . ($row->pemberitahuan_putusan_banding ? $this->format_tanggal($row->pemberitahuan_putusan_banding) : '-') . '</td>';
+            echo '<td>' . ($row->permohonan_kasasi ? $this->format_tanggal($row->permohonan_kasasi) : '-') . '</td>';
+            echo '<td>' . ($row->pengiriman_berkas_kasasi ? $this->format_tanggal($row->pengiriman_berkas_kasasi) : '-') . '</td>';
+            echo '<td>' . htmlspecialchars($row->status) . '</td>';
+            echo '</tr>';
+        }
+
+        // Footer with export info
+        echo '<tr>';
+        echo '<td colspan="13" style="height: 10px;"></td>';
+        echo '</tr>';
+
+        echo '<tr>';
+        echo '<td colspan="13" style="background-color: #f8f9fa; text-align: center; font-size: 10px; padding: 8px;">';
+        echo 'Diekspor pada: ' . date('d-m-Y H:i:s') . ' | Sistem Informasi Perkara - Pengadilan Tinggi Banjarmasin';
+        echo '</td>';
+        echo '</tr>';
+
+        echo '</table>';
+    }
+
+    // =========================
     // Helper
     // =========================
     private function getMultiCellHeight($w, $txt)
@@ -1342,5 +1708,368 @@ class Laporan extends CI_Controller
         $y = $pdf->GetY();
         $pdf->MultiCell($w, 6, $txt, 1, $align);
         $pdf->SetXY($x + $w, $y);
+    }
+
+    // =========================
+    // Rekapitulasi Bulanan
+    // =========================
+    public function rekapitulasi_bulanan()
+    {
+        $tahun = $this->input->get('tahun', TRUE) ?: date('Y');
+        $periode = $this->input->get('periode', TRUE) ?: 'semua';
+        $bulan = $this->input->get('bulan', TRUE) ?: '01';
+
+        // Get data based on periode selection
+        $data_periode = [];
+
+        if ($periode == 'triwulan') {
+            // Group by quarters
+            for ($tw = 1; $tw <= 4; $tw++) {
+                $data_periode[$tw] = $this->getDataTriwulan($tahun, $tw);
+            }
+        } elseif ($periode == 'bulan') {
+            // Single month data
+            $data_periode[$bulan] = $this->getDataBulan($tahun, $bulan);
+        } else {
+            // All 12 months
+            for ($m = 1; $m <= 12; $m++) {
+                $bulan_key = sprintf('%02d', $m);
+                $data_periode[$bulan_key] = $this->getDataBulan($tahun, $bulan_key);
+            }
+        }
+
+        $nama_bulan = [
+            '01' => 'Januari',
+            '02' => 'Februari',
+            '03' => 'Maret',
+            '04' => 'April',
+            '05' => 'Mei',
+            '06' => 'Juni',
+            '07' => 'Juli',
+            '08' => 'Agustus',
+            '09' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember'
+        ];
+
+        $data = [
+            'tahun' => $tahun,
+            'periode' => $periode,
+            'bulan' => $bulan,
+            'nama_bulan' => isset($nama_bulan[$bulan]) ? $nama_bulan[$bulan] : '',
+            'data_periode' => $data_periode
+        ];
+
+        $this->load->view('laporan/rekapitulasi_bulanan', $data);
+    }
+
+    private function getDataBulan($tahun, $bulan)
+    {
+        $data = [
+            'pidana_putus' => 0,
+            'pidana_kasasi' => 0,
+            'pidana_tidak_kasasi' => 0,
+            'perdata_putus' => 0,
+            'perdata_kasasi' => 0,
+            'perdata_tidak_kasasi' => 0,
+            'anak_putus' => 0,
+            'anak_kasasi' => 0,
+            'anak_tidak_kasasi' => 0,
+            'tipikor_putus' => 0,
+            'tipikor_kasasi' => 0,
+            'tipikor_tidak_kasasi' => 0
+        ];
+
+        // Get all data for the specified month
+        $all_data = $this->Perkara_model->get_all();
+
+        foreach ($all_data as $perkara) {
+            if (empty($perkara->pemberitahuan_putusan_banding)) continue;
+
+            $bulan_putusan = date('m', strtotime($perkara->pemberitahuan_putusan_banding));
+            $tahun_putusan = date('Y', strtotime($perkara->pemberitahuan_putusan_banding));
+
+            if ($tahun_putusan == $tahun && $bulan_putusan == $bulan) {
+                $jenis = strtolower($perkara->perkara);
+
+                // Count putus
+                if (isset($data[$jenis . '_putus'])) {
+                    $data[$jenis . '_putus']++;
+                }
+
+                // Count kasasi/tidak kasasi
+                if (!empty($perkara->permohonan_kasasi)) {
+                    if (isset($data[$jenis . '_kasasi'])) {
+                        $data[$jenis . '_kasasi']++;
+                    }
+                } else {
+                    if (isset($data[$jenis . '_tidak_kasasi'])) {
+                        $data[$jenis . '_tidak_kasasi']++;
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    private function getDataTriwulan($tahun, $triwulan)
+    {
+        $data = [
+            'pidana_putus' => 0,
+            'pidana_kasasi' => 0,
+            'pidana_tidak_kasasi' => 0,
+            'perdata_putus' => 0,
+            'perdata_kasasi' => 0,
+            'perdata_tidak_kasasi' => 0,
+            'anak_putus' => 0,
+            'anak_kasasi' => 0,
+            'anak_tidak_kasasi' => 0,
+            'tipikor_putus' => 0,
+            'tipikor_kasasi' => 0,
+            'tipikor_tidak_kasasi' => 0
+        ];
+
+        // Define months for each quarter
+        $bulan_triwulan = [
+            1 => ['01', '02', '03'],
+            2 => ['04', '05', '06'],
+            3 => ['07', '08', '09'],
+            4 => ['10', '11', '12']
+        ];
+
+        foreach ($bulan_triwulan[$triwulan] as $bulan) {
+            $data_bulan = $this->getDataBulan($tahun, $bulan);
+
+            foreach ($data_bulan as $key => $value) {
+                $data[$key] += $value;
+            }
+        }
+
+        return $data;
+    }
+
+    // =========================
+    // Export Excel Rekapitulasi Bulanan
+    // =========================
+    public function export_rekapitulasi_bulanan_excel()
+    {
+        $tahun = $this->input->get('tahun', TRUE) ?: date('Y');
+        $periode = $this->input->get('periode', TRUE) ?: 'semua';
+        $bulan = $this->input->get('bulan', TRUE) ?: '01';
+
+        // Get data based on periode selection
+        $data_periode = [];
+
+        if ($periode == 'triwulan') {
+            for ($tw = 1; $tw <= 4; $tw++) {
+                $data_periode[$tw] = $this->getDataTriwulan($tahun, $tw);
+            }
+        } elseif ($periode == 'bulan') {
+            $data_periode[$bulan] = $this->getDataBulan($tahun, $bulan);
+        } else {
+            for ($m = 1; $m <= 12; $m++) {
+                $bulan_key = sprintf('%02d', $m);
+                $data_periode[$bulan_key] = $this->getDataBulan($tahun, $bulan_key);
+            }
+        }
+
+        // Generate filename
+        $filename = 'Rekapitulasi_Bulanan_' . $tahun;
+        if ($periode == 'bulan') {
+            $nama_bulan = [
+                '01' => 'Januari',
+                '02' => 'Februari',
+                '03' => 'Maret',
+                '04' => 'April',
+                '05' => 'Mei',
+                '06' => 'Juni',
+                '07' => 'Juli',
+                '08' => 'Agustus',
+                '09' => 'September',
+                '10' => 'Oktober',
+                '11' => 'November',
+                '12' => 'Desember'
+            ];
+            $filename .= '_' . $nama_bulan[$bulan];
+        } elseif ($periode == 'triwulan') {
+            $filename .= '_Per_Triwulan';
+        }
+
+        // Set headers
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="' . $filename . '.xls"');
+        header('Cache-Control: max-age=0');
+
+        // Build title
+        $title = "REKAPITULASI BULANAN DATA PERKARA YANG TIDAK MENGAJUKAN UPAYA HUKUM KASASI PENGADILAN TINGGI BANJARMASIN TAHUN {$tahun}";
+        if ($periode == 'bulan') {
+            $nama_bulan = [
+                '01' => 'JANUARI',
+                '02' => 'FEBRUARI',
+                '03' => 'MARET',
+                '04' => 'APRIL',
+                '05' => 'MEI',
+                '06' => 'JUNI',
+                '07' => 'JULI',
+                '08' => 'AGUSTUS',
+                '09' => 'SEPTEMBER',
+                '10' => 'OKTOBER',
+                '11' => 'NOVEMBER',
+                '12' => 'DESEMBER'
+            ];
+            $title .= " - {$nama_bulan[$bulan]}";
+        } elseif ($periode == 'triwulan') {
+            $title .= " - PER TRIWULAN";
+        }
+
+        // Start output
+        echo '<table border="1">';
+
+        // Title
+        echo '<tr><td colspan="17" style="background-color: #28a745; color: white; font-weight: bold; font-size: 14px; text-align: center; padding: 10px;">' . $title . '</td></tr>';
+        echo '<tr><td colspan="17" style="height: 10px;"></td></tr>';
+
+        // Headers
+        echo '<tr>';
+        echo '<th rowspan="2" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">' . ($periode == 'triwulan' ? 'TRIWULAN' : 'BULAN') . '</th>';
+        echo '<th colspan="3" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">PIDANA</th>';
+        echo '<th colspan="3" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">PERDATA</th>';
+        echo '<th colspan="3" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">ANAK</th>';
+        echo '<th colspan="3" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">TIPIKOR</th>';
+        echo '<th colspan="3" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">TOTAL</th>';
+        echo '<th colspan="2" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">%</th>';
+        echo '</tr>';
+
+        echo '<tr>';
+        for ($i = 0; $i < 4; $i++) {
+            echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">PUTUS</th>';
+            echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">KASASI</th>';
+            echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">TIDAK KASASI</th>';
+        }
+        echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">PUTUS</th>';
+        echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">KASASI</th>';
+        echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">TIDAK KASASI</th>';
+        echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">KASASI</th>';
+        echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">TIDAK KASASI</th>';
+        echo '</tr>';
+
+        // Data rows
+        $nama_bulan = [
+            '01' => 'Januari',
+            '02' => 'Februari',
+            '03' => 'Maret',
+            '04' => 'April',
+            '05' => 'Mei',
+            '06' => 'Juni',
+            '07' => 'Juli',
+            '08' => 'Agustus',
+            '09' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember'
+        ];
+
+        $total_all = [
+            'pidana_putus' => 0,
+            'pidana_kasasi' => 0,
+            'pidana_tidak_kasasi' => 0,
+            'perdata_putus' => 0,
+            'perdata_kasasi' => 0,
+            'perdata_tidak_kasasi' => 0,
+            'anak_putus' => 0,
+            'anak_kasasi' => 0,
+            'anak_tidak_kasasi' => 0,
+            'tipikor_putus' => 0,
+            'tipikor_kasasi' => 0,
+            'tipikor_tidak_kasasi' => 0
+        ];
+
+        if ($periode == 'triwulan') {
+            $triwulan_names = ['I', 'II', 'III', 'IV'];
+            for ($tw = 1; $tw <= 4; $tw++) {
+                $data_tw = $data_periode[$tw] ?? array_fill_keys(array_keys($total_all), 0);
+                $this->outputExcelRow($data_tw, $total_all, $triwulan_names[$tw - 1]);
+            }
+        } elseif ($periode == 'bulan') {
+            $data_bln = $data_periode[$bulan] ?? array_fill_keys(array_keys($total_all), 0);
+            $this->outputExcelRow($data_bln, $total_all, $nama_bulan[$bulan]);
+        } else {
+            for ($m = 1; $m <= 12; $m++) {
+                $bulan_key = sprintf('%02d', $m);
+                $data_bln = $data_periode[$bulan_key] ?? array_fill_keys(array_keys($total_all), 0);
+                $this->outputExcelRow($data_bln, $total_all, $nama_bulan[$bulan_key]);
+            }
+        }
+
+        // Grand total
+        $grand_total_putus = $total_all['pidana_putus'] + $total_all['perdata_putus'] + $total_all['anak_putus'] + $total_all['tipikor_putus'];
+        $grand_total_kasasi = $total_all['pidana_kasasi'] + $total_all['perdata_kasasi'] + $total_all['anak_kasasi'] + $total_all['tipikor_kasasi'];
+        $grand_total_tidak_kasasi = $total_all['pidana_tidak_kasasi'] + $total_all['perdata_tidak_kasasi'] + $total_all['anak_tidak_kasasi'] + $total_all['tipikor_tidak_kasasi'];
+
+        $grand_persen_kasasi = $grand_total_putus > 0 ? round(($grand_total_kasasi / $grand_total_putus) * 100, 2) : 0;
+        $grand_persen_tidak_kasasi = $grand_total_putus > 0 ? round(($grand_total_tidak_kasasi / $grand_total_putus) * 100, 2) : 0;
+
+        echo '<tr style="background-color: #fff3cd; font-weight: bold;">';
+        echo '<td style="font-weight: bold; text-align: center;"><strong>TOTAL</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['pidana_putus'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['pidana_kasasi'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['pidana_tidak_kasasi'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['perdata_putus'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['perdata_kasasi'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['perdata_tidak_kasasi'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['anak_putus'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['anak_kasasi'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['anak_tidak_kasasi'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['tipikor_putus'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['tipikor_kasasi'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $total_all['tipikor_tidak_kasasi'] . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $grand_total_putus . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $grand_total_kasasi . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $grand_total_tidak_kasasi . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $grand_persen_kasasi . '</strong></td>';
+        echo '<td style="text-align: center;"><strong>' . $grand_persen_tidak_kasasi . '</strong></td>';
+        echo '</tr>';
+
+        echo '</table>';
+    }
+
+    private function outputExcelRow($data, &$total_all, $label)
+    {
+        // Accumulate totals
+        foreach ($data as $key => $value) {
+            if (isset($total_all[$key])) {
+                $total_all[$key] += $value;
+            }
+        }
+
+        $total_putus = $data['pidana_putus'] + $data['perdata_putus'] + $data['anak_putus'] + $data['tipikor_putus'];
+        $total_kasasi = $data['pidana_kasasi'] + $data['perdata_kasasi'] + $data['anak_kasasi'] + $data['tipikor_kasasi'];
+        $total_tidak_kasasi = $data['pidana_tidak_kasasi'] + $data['perdata_tidak_kasasi'] + $data['anak_tidak_kasasi'] + $data['tipikor_tidak_kasasi'];
+
+        $persen_kasasi = $total_putus > 0 ? round(($total_kasasi / $total_putus) * 100, 2) : 0;
+        $persen_tidak_kasasi = $total_putus > 0 ? round(($total_tidak_kasasi / $total_putus) * 100, 2) : 0;
+
+        echo '<tr>';
+        echo '<td style="font-weight: bold; text-align: center;">' . $label . '</td>';
+        echo '<td style="text-align: center;">' . $data['pidana_putus'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['pidana_kasasi'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['pidana_tidak_kasasi'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['perdata_putus'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['perdata_kasasi'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['perdata_tidak_kasasi'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['anak_putus'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['anak_kasasi'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['anak_tidak_kasasi'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['tipikor_putus'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['tipikor_kasasi'] . '</td>';
+        echo '<td style="text-align: center;">' . $data['tipikor_tidak_kasasi'] . '</td>';
+        echo '<td style="text-align: center; font-weight: bold;">' . $total_putus . '</td>';
+        echo '<td style="text-align: center; font-weight: bold;">' . $total_kasasi . '</td>';
+        echo '<td style="text-align: center; font-weight: bold;">' . $total_tidak_kasasi . '</td>';
+        echo '<td style="text-align: center; font-weight: bold;">' . $persen_kasasi . '</td>';
+        echo '<td style="text-align: center; font-weight: bold;">' . $persen_tidak_kasasi . '</td>';
+        echo '</tr>';
     }
 }

@@ -66,6 +66,8 @@
             max-width: 100%;
             overflow-x: hidden;
             margin: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .content-card {
@@ -100,6 +102,7 @@
             position: relative;
             width: 100%;
             overflow: hidden;
+            margin: 0;
         }
 
         .table-responsive-custom {
@@ -107,12 +110,16 @@
             overflow-x: auto;
             overflow-y: auto;
             max-height: 70vh;
+            margin: 0;
+            padding: 0;
         }
 
         .table {
             width: 100%;
             border-collapse: collapse;
             margin: 0;
+            min-width: 1200px;
+            /* Memastikan tabel memiliki lebar minimum untuk scroll horizontal */
         }
 
         /* Make specific columns fixed width */
@@ -138,6 +145,15 @@
 
         .table .text-column {
             min-width: 180px;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .table .lama-column {
+            width: 80px;
+            min-width: 80px;
+            max-width: 80px;
         }
 
         /* Indikator scroll */
@@ -153,38 +169,23 @@
         }
 
         .table-responsive-custom::-webkit-scrollbar {
-            height: 12px;
-            width: 12px;
+            height: 8px;
+            width: 8px;
         }
 
         .table-responsive-custom::-webkit-scrollbar-track {
             background: #f1f3f4;
-            border-radius: 6px;
-            margin: 2px;
-            border: 1px solid #e0e0e0;
+            border-radius: 4px;
         }
 
         .table-responsive-custom::-webkit-scrollbar-thumb {
-            background: #007bff;
-            border-radius: 6px;
-            border: 3px solid #f1f3f4;
-            min-height: 40px;
-            min-width: 40px;
+            background: #198754;
+            border-radius: 4px;
+            border: 1px solid #f1f3f4;
         }
 
         .table-responsive-custom::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #0056b3, #004085);
-            transform: scale(1.1);
-            transition: all 0.2s ease;
-        }
-
-        .table-responsive-custom::-webkit-scrollbar-thumb:active {
-            background: linear-gradient(135deg, #004085, #002752);
-        }
-
-        .table-responsive-custom::-webkit-scrollbar-corner {
-            background: #f1f3f4;
-            border-radius: 8px;
+            background: #157347;
         }
 
         /* Loading state */
@@ -215,55 +216,52 @@
             }
         }
 
-        .table td {
-            max-width: 300px;
-            /* Prevent cells from stretching too wide */
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+
 
         .table th,
         .table td {
-            padding: 8px;
+            padding: 0.5rem 0.25rem;
             vertical-align: middle;
             border: 1px solid #dee2e6;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            background-color: white;
+            text-align: left;
+            font-size: 0.75rem;
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            max-width: none;
         }
 
         /* Responsive table columns */
-        .table td,
-        .table th {
-            padding: 0.5rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
 
         /* Table header */
         .table thead th {
-            background-color: #f8f9fa;
+            background-color: #198754;
+            color: white;
             border-bottom: 2px solid #dee2e6;
             font-weight: 600;
             position: sticky;
             top: 0;
             z-index: 1;
+            padding: 0.75rem 0.5rem;
+            white-space: nowrap;
+            vertical-align: middle;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+            font-size: 0.8rem;
         }
 
         /* Ensure content doesn't overflow */
-        .table td {
-            max-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+
+        /* Hover effects */
+        .table tbody tr:hover td {
+            background-color: rgba(25, 135, 84, 0.05);
+            transition: background-color 0.2s ease;
         }
 
-        /* Hover effects - Diperbaiki untuk semua kolom */
-        .table tbody tr:hover td {
-            background-color: rgba(0, 123, 255, 0.1);
-            transition: background-color 0.2s ease;
+        .table tbody tr:nth-child(even) td {
+            background-color: #f8f9fa;
         }
 
         /* Scrollbar styling - Diperbaiki dan disempurnakan */
@@ -280,11 +278,15 @@
         }
 
         .table-responsive-custom::-webkit-scrollbar-thumb {
-            background: #007bff;
+            background: #198754;
             border-radius: 6px;
-            border: 3px solid #f1f3f4;
+            border: 2px solid #f1f3f4;
             min-height: 40px;
             min-width: 40px;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-thumb:hover {
+            background: #157347;
         }
 
         .table-responsive-custom::-webkit-scrollbar-corner {
@@ -301,21 +303,6 @@
             height: 15px;
             background: #f1f3f4;
             border-radius: 0 0 0.5rem 0;
-        }
-
-        .table-responsive-custom::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #0056b3, #004085);
-            transform: scale(1.1);
-            transition: all 0.2s ease;
-        }
-
-        .table-responsive-custom::-webkit-scrollbar-thumb:active {
-            background: linear-gradient(135deg, #004085, #002752);
-        }
-
-        .table-responsive-custom::-webkit-scrollbar-corner {
-            background: #f1f3f4;
-            border-radius: 8px;
         }
 
         /* Shadow untuk scroll indicator - Diperbaiki */
@@ -371,9 +358,8 @@
 
         /* Responsive breakpoints */
         @media (max-width: 1200px) {
-            .table-wrapper {
-                margin: 0 -15px;
-                /* Compensate for container padding */
+            .content-wrapper {
+                padding: 10px;
             }
 
             .table td,
@@ -383,6 +369,10 @@
         }
 
         @media (max-width: 992px) {
+            .content-wrapper {
+                padding: 8px;
+            }
+
             .table {
                 font-size: 0.9rem;
             }
@@ -401,6 +391,10 @@
         }
 
         @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 5px;
+            }
+
             .table {
                 font-size: 0.85rem;
             }
@@ -425,6 +419,10 @@
         }
 
         @media (max-width: 576px) {
+            .content-wrapper {
+                padding: 3px;
+            }
+
             .table {
                 font-size: 0.8rem;
             }
@@ -507,7 +505,7 @@
 
     <!-- Table -->
     <div class="content-card p-0">
-        <div class="table-container">
+        <div class="table-wrapper">
             <div class="table-responsive-custom" tabindex="0" role="region" aria-label="Tabel data perkara yang dapat di-scroll">
                 <table class="table table-bordered table-striped table-hover m-0">
                     <thead>
@@ -519,7 +517,7 @@
                             <th class="text-column align-middle">Klasifikasi</th>
                             <th class="date-column text-center align-middle">Tgl Register</th>
                             <th class="text-column align-middle">Perkara Banding</th>
-                            <th class="text-column text-center align-middle">Lama</th>
+                            <th class="lama-column text-center align-middle">Lama</th>
                             <th class="text-column align-middle">Status Tk Banding</th>
                             <th class="date-column text-center align-middle">Putusan Banding</th>
                             <th class="date-column text-center align-middle">Kasasi</th>
@@ -560,7 +558,7 @@
                                     <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_banding) ?>">
                                         <?= htmlspecialchars($row->nomor_perkara_banding) ?>
                                     </td>
-                                    <td class="text-column"><?= htmlspecialchars($row->lama_proses) ?></td>
+                                    <td class="lama-column"><?= htmlspecialchars($row->lama_proses) ?></td>
                                     <td class="text-column"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
                                     <td class="date-column">
                                         <?= $row->pemberitahuan_putusan_banding ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?>
@@ -614,6 +612,19 @@
         <!-- JavaScript untuk Tabel Responsif -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                // SweetAlert untuk login berhasil
+                <?php if ($this->session->flashdata('login_success')): ?>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Selamat Datang!',
+                        text: '<?= addslashes($this->session->flashdata('login_success')) ?>',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#198754',
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                <?php endif; ?>
+
                 const tableWrapper = document.querySelector('.table-wrapper');
                 const tableContainer = document.querySelector('.table-responsive-custom');
                 const table = document.querySelector('.table');

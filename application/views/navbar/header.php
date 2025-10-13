@@ -31,13 +31,10 @@ $role     = $this->session->userdata('role');
     <!-- Global Typography System -->
     <link href="<?= base_url('assets/css/global-typography.css'); ?>" rel="stylesheet" />
 
-    <style>
-        /* ==============================================
-           GLOBAL TYPOGRAPHY SYSTEM - PERKARA APP
-           Professional Font System for Legal/Government App
-           ============================================== */
+    <!-- GLOBAL LAYOUT SYSTEM - Controls main content positioning -->
+    <link href="<?= base_url('assets/css/global-layout.css?v=' . time()); ?>" rel="stylesheet" />
 
-        /* CSS Custom Properties untuk Font Management */
+    <style>
         :root {
             --font-primary: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-heading: 'Poppins', sans-serif;
@@ -76,7 +73,6 @@ $role     = $this->session->userdata('role');
             --leading-loose: 2;
         }
 
-        /* Base Typography untuk seluruh aplikasi */
         * {
             font-family: var(--font-primary);
             -webkit-font-smoothing: antialiased;
@@ -90,11 +86,13 @@ $role     = $this->session->userdata('role');
             line-height: var(--leading-normal);
             color: #2d3748;
             background-color: #f8f9fa;
-            padding-top: 80px;
-            overflow: hidden;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        /* Headings Typography */
         h1,
         h2,
         h3,
@@ -428,20 +426,10 @@ $role     = $this->session->userdata('role');
            EXISTING STYLES (Updated with new typography)
            ============================================== */
 
-        /* Main Content Layout */
-        .main-content {
-            margin-left: 160px;
-            width: calc(100% - 160px);
-            min-height: calc(100vh - 80px);
-            background: #f8f9fa;
-            padding: 10px;
-            transition: all 0.3s ease;
-            margin-top: 25px;
-            padding-top: 15px;
-        }
+        /* Main Content Layout - Now handled by global-layout.css */
 
         .content-wrapper {
-            padding: 0.5rem;
+            padding: 15px 0 15px 0;
             margin: 0;
             width: 100%;
             box-sizing: border-box;
@@ -760,15 +748,6 @@ $role     = $this->session->userdata('role');
             }
         }
 
-        @media (min-width: 769px) {
-            .main-content {
-                margin-left: 200px;
-                width: calc(100% - 200px);
-                margin-top: 20px;
-                padding: 20px;
-            }
-        }
-
         .table-container {
             overflow-x: auto;
             margin: 0;
@@ -898,11 +877,7 @@ $role     = $this->session->userdata('role');
         }
 
         /* Main content scrolling */
-        .main-content {
-            height: calc(100vh - 60px);
-            overflow-y: auto;
-            padding: 1.5rem;
-        }
+        /* Main content layout handled by global-layout.css */
 
         .content-wrapper {
             width: 100%;
@@ -1142,15 +1117,7 @@ $role     = $this->session->userdata('role');
         }
 
         /* Main Content Area */
-        .main-content {
-            margin-left: 240px;
-            padding: 20px;
-            min-height: calc(100vh - 80px);
-            background-color: #f8f9fa;
-            width: calc(100% - 240px);
-            overflow-x: hidden;
-            margin-top: 10px;
-        }
+        /* Main content positioning is handled by sidebar.php */
 
         .container-fluid {
             padding: 0 5px;
@@ -1158,31 +1125,8 @@ $role     = $this->session->userdata('role');
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-                padding: 8px;
-                margin-top: 20px;
-                padding-top: 12px;
-            }
-        }
 
-        @media (min-width: 769px) {
-            .main-content {
-                margin-left: 160px;
-                width: calc(100% - 160px);
-                padding: 10px;
-                margin-top: 25px;
-                padding-top: 15px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-
+            /* Mobile responsive handled by sidebar.php */
             .navbar-brand {
                 font-size: 1rem;
             }
@@ -1314,6 +1258,3 @@ $role     = $this->session->userdata('role');
 
     <!-- Sidebar -->
     <?php require_once(APPPATH . 'views/navbar/sidebar.php'); ?>
-
-    <!-- Main Content -->
-    <div class="main-content">

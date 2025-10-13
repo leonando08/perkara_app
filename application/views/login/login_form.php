@@ -7,12 +7,13 @@
     <title>Login Aplikasi Perkara</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
         body {
-            background: linear-gradient(rgba(20, 21, 20, 0.85), rgba(2, 87, 2, 0.85)),
-                url('https://i.pinimg.com/originals/12/83/86/12838649a270c20c3d402fcc5ee9ca16.jpg');
+            background: linear-gradient(rgba(15, 27, 15, 0.85), rgba(10, 76, 10, 0.85)),
+                url('<?php echo base_url('assets/bg2.jpg'); ?>');
             background-size: cover;
             background-position: center;
             min-height: 100vh;
@@ -152,6 +153,27 @@
             color: #004d00;
             text-decoration: underline;
         }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0;
+            font-size: 1.1rem;
+        }
+
+        .password-toggle-btn:hover {
+            color: #495057;
+        }
     </style>
 </head>
 
@@ -162,10 +184,6 @@
             <hr>
             <p class="text-center text-muted">Sistem Informasi Perkara</p>
 
-            <?php if (isset($error)): ?>
-                <div class="alert alert-danger text-center"><?= $error ?></div>
-            <?php endif; ?>
-
             <?= form_open('auth/login') ?>
             <div class="mb-3">
                 <label class="form-label">Username</label>
@@ -173,7 +191,12 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" placeholder="Password" required>
+                <div class="password-toggle">
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('password')">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label">CAPTCHA</label>
@@ -205,6 +228,25 @@
                 icon.classList.replace("bi-eye-slash", "bi-eye");
             }
         }
+
+        // SweetAlert notifications
+        <?php if (isset($error)): ?>
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Gagal!',
+                text: '<?= addslashes($error) ?>',
+                confirmButtonColor: '#006400'
+            });
+        <?php endif; ?>
+
+        <?php if ($this->session->flashdata('success')): ?>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '<?= addslashes($this->session->flashdata('success')) ?>',
+                confirmButtonColor: '#006400'
+            });
+        <?php endif; ?>
 
         // Mencegah akses ke captcha
         document.addEventListener('DOMContentLoaded', function() {

@@ -61,6 +61,12 @@ $current_url = current_url();
                     <li><a class="nav-link submenu-link" href="<?= site_url('laporan/rekap'); ?>" data-menu="laporan">
                             <i class="fas fa-chart-bar me-2"></i>Rekap Kasasi
                         </a></li>
+                    <li><a class="nav-link submenu-link" href="<?= site_url('laporan/laporan_putus_tepat_waktu'); ?>" data-menu="laporan">
+                            <i class="fas fa-clock-check me-2"></i>Putus Tepat Waktu
+                        </a></li>
+                    <li><a class="nav-link submenu-link" href="<?= site_url('laporan/rekapitulasi_bulanan'); ?>" data-menu="laporan">
+                            <i class="fas fa-calendar-alt me-2"></i>Rekapitulasi Bulanan
+                        </a></li>
                 </ul>
             </div>
         </li>
@@ -89,8 +95,7 @@ $current_url = current_url();
 
         <!-- LOGOUT MENU -->
         <li class="nav-item mt-4 pt-3" style="border-top: 1px solid #e5e7eb;">
-            <a class="nav-link text-danger" href="<?= site_url('auth/logout'); ?>"
-                onclick="return confirm('Yakin ingin logout?')">
+            <a class="nav-link text-danger" href="#" id="logoutBtn">
                 <i class="fas fa-sign-out-alt me-2"></i>Logout
             </a>
         </li>
@@ -266,37 +271,19 @@ $current_url = current_url();
         transition: opacity 0.3s ease;
     }
 
-    /* Content adjustment */
+    /* Content adjustment - Layout now handled by global-layout.css */
+    /* Removed inline .main-content styles to prevent conflicts */
+
+    /* Force proper width calculation */
     body {
-        margin-left: 280px;
-        transition: margin-left 0.3s ease;
-    }
-
-    .main-content {
-        margin-left: 0;
+        margin: 0;
+        padding: 0;
         width: 100%;
-        min-height: calc(100vh - 60px);
-        background: #f8f9fa;
+        overflow-x: hidden;
     }
 
-    /* Mobile Responsive */
+    /* Mobile Responsive - Sidebar behavior only */
     @media (max-width: 768px) {
-        body {
-            margin-left: 0;
-        }
-
-        .sidebar {
-            width: 280px;
-            transform: translateX(-100%);
-            background: #ffffff;
-            padding: 1rem;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .sidebar.show {
-            transform: translateX(0);
-        }
-
         .sidebar-overlay.show {
             display: block;
             opacity: 1;
@@ -313,28 +300,6 @@ $current_url = current_url();
 
         .sidebar .collapse .nav-link {
             padding-left: 2.5rem;
-        }
-    }
-
-    /* Tablet */
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .sidebar {
-            width: 240px;
-        }
-
-        body {
-            margin-left: 240px;
-        }
-    }
-
-    /* Large screens */
-    @media (min-width: 1200px) {
-        .sidebar {
-            width: 280px;
-        }
-
-        body {
-            margin-left: 280px;
         }
     }
 
@@ -489,69 +454,97 @@ $current_url = current_url();
         const currentPath = window.location.pathname;
         const submenuLinks = document.querySelectorAll('.submenu-link');
 
+        // Reset all active states first
+        submenuLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+        document.querySelectorAll('.menu-toggle').forEach(toggle => {
+            toggle.classList.remove('parent-active');
+            toggle.setAttribute('aria-expanded', 'false');
+        });
+
+        let activeLink = null;
+        let bestMatchScore = 0;
+
         submenuLinks.forEach(link => {
             const linkHref = link.getAttribute('href');
 
             if (linkHref) {
-                // Ekstrak path dari link href
-                let linkPath;
-                try {
-                    linkPath = new URL(linkHref, window.location.origin).pathname;
-                } catch (e) {
-                    // Jika URL relatif
-                    linkPath = linkHref.replace(window.location.origin, '');
-                }
-
-                // Improved logic matching untuk CodeIgniter URLs
+                let matchScore = 0;
                 let isMatch = false;
 
-                // Handle CodeIgniter URL structure
-                const currentSegments = currentPath.split('/').filter(s => s);
-                const linkSegments = linkHref.split('/').filter(s => s);
+                // Extract clean URL paths
+                const cleanCurrentPath = currentPath.replace(/\/+$/, ''); // Remove trailing slashes
+                const cleanLinkPath = linkHref.replace(window.location.origin, '').replace(/\/+$/, '');
 
-                // Special case untuk laporan/rekap
-                if (currentPath.includes('/laporan/rekap') && linkHref.includes('/laporan/rekap')) {
+                // Exact match gets highest score
+                if (cleanCurrentPath === cleanLinkPath) {
+                    matchScore = 100;
                     isMatch = true;
                 }
-                // Special case untuk laporan (bukan rekap)
-                else if (currentPath.includes('/laporan') && !currentPath.includes('/rekap') &&
-                    linkHref.includes('/laporan') && !linkHref.includes('/rekap')) {
+                // Check for specific patterns with high scores
+                else if (cleanCurrentPath.includes('/laporan/laporan_data') && cleanLinkPath.includes('/laporan/laporan_data')) {
+                    matchScore = 90;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/laporan/rekap') && cleanLinkPath.includes('/laporan/rekap')) {
+                    matchScore = 90;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/laporan') && cleanLinkPath.includes('/laporan') &&
+                    !cleanCurrentPath.includes('/laporan_data') && !cleanCurrentPath.includes('/rekap') &&
+                    !cleanLinkPath.includes('/laporan_data') && !cleanLinkPath.includes('/rekap')) {
+                    matchScore = 85;
                     isMatch = true;
                 }
-                // Untuk URL lainnya, match berdasarkan segment terakhir
-                else if (currentSegments.length > 0 && linkSegments.length > 0) {
-                    const currentLast = currentSegments[currentSegments.length - 1];
-                    const linkLast = linkSegments[linkSegments.length - 1];
-
-                    if (currentLast === linkLast) {
-                        isMatch = true;
-                    }
+                // Dashboard patterns
+                else if (cleanCurrentPath.includes('/admin/dashboard_admin') && cleanLinkPath.includes('/admin/dashboard_admin')) {
+                    matchScore = 90;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/user/dashboard_user') && cleanLinkPath.includes('/user/dashboard_user')) {
+                    matchScore = 90;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/perkara/tambah') && cleanLinkPath.includes('/perkara/tambah')) {
+                    matchScore = 90;
+                    isMatch = true;
+                }
+                // User management patterns
+                else if (cleanCurrentPath.includes('/admin/kelola_user') && cleanLinkPath.includes('/admin/kelola_user')) {
+                    matchScore = 90;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/admin/tambah_user') && cleanLinkPath.includes('/admin/tambah_user')) {
+                    matchScore = 90;
+                    isMatch = true;
                 }
 
-                if (isMatch) {
-                    // Mark this link as active
-                    link.classList.add('active');
-
-                    // Find and expand parent collapse
-                    const parentCollapse = link.closest('.collapse');
-                    if (parentCollapse) {
-                        const bsCollapse = bootstrap.Collapse.getInstance(parentCollapse) || new bootstrap.Collapse(parentCollapse, {
-                            toggle: false
-                        });
-                        bsCollapse.show();
-
-                        // Mark parent toggle as active
-                        const parentToggle = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
-                        if (parentToggle) {
-                            parentToggle.classList.add('parent-active');
-                            parentToggle.setAttribute('aria-expanded', 'true');
-                        }
-                    }
+                // Only set as active if this is the best match so far
+                if (isMatch && matchScore > bestMatchScore) {
+                    bestMatchScore = matchScore;
+                    activeLink = link;
                 }
             }
         });
 
-        // Handle submenu link clicks - add visual feedback but don't close menu
+        // Apply active state only to the best matching link
+        if (activeLink) {
+            activeLink.classList.add('active');
+
+            // Find and expand parent collapse
+            const parentCollapse = activeLink.closest('.collapse');
+            if (parentCollapse) {
+                const bsCollapse = bootstrap.Collapse.getInstance(parentCollapse) || new bootstrap.Collapse(parentCollapse, {
+                    toggle: false
+                });
+                bsCollapse.show();
+
+                // Mark parent toggle as active
+                const parentToggle = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
+                if (parentToggle) {
+                    parentToggle.classList.add('parent-active');
+                    parentToggle.setAttribute('aria-expanded', 'true');
+                }
+            }
+        }
+
+        // Handle submenu link clicks - ensure only one is active at a time
         submenuLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 // Stop event bubbling untuk mencegah efek ganda
@@ -562,8 +555,23 @@ $current_url = current_url();
                     otherLink.classList.remove('active');
                 });
 
+                // Remove parent-active from all toggles
+                document.querySelectorAll('.menu-toggle').forEach(toggle => {
+                    toggle.classList.remove('parent-active');
+                });
+
                 // Add active class to clicked link
                 this.classList.add('active', 'clicked');
+
+                // Mark parent as active
+                const parentCollapse = this.closest('.collapse');
+                if (parentCollapse) {
+                    const parentToggle = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
+                    if (parentToggle) {
+                        parentToggle.classList.add('parent-active');
+                        parentToggle.setAttribute('aria-expanded', 'true');
+                    }
+                }
 
                 // Remove clicked animation class after animation completes
                 setTimeout(() => {
@@ -632,5 +640,45 @@ $current_url = current_url();
                 document.body.classList.remove('sidebar-open');
             }
         });
+
+        // Handle logout with SweetAlert
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Konfirmasi Logout',
+                    text: 'Apakah Anda yakin ingin keluar dari sistem?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Logout!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading alert
+                        Swal.fire({
+                            title: 'Logging out...',
+                            text: 'Mohon tunggu sebentar',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Redirect to logout
+                        setTimeout(() => {
+                            window.location.href = '<?= site_url('auth/logout'); ?>';
+                        }, 500);
+                    }
+                });
+            });
+        }
     });
 </script>

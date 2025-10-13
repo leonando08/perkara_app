@@ -5,29 +5,15 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <?php $this->load->view('navbar/header'); ?>
 
 <style>
-    /* Main Content Layout */
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-        min-height: calc(100vh - 60px);
-        background: #f8f9fa;
-        padding: 0;
-        transition: all 0.3s ease;
-    }
+    /* Main Content Layout - Version SANGAT DEKAT - <?= time(); ?> */
 
-    .content-wrapper {
-        padding: 1.5rem;
-        margin: 0;
-        width: 100%;
-        box-sizing: border-box;
-        max-width: 100%;
-    }
+    /* Layout now handled by global-layout.css - removed duplicate styles */
 
     /* Page Header */
     .page-header {
         background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         padding: 1.5rem;
         margin-bottom: 1.5rem;
         display: flex;
@@ -35,6 +21,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
         align-items: flex-start;
         flex-wrap: wrap;
         gap: 1rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     .page-title {
@@ -110,21 +97,29 @@ defined('BASEPATH') or exit('No direct script access allowed');
         background-color: #198754;
         color: white;
         font-weight: 600;
-        padding: 0.75rem;
+        padding: 0.75rem 0.5rem;
         white-space: nowrap;
         vertical-align: middle;
         border: 1px solid rgba(255, 255, 255, 0.1);
         position: sticky;
         top: 0;
         z-index: 10;
+        text-align: center;
+        font-size: 0.8rem;
     }
 
     .table tbody td {
-        padding: 0.75rem;
+        padding: 0.5rem 0.25rem;
         vertical-align: middle;
         border: 1px solid #dee2e6;
-        white-space: nowrap;
         background-color: white;
+        text-align: center;
+        font-size: 0.75rem;
+        line-height: 1.3;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        max-width: none;
     }
 
     .table tbody tr:hover td {
@@ -132,28 +127,63 @@ defined('BASEPATH') or exit('No direct script access allowed');
         transition: background-color 0.2s ease;
     }
 
+    .table tbody tr:nth-child(even) td {
+        background-color: #f8f9fa;
+    }
+
+    /* Scrollbar styling for better UX */
+    .table-responsive::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f1f3f4;
+        border-radius: 4px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #198754;
+        border-radius: 4px;
+        border: 1px solid #f1f3f4;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #157347;
+    }
+
     /* Column Widths */
     .table .number-column {
-        min-width: 60px;
+        min-width: 50px;
         max-width: 60px;
         text-align: center;
     }
 
     .table .text-column {
-        min-width: 150px;
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        min-width: 180px;
+        max-width: none;
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .table .date-column {
-        min-width: 130px;
-        max-width: 130px;
+        min-width: 110px;
+        max-width: 120px;
+        white-space: normal;
     }
 
     .table .status-column {
-        min-width: 100px;
-        max-width: 100px;
+        min-width: 120px;
+        max-width: none;
+        text-align: center;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .table .lama-column {
+        min-width: 70px;
+        max-width: 80px;
         text-align: center;
     }
 
@@ -288,32 +318,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
         font-size: 0.875rem;
     }
 
-    /* Scrollbar styling */
-    .table-responsive::-webkit-scrollbar {
-        height: 10px;
-        width: 10px;
-    }
-
-    .table-responsive::-webkit-scrollbar-track {
-        background: #f1f3f4;
-        border-radius: 8px;
-        margin: 2px;
-    }
-
-    .table-responsive::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, #198754, #157347);
-        border-radius: 8px;
-        border: 1px solid #f1f3f4;
-    }
-
-    .table-responsive::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(135deg, #157347, #0d4b2e);
-    }
-
     /* Responsive */
     @media (max-width: 768px) {
         .content-wrapper {
-            padding: 1rem;
+            padding: 0.5rem;
         }
 
         .filter-form {
@@ -331,12 +339,18 @@ defined('BASEPATH') or exit('No direct script access allowed');
         }
 
         .table {
-            font-size: 0.813rem;
+            font-size: 0.7rem;
         }
 
         .table thead th,
         .table tbody td {
-            padding: 0.5rem;
+            padding: 0.25rem;
+            font-size: 0.65rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            gap: 0.5rem;
         }
     }
 
@@ -352,228 +366,244 @@ defined('BASEPATH') or exit('No direct script access allowed');
         }
     }
 
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .main-content {
-            margin-left: 100px;
-            width: calc(100% - 100px);
-        }
-    }
-
-    @media (min-width: 1025px) {
-        .main-content {
-            margin-left: 180px;
-            width: calc(100% - 180px);
-        }
-    }
+    /* Responsive layout handled by global-layout.css */
 </style>
 
-<div class="content-wrapper">
-    <div class="page-header">
-        <div>
-            <h2 class="page-title">Laporan Perkara</h2>
-            <p class="text-muted mb-0">
-                Selamat datang, <b><?= htmlspecialchars($this->session->userdata('username') ?? 'Guest'); ?></b>
-                (<?= ucfirst($this->session->userdata('role') ?? 'User'); ?>)
-            </p>
-        </div>
-        <div class="action-buttons">
-            <a href="<?= site_url('laporan/laporan_data'); ?>" class="btn btn-primary">
-                <i class="fas fa-chart-line"></i> Laporan Data
-            </a>
-            <a href="<?= site_url('laporan/rekap'); ?>" class="btn btn-info">
-                <i class="fas fa-chart-bar"></i> Rekap Kasasi
-            </a>
-            <a href="<?= site_url('laporan/rekapitulasi'); ?>" class="btn btn-warning">
-                <i class="fas fa-file-alt"></i> Rekapitulasi Data
-            </a>
-            <a href="<?= site_url('laporan/cetak_excel?' . $_SERVER['QUERY_STRING']); ?>" class="btn btn-success">
-                <i class="fas fa-file-excel"></i> Ekspor Excel
-            </a>
-        </div>
-    </div>
-
-    <!-- Filter -->
-    <div class="filter-card">
-        <form method="GET" class="filter-form">
+<div class="main-content">
+    <div class="content-wrapper">
+        <div class="page-header">
             <div>
-                <label class="form-label">Bulan</label>
-                <input type="month" name="bulan" class="form-control"
-                    value="<?= htmlspecialchars($filters['bulan'] ?? ''); ?>">
-            </div>
-            <div>
-                <label class="form-label">Jenis Perkara</label>
-                <select name="perkara" class="form-control">
-                    <option value="">Semua Jenis</option>
-                    <option value="PIDANA" <?= ($filters['perkara'] ?? '') == 'PIDANA' ? 'selected' : '' ?>>PIDANA</option>
-                    <option value="PERDATA" <?= ($filters['perkara'] ?? '') == 'PERDATA' ? 'selected' : '' ?>>PERDATA</option>
-                    <option value="ANAK" <?= ($filters['perkara'] ?? '') == 'ANAK' ? 'selected' : '' ?>>ANAK</option>
-                    <option value="TIPIKOR" <?= ($filters['perkara'] ?? '') == 'TIPIKOR' ? 'selected' : '' ?>>TIPIKOR</option>
-                </select>
-            </div>
-            <div>
-                <label class="form-label">Asal Pengadilan</label>
-                <input type="text" name="asal_pengadilan" class="form-control"
-                    value="<?= htmlspecialchars($filters['asal_pengadilan'] ?? ''); ?>">
-            </div>
-            <div>
-                <label class="form-label">Klasifikasi</label>
-                <input type="text" name="klasifikasi" class="form-control"
-                    value="<?= htmlspecialchars($filters['klasifikasi'] ?? ''); ?>">
+                <h2 class="page-title">Laporan Perkara</h2>
+                <p class="text-muted mb-0">
+                    Selamat datang, <b><?= htmlspecialchars($this->session->userdata('username') ?? 'Guest'); ?></b>
+                    (<?= ucfirst($this->session->userdata('role') ?? 'User'); ?>)
+                </p>
             </div>
             <div class="action-buttons">
-                <button type="submit" class="btn btn-success"><i class="fas fa-filter"></i> Filter</button>
-                <a href="<?= site_url('laporan'); ?>" class="btn btn-secondary"><i class="fas fa-redo"></i> Reset</a>
+                <a href="<?= site_url('laporan/laporan_data'); ?>" class="btn btn-primary">
+                    <i class="fas fa-chart-line"></i> Laporan Data
+                </a>
+                <a href="<?= site_url('laporan/rekap'); ?>" class="btn btn-info">
+                    <i class="fas fa-chart-bar"></i> Rekap Kasasi
+                </a>
+                <a href="<?= site_url('laporan/rekapitulasi_bulanan'); ?>" class="btn btn-secondary">
+                    <i class="fas fa-calendar-alt"></i> Rekapitulasi Data
+                </a>
+                <a href="<?= site_url('laporan/cetak_excel?' . $_SERVER['QUERY_STRING']); ?>" class="btn btn-success">
+                    <i class="fas fa-file-excel"></i> Ekspor Excel
+                </a>
             </div>
-        </form>
-    </div>
+        </div>
 
-    <!-- Tabel -->
-    <div class="table-wrapper">
-        <div class="table-responsive" id="tableResponsive" tabindex="0" role="region" aria-label="Tabel data perkara yang dapat di-scroll">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th class="number-column">No</th>
-                        <th class="text-column">Pengadilan</th>
-                        <th class="text-column">Jenis Perkara</th>
-                        <th class="text-column">Perkara Tk1</th>
-                        <th class="text-column">Klasifikasi</th>
-                        <th class="date-column">Tgl Register</th>
-                        <th class="text-column">Perkara Banding</th>
-                        <th class="text-column">Lama</th>
-                        <th class="text-column">Status Tk Banding</th>
-                        <th class="date-column">Putusan Banding</th>
-                        <th class="date-column">Kasasi</th>
-                        <th class="date-column">Berkas Kasasi</th>
-                        <th class="status-column">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($perkaras)): ?>
+        <!-- Filter -->
+        <div class="filter-card">
+            <form method="GET" class="filter-form">
+                <div>
+                    <label class="form-label">Bulan</label>
+                    <input type="month" name="bulan" class="form-control"
+                        value="<?= htmlspecialchars($filters['bulan'] ?? ''); ?>">
+                </div>
+                <div>
+                    <label class="form-label">Jenis Perkara</label>
+                    <select name="perkara" class="form-control">
+                        <option value="">Semua Jenis</option>
+                        <option value="PIDANA" <?= ($filters['perkara'] ?? '') == 'PIDANA' ? 'selected' : '' ?>>PIDANA</option>
+                        <option value="PERDATA" <?= ($filters['perkara'] ?? '') == 'PERDATA' ? 'selected' : '' ?>>PERDATA</option>
+                        <option value="ANAK" <?= ($filters['perkara'] ?? '') == 'ANAK' ? 'selected' : '' ?>>ANAK</option>
+                        <option value="TIPIKOR" <?= ($filters['perkara'] ?? '') == 'TIPIKOR' ? 'selected' : '' ?>>TIPIKOR</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Asal Pengadilan</label>
+                    <input type="text" name="asal_pengadilan" class="form-control"
+                        value="<?= htmlspecialchars($filters['asal_pengadilan'] ?? ''); ?>">
+                </div>
+                <div>
+                    <label class="form-label">Klasifikasi</label>
+                    <input type="text" name="klasifikasi" class="form-control"
+                        value="<?= htmlspecialchars($filters['klasifikasi'] ?? ''); ?>">
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success"><i class="fas fa-filter"></i> Filter</button>
+                    <a href="<?= site_url('laporan'); ?>" class="btn btn-secondary"><i class="fas fa-redo"></i> Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabel -->
+        <div class="table-wrapper">
+            <div class="table-responsive" id="tableResponsive" tabindex="0" role="region" aria-label="Tabel data perkara yang dapat di-scroll">
+                <table class="table table-bordered table-striped">
+                    <thead>
                         <tr>
-                            <td colspan="13" class="text-center py-4">
-                                <div class="d-flex flex-column align-items-center">
-                                    <i class="fas fa-folder-open text-muted mb-2" style="font-size: 2rem;"></i>
-                                    <p class="text-muted mb-0">Belum ada data perkara yang tersedia</p>
-                                </div>
-                            </td>
+                            <th class="number-column">No</th>
+                            <th class="text-column">Pengadilan</th>
+                            <th class="text-column">Jenis Perkara</th>
+                            <th class="text-column">Perkara Tk1</th>
+                            <th class="text-column">Klasifikasi</th>
+                            <th class="date-column">Tgl Register</th>
+                            <th class="text-column">Perkara Banding</th>
+                            <th class="lama-column">Lama</th>
+                            <th class="status-column">Status Tk Banding</th>
+                            <th class="date-column">Putusan Banding</th>
+                            <th class="date-column">Kasasi</th>
+                            <th class="date-column">Berkas Kasasi</th>
+                            <th class="status-column">Status</th>
                         </tr>
-                        <?php else: $no = 1;
-                        foreach ($perkaras as $row): ?>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($perkaras)): ?>
                             <tr>
-                                <td class="number-column"><?= $no++ ?></td>
-                                <td class="text-column" title="<?= htmlspecialchars($row->asal_pengadilan) ?>">
-                                    <?= htmlspecialchars($row->asal_pengadilan) ?>
-                                </td>
-                                <td class="text-column" title="<?= htmlspecialchars($row->perkara ?? 'PIDANA') ?>">
-                                    <?= htmlspecialchars($row->perkara ?? 'PIDANA') ?>
-                                </td>
-                                <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_tk1) ?>">
-                                    <?= htmlspecialchars($row->nomor_perkara_tk1) ?>
-                                </td>
-                                <td class="text-column" title="<?= htmlspecialchars($row->klasifikasi) ?>">
-                                    <?= htmlspecialchars($row->klasifikasi) ?>
-                                </td>
-                                <td class="date-column">
-                                    <?= $row->tgl_register_banding ? date("d-m-Y", strtotime($row->tgl_register_banding)) : '-' ?>
-                                </td>
-                                <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_banding) ?>">
-                                    <?= htmlspecialchars($row->nomor_perkara_banding) ?>
-                                </td>
-                                <td class="text-column"><?= htmlspecialchars($row->lama_proses) ?></td>
-                                <td class="text-column"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
-                                <td class="date-column">
-                                    <?= $row->pemberitahuan_putusan_banding ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?>
-                                </td>
-                                <td class="date-column">
-                                    <?= $row->permohonan_kasasi ? date("d-m-Y", strtotime($row->permohonan_kasasi)) : '-' ?>
-                                </td>
-                                <td class="date-column">
-                                    <?= $row->pengiriman_berkas_kasasi ? date("d-m-Y", strtotime($row->pengiriman_berkas_kasasi)) : '-' ?>
-                                </td>
-                                <td class="status-column">
-                                    <?php
-                                    switch ($row->status) {
-                                        case "Proses":
-                                            echo '<span class="badge bg-warning text-dark">Proses</span>';
-                                            break;
-                                        case "Selesai":
-                                            echo '<span class="badge bg-success">Selesai</span>';
-                                            break;
-                                        case "Ditolak":
-                                            echo '<span class="badge bg-danger">Ditolak</span>';
-                                            break;
-                                        default:
-                                            echo '<span class="badge bg-secondary">-</span>';
-                                    }
-                                    ?>
+                                <td colspan="13" class="text-center py-4">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="fas fa-folder-open text-muted mb-2" style="font-size: 2rem;"></i>
+                                        <p class="text-muted mb-0">Belum ada data perkara yang tersedia</p>
+                                    </div>
                                 </td>
                             </tr>
-                    <?php endforeach;
-                    endif; ?>
-                </tbody>
-            </table>
+                            <?php else: $no = 1;
+                            foreach ($perkaras as $row): ?>
+                                <tr>
+                                    <td class="number-column"><?= $no++ ?></td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->asal_pengadilan) ?>">
+                                        <?= htmlspecialchars($row->asal_pengadilan) ?>
+                                    </td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->perkara ?? 'PIDANA') ?>">
+                                        <?= htmlspecialchars($row->perkara ?? 'PIDANA') ?>
+                                    </td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_tk1) ?>">
+                                        <?= htmlspecialchars($row->nomor_perkara_tk1) ?>
+                                    </td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->klasifikasi) ?>">
+                                        <?= htmlspecialchars($row->klasifikasi) ?>
+                                    </td>
+                                    <td class="date-column">
+                                        <?php
+                                        if (!empty($row->tgl_register_banding) && $row->tgl_register_banding !== '0000-00-00') {
+                                            echo date("d-m-Y", strtotime($row->tgl_register_banding));
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_banding) ?>">
+                                        <?= htmlspecialchars($row->nomor_perkara_banding) ?>
+                                    </td>
+                                    <td class="lama-column"><?= htmlspecialchars($row->lama_proses) ?></td>
+                                    <td class="status-column"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
+                                    <td class="date-column">
+                                        <?php
+                                        if (!empty($row->pemberitahuan_putusan_banding) && $row->pemberitahuan_putusan_banding !== '0000-00-00') {
+                                            echo date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding));
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td class="date-column">
+                                        <?php
+                                        if (!empty($row->permohonan_kasasi) && $row->permohonan_kasasi !== '0000-00-00') {
+                                            echo date("d-m-Y", strtotime($row->permohonan_kasasi));
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td class="date-column">
+                                        <?php
+                                        if (!empty($row->pengiriman_berkas_kasasi) && $row->pengiriman_berkas_kasasi !== '0000-00-00') {
+                                            echo date("d-m-Y", strtotime($row->pengiriman_berkas_kasasi));
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td class="status-column">
+                                        <?php
+                                        switch ($row->status) {
+                                            case "Proses":
+                                                echo '<span class="badge bg-warning text-dark">Proses</span>';
+                                                break;
+                                            case "Selesai":
+                                                echo '<span class="badge bg-success">Selesai</span>';
+                                                break;
+                                            case "Ditolak":
+                                                echo '<span class="badge bg-danger">Ditolak</span>';
+                                                break;
+                                            default:
+                                                echo '<span class="badge bg-secondary">-</span>';
+                                        }
+                                        ?>
+                                    </td>
+                                </tr>
+                        <?php endforeach;
+                        endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tableWrapper = document.querySelector('.table-wrapper');
-        const tableResponsive = document.querySelector('.table-responsive');
-        const table = document.querySelector('.table');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableWrapper = document.querySelector('.table-wrapper');
+            const tableResponsive = document.querySelector('.table-responsive');
+            const table = document.querySelector('.table');
 
-        if (!tableWrapper || !tableResponsive || !table) return;
+            if (!tableWrapper || !tableResponsive || !table) return;
 
-        function checkScrollable() {
-            const isScrollableX = tableResponsive.scrollWidth > tableResponsive.clientWidth;
-            const isScrollableY = tableResponsive.scrollHeight > tableResponsive.clientHeight;
+            function checkScrollable() {
+                const isScrollableX = tableResponsive.scrollWidth > tableResponsive.clientWidth;
+                const isScrollableY = tableResponsive.scrollHeight > tableResponsive.clientHeight;
 
-            if (isScrollableX || isScrollableY) {
-                tableResponsive.setAttribute('title', 'Gunakan scroll mouse atau tombol panah untuk navigasi');
-            } else {
-                tableResponsive.removeAttribute('title');
+                if (isScrollableX || isScrollableY) {
+                    tableResponsive.setAttribute('title', 'Gunakan scroll mouse atau tombol panah untuk navigasi');
+                } else {
+                    tableResponsive.removeAttribute('title');
+                }
             }
-        }
 
-        tableResponsive.addEventListener('scroll', checkScrollable);
-        window.addEventListener('resize', checkScrollable);
-        checkScrollable();
+            tableResponsive.addEventListener('scroll', checkScrollable);
+            window.addEventListener('resize', checkScrollable);
+            checkScrollable();
 
-        if ('ontouchstart' in window) {
-            tableResponsive.style.webkitOverflowScrolling = 'touch';
-        }
+            if ('ontouchstart' in window) {
+                tableResponsive.style.webkitOverflowScrolling = 'touch';
+            }
 
-        tableResponsive.addEventListener('keydown', function(e) {
-            const scrollAmount = 50;
-            switch (e.key) {
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    tableResponsive.scrollLeft -= scrollAmount;
-                    break;
-                case 'ArrowRight':
-                    e.preventDefault();
-                    tableResponsive.scrollLeft += scrollAmount;
-                    break;
-                case 'ArrowUp':
-                    e.preventDefault();
-                    tableResponsive.scrollTop -= scrollAmount;
-                    break;
-                case 'ArrowDown':
-                    e.preventDefault();
-                    tableResponsive.scrollTop += scrollAmount;
-                    break;
+            tableResponsive.addEventListener('keydown', function(e) {
+                const scrollAmount = 50;
+                switch (e.key) {
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        tableResponsive.scrollLeft -= scrollAmount;
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        tableResponsive.scrollLeft += scrollAmount;
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        tableResponsive.scrollTop -= scrollAmount;
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        tableResponsive.scrollTop += scrollAmount;
+                        break;
+                }
+            });
+
+            if ('MutationObserver' in window) {
+                const observer = new MutationObserver(checkScrollable);
+                observer.observe(table, {
+                    childList: true,
+                    subtree: true
+                });
             }
         });
+    </script>
 
-        if ('MutationObserver' in window) {
-            const observer = new MutationObserver(checkScrollable);
-            observer.observe(table, {
-                childList: true,
-                subtree: true
-            });
-        }
-    });
-</script>
+</div>
+</div>
 
 <?php $this->load->view('navbar/footer'); ?>
