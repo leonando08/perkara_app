@@ -71,18 +71,17 @@ class Perkara extends CI_Controller
         $data['error'] = '';
         $data['success'] = '';
 
-        // Ambil parent yang aktif (parent_id IS NULL dan aktif = Y)
-        $data['parents'] = $this->db
-            ->where('parent_id IS NULL')
+        // Ambil data dari tabel jenis_perkara untuk dropdown klasifikasi
+        $data['jenis_perkara'] = $this->db
+            ->select('id, nama')
             ->where('aktif', 'Y')
-            ->order_by('urutan', 'ASC')
+            ->order_by('nama', 'ASC')
             ->get('jenis_perkara')
             ->result();
 
         // Cek apakah kolom user_id ada
         $fields = $this->db->list_fields('perkara_banding');
         $has_user_id = in_array('user_id', $fields);
-
         if ($this->input->post()) {
             // Validasi sederhana
             $required = ['asal_pengadilan', 'klasifikasi', 'tgl_register_banding', 'status'];
@@ -94,13 +93,12 @@ class Perkara extends CI_Controller
             }
 
             if (empty($data['error'])) {
-                $parent_id = $this->input->post('parent');
                 $klasifikasi = $this->input->post('klasifikasi');
 
                 $insertData = [
                     'asal_pengadilan'               => $this->input->post('asal_pengadilan'),
                     'nomor_perkara_tk1'             => $this->input->post('nomor_perkara_tk1'),
-                    'parent'                        => $parent_id,
+                    'perkara'                       => $this->input->post('perkara'),
                     'klasifikasi'                   => $klasifikasi,
                     'tgl_register_banding'          => $this->input->post('tgl_register_banding'),
                     'nomor_perkara_banding'         => $this->input->post('nomor_perkara_banding'),

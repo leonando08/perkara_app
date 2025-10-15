@@ -578,9 +578,6 @@
                                             case "Selesai":
                                                 echo '<span class="badge bg-success">Selesai</span>';
                                                 break;
-                                            case "Ditolak":
-                                                echo '<span class="badge bg-danger">Ditolak</span>';
-                                                break;
                                             default:
                                                 echo '<span class="badge bg-secondary">-</span>';
                                         }
@@ -593,9 +590,9 @@
                                                 title="Edit Perkara">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="<?= site_url('user/hapus/' . $row->id) ?>"
-                                                onclick="return confirm('Yakin ingin menghapus data ini?')"
-                                                class="btn btn-danger"
+                                            <a href="#"
+                                                data-url="<?= site_url('user/hapus/' . $row->id) ?>"
+                                                class="btn btn-danger btn-hapus"
                                                 title="Hapus Perkara">
                                                 <i class="fas fa-trash"></i>
                                             </a>
@@ -612,6 +609,34 @@
         <!-- JavaScript untuk Tabel Responsif -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                // SweetAlert untuk flashdata success
+                <?php if ($this->session->flashdata('success')): ?>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: '<?= addslashes($this->session->flashdata('success')) ?>',
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#28a745',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    });
+                <?php endif; ?>
+
+                // SweetAlert untuk flashdata error
+                <?php if ($this->session->flashdata('error')): ?>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: '<?= addslashes($this->session->flashdata('error')) ?>',
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc3545',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    });
+                <?php endif; ?>
+
                 // SweetAlert untuk login berhasil
                 <?php if ($this->session->flashdata('login_success')): ?>
                     Swal.fire({
@@ -772,6 +797,45 @@
                     behavior: 'smooth'
                 });
             }
+
+            // Konfirmasi hapus dengan SweetAlert
+            document.querySelectorAll('.btn-hapus').forEach(function(button) {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('data-url');
+
+                    Swal.fire({
+                        title: 'Konfirmasi Hapus',
+                        text: 'Apakah Anda yakin ingin menghapus data perkara ini?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Tampilkan loading
+                            Swal.fire({
+                                title: 'Menghapus...',
+                                text: 'Mohon tunggu sebentar',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            // Redirect ke URL hapus
+                            window.location.href = url;
+                        }
+                    });
+                });
+            });
         </script>
     </div>
 

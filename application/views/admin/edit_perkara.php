@@ -30,11 +30,11 @@
                         icon: 'success',
                         title: 'Berhasil!',
                         text: '<?= $this->session->flashdata('success') ?>',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true,
-                        toast: true,
-                        position: 'top-end'
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#28a745',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
                     }).then(() => {
                         window.location.href = "<?= site_url('admin/dashboard_admin') ?>";
                     });
@@ -142,7 +142,6 @@
                         <select name="status" class="form-select" required>
                             <option value="Proses" <?= ($perkara->status == 'Proses') ? 'selected' : '' ?>>Proses</option>
                             <option value="Selesai" <?= ($perkara->status == 'Selesai') ? 'selected' : '' ?>>Selesai</option>
-                            <option value="Ditolak" <?= ($perkara->status == 'Ditolak') ? 'selected' : '' ?>>Ditolak</option>
                         </select>
                     </div>
                 </div>

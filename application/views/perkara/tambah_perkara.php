@@ -1,5 +1,41 @@
 <?php require_once(APPPATH . 'views/navbar/header.php'); ?>
 
+<style>
+    /* Enhanced datalist styling for better dropdown experience */
+    input[list] {
+        position: relative;
+    }
+
+    /* Make sure datalist dropdown is properly styled */
+    datalist {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+
+    /* Ensure the input can trigger dropdown properly */
+    #klasifikasi {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 8px center;
+        background-repeat: no-repeat;
+        background-size: 16px 12px;
+        padding-right: 35px;
+        cursor: pointer;
+    }
+
+    /* Style untuk browser yang mendukung datalist dengan lebih baik */
+    @supports (background: -webkit-named-image(menulist-button)) {
+        #klasifikasi {
+            background-image: none;
+            -webkit-appearance: textfield;
+        }
+    }
+</style>
+
 <div class="content-wrapper">
     <div class="content-card mb-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -30,11 +66,11 @@
                         icon: 'success',
                         title: 'Berhasil!',
                         text: '<?= addslashes($success) ?>',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true,
-                        toast: true,
-                        position: 'top-end'
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#28a745',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
                     }).then(() => {
                         window.location.href = "<?= site_url('perkara/dashboard') ?>";
                     });
@@ -59,26 +95,52 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Parent</label>
-                    <select name="parent" id="parent" class="form-select" required>
-                        <option value="">-- Pilih Parent --</option>
-                        <?php foreach ($parents as $p): ?>
-                            <option value="<?= $p->id ?>" <?= ($this->input->post('parent') == $p->id) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($p->nama_lengkap) ?>
-                            </option>
-                        <?php endforeach; ?>
+                    <label class="form-label">Jenis Perkara<span class="text-danger">*</span></label>
+                    <select name="perkara" class="form-select" required>
+                        <option value="">-- Pilih Jenis Perkara --</option>
+                        <option value="PIDANA" <?= ($this->input->post('perkara') == 'PIDANA') ? 'selected' : '' ?>>PIDANA</option>
+                        <option value="PERDATA" <?= ($this->input->post('perkara') == 'PERDATA') ? 'selected' : '' ?>>PERDATA</option>
+                        <option value="ANAK" <?= ($this->input->post('perkara') == 'ANAK') ? 'selected' : '' ?>>ANAK</option>
+                        <option value="TIPIKOR" <?= ($this->input->post('perkara') == 'TIPIKOR') ? 'selected' : '' ?>>TIPIKOR</option>
                     </select>
-                    <div class="invalid-feedback">Parent harus dipilih</div>
+                    <div class="invalid-feedback">Jenis perkara harus dipilih</div>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Klasifikasi<span class="text-danger">*</span></label>
-                    <select name="klasifikasi" id="klasifikasi" class="form-select" required>
-                        <option value="">-- Pilih Parent Terlebih Dahulu --</option>
-                    </select>
-                    <div class="invalid-feedback">Klasifikasi harus dipilih</div>
+                    <div class="position-relative">
+                        <input type="text"
+                            name="klasifikasi"
+                            id="klasifikasi"
+                            class="form-control"
+                            list="klasifikasi-options"
+                            value="<?= htmlspecialchars($this->input->post('klasifikasi')) ?>"
+                            placeholder="Pilih atau ketik klasifikasi..."
+                            autocomplete="off"
+                            required>
+                        <datalist id="klasifikasi-options">
+                            <?php if (isset($jenis_perkara) && is_array($jenis_perkara) && count($jenis_perkara) > 0): ?>
+                                <?php foreach ($jenis_perkara as $jp): ?>
+                                    <option value="<?= htmlspecialchars($jp->nama) ?>"></option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <!-- Fallback hardcode data -->
+                                <option value="Perdata"></option>
+                                <option value="Pidana"></option>
+                                <option value="Gugatan"></option>
+                                <option value="Permohonan"></option>
+                                <option value="Tindak Pidana Korupsi"></option>
+                                <option value="Penganiayaan"></option>
+                                <option value="Pencurian"></option>
+                                <option value="Penipuan"></option>
+                                <option value="Pemerasan dan Pengancaman"></option>
+                                <option value="Penggelapan"></option>
+                            <?php endif; ?>
+                        </datalist>
+                    </div>
+                    <div class="invalid-feedback">Klasifikasi harus diisi</div>
+                    <small class="form-text text-muted">Klik untuk melihat semua pilihan atau ketik untuk mencari</small>
                 </div>
-
                 <div class="col-md-6">
                     <label class="form-label">Tanggal Register Banding</label>
                     <input type="date" name="tgl_register_banding" class="form-control"
@@ -128,7 +190,6 @@
                         <option value="">-- Pilih Status --</option>
                         <option value="Proses" <?= ($this->input->post('status') == 'Proses') ? 'selected' : '' ?>>Proses</option>
                         <option value="Selesai" <?= ($this->input->post('status') == 'Selesai') ? 'selected' : '' ?>>Selesai</option>
-                        <option value="Ditolak" <?= ($this->input->post('status') == 'Ditolak') ? 'selected' : '' ?>>Ditolak</option>
                     </select>
                     <div class="invalid-feedback">Status harus dipilih</div>
                 </div>
@@ -170,45 +231,37 @@
             }
         }, 3000);
 
-        // Fungsi untuk memuat klasifikasi berdasarkan parent yang dipilih
-        document.getElementById('parent').addEventListener('change', function() {
-            var parentId = this.value;
-            var klasifikasiSelect = document.getElementById('klasifikasi');
+        // Simple autocomplete functionality for klasifikasi
+        document.addEventListener('DOMContentLoaded', function() {
+            const klasifikasiInput = document.getElementById('klasifikasi');
+            const datalist = document.getElementById('klasifikasi-options');
 
-            // Reset klasifikasi
-            klasifikasiSelect.innerHTML = '<option value="">-- ' +
-                (parentId ? 'Pilih Klasifikasi' : 'Pilih Parent Terlebih Dahulu') +
-                ' --</option>';
+            // Debug info
+            console.log('PHP Jenis Perkara data:', <?= json_encode(isset($jenis_perkara) ? $jenis_perkara : 'undefined') ?>);
 
-            if (parentId) {
-                // Tambahkan loading state
-                klasifikasiSelect.disabled = true;
-                klasifikasiSelect.innerHTML = '<option value="">Loading...</option>';
-
-                // Fetch klasifikasi berdasarkan parent
-                fetch('<?= site_url("perkara/get_jenis_perkara") ?>?parent_id=' + parentId)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Reset dan enable kembali
-                        klasifikasiSelect.innerHTML = '<option value="">-- Pilih Klasifikasi --</option>';
-                        klasifikasiSelect.disabled = false;
-
-                        // Tambahkan opsi
-                        data.forEach(item => {
-                            var option = new Option(item.nama_lengkap || item.nama, item.nama);
-                            klasifikasiSelect.add(option);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        klasifikasiSelect.innerHTML = '<option value="">Error loading data</option>';
-                        klasifikasiSelect.disabled = false;
-                    });
+            if (!klasifikasiInput || !datalist) {
+                console.error('Klasifikasi elements not found');
+                return;
             }
-        });
 
-        // Jika ada nilai parent yang sudah dipilih (misal saat validation error), trigger change event
-        if (document.getElementById('parent').value) {
-            document.getElementById('parent').dispatchEvent(new Event('change'));
-        }
+            // Get all options from datalist
+            const options = Array.from(datalist.options).map(option => option.value);
+            console.log('Available options:', options);
+
+            // Show all options on focus
+            klasifikasiInput.addEventListener('focus', function() {
+                console.log('Input focused, showing all options');
+            });
+
+            // Show all options on click
+            klasifikasiInput.addEventListener('click', function() {
+                console.log('Input clicked, showing all options');
+            });
+
+            // Filter options on input
+            klasifikasiInput.addEventListener('input', function() {
+                const value = this.value.toLowerCase();
+                console.log('Input value:', value);
+            });
+        });
     </script>

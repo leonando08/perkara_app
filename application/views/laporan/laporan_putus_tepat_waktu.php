@@ -426,9 +426,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 <p class="text-muted mb-0">
                     Laporan lengkap waktu penyelesaian perkara (tepat waktu dan tidak tepat waktu)
                     <br><small>
-                        <span class="badge bg-success me-1">
-                            < 90 hari: Tepat Waktu</span>
-                                <span class="badge bg-danger">≥ 90 hari: Tidak Tepat Waktu</span>
+                        <span class="badge bg-info me-1">ANAK: < 14 hari</span>
+                                <span class="badge bg-success me-1">LAINNYA: < 90 hari</span>
+                                        <span class="badge bg-danger">Tidak Tepat Waktu: ≥ Batas</span>
                     </small>
                 </p>
             </div>
@@ -531,10 +531,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
                             <select name="status_waktu" class="form-control">
                                 <option value="">Semua Status</option>
                                 <option value="tepat_waktu" <?= (isset($_GET['status_waktu']) && $_GET['status_waktu'] == 'tepat_waktu') ? 'selected' : '' ?>>
-                                    ✅ Tepat Waktu (< 90 hari)
+                                    ✅ Tepat Waktu (ANAK: < 14 hari, Lainnya: < 90 hari)
                                         </option>
                                 <option value="tidak_tepat_waktu" <?= (isset($_GET['status_waktu']) && $_GET['status_waktu'] == 'tidak_tepat_waktu') ? 'selected' : '' ?>>
-                                    ⚠️ Tidak Tepat Waktu (≥ 90 hari)
+                                    ⚠️ Tidak Tepat Waktu (≥ Batas masing-masing)
                                 </option>
                             </select>
                         </div>
@@ -580,9 +580,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                             <i class="fas fa-clock text-muted mb-2" style="font-size: 2rem;"></i>
                                             <p class="text-muted mb-0">Belum ada data perkara yang tersedia</p>
                                             <small class="text-muted">
-                                                <span class="badge bg-success me-2">
-                                                    < 90 hari: Tepat Waktu</span>
-                                                        <span class="badge bg-danger">≥ 90 hari: Tidak Tepat Waktu</span>
+                                                <span class="badge bg-info me-2">ANAK: < 14 hari</span>
+                                                        <span class="badge bg-success me-2">LAINNYA: < 90 hari</span>
+                                                                <span class="badge bg-danger">Tidak Tepat Waktu: ≥ Batas</span>
                                             </small>
                                         </div>
                                     </td>
@@ -610,8 +610,11 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                         }
                                     }
 
+                                    // Tentukan batas waktu berdasarkan jenis perkara
+                                    $batas_hari = ($row->perkara == 'ANAK') ? 14 : 90;
+
                                     // Tentukan status waktu
-                                    $is_tepat_waktu = $lama_proses_hari < 90;
+                                    $is_tepat_waktu = $lama_proses_hari < $batas_hari;
                                     $status_waktu_filter = $_GET['status_waktu'] ?? '';
 
                                     // Logika filter berdasarkan status waktu
@@ -658,7 +661,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                             </td>
                                             <td class="lama-column">
                                                 <?php if ($lama_proses_hari > 0): ?>
-                                                    <?php if ($lama_proses_hari < 90): ?>
+                                                    <?php if ($is_tepat_waktu): ?>
                                                         <span class="badge-tepat-waktu">
                                                             <i class="fas fa-check-circle me-1"></i>
                                                             <?= htmlspecialchars($row->lama_proses) ?>
@@ -694,9 +697,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                                         break;
                                                     case "Selesai":
                                                         echo '<span class="badge bg-success">Selesai</span>';
-                                                        break;
-                                                    case "Ditolak":
-                                                        echo '<span class="badge bg-danger">Ditolak</span>';
                                                         break;
                                                     default:
                                                         echo '<span class="badge bg-secondary">-</span>';

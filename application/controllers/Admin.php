@@ -190,7 +190,7 @@ class Admin extends CI_Controller
             $this->form_validation->set_rules('perkara', 'Jenis Perkara', 'required|in_list[PIDANA,PERDATA,ANAK,TIPIKOR]');
             $this->form_validation->set_rules('nomor_perkara_tk1', 'Nomor Perkara Tk1', 'required');
             $this->form_validation->set_rules('klasifikasi', 'Klasifikasi', 'required');
-            $this->form_validation->set_rules('status', 'Status', 'required|in_list[Proses,Selesai,Ditolak]');
+            $this->form_validation->set_rules('status', 'Status', 'required|in_list[Proses,Selesai]');
 
             if ($this->form_validation->run() == TRUE) {
                 $update_data = [

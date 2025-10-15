@@ -527,9 +527,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                             case "Selesai":
                                                 echo '<span class="badge bg-success">Selesai</span>';
                                                 break;
-                                            case "Ditolak":
-                                                echo '<span class="badge bg-danger">Ditolak</span>';
-                                                break;
                                             default:
                                                 echo '<span class="badge bg-secondary">-</span>';
                                         }

@@ -456,7 +456,7 @@ class Laporan extends CI_Controller
         <body>
             <table>
                 <tr>
-                    <td colspan="10" class="title">DATA PERKARA PIDANA BANDING PUTUSAN TAHUN <?= $filters['tahun'] ?? date('Y') ?></td>
+                    <td colspan="10" class="title">DATA PERKARA BANDING PUTUSAN TAHUN <?= $filters['tahun'] ?? date('Y') ?></td>
                 </tr>
                 <tr>
                     <td colspan="10" class="subtitle">YANG TIDAK MENGAJUKAN UPAYA HUKUM KASASI TAHUN <?= $filters['tahun'] ?? date('Y') ?></td>
@@ -1418,8 +1418,11 @@ class Laporan extends CI_Controller
                 if ($include) {
                     $filtered_perkaras[] = $perkara;
 
-                    // Hanya hitung stats untuk yang tepat waktu (< 90 hari)
-                    if ($lama_proses_hari < 90) {
+                    // Tentukan batas hari berdasarkan jenis perkara untuk statistik
+                    $batas_hari = ($perkara->perkara == 'ANAK') ? 14 : 90;
+
+                    // Hanya hitung stats untuk yang tepat waktu (berdasarkan jenis perkara)
+                    if ($lama_proses_hari < $batas_hari) {
                         $stats['total_tepat_waktu']++;
 
                         // Count by type
@@ -1514,7 +1517,10 @@ class Laporan extends CI_Controller
 
                 // Filter berdasarkan status waktu
                 if (!empty($filters['status_waktu'])) {
-                    $is_tepat_waktu = $lama_proses_hari < 90;
+                    // Tentukan batas waktu berdasarkan jenis perkara
+                    $batas_hari = ($perkara->perkara == 'ANAK') ? 14 : 90;
+                    $is_tepat_waktu = $lama_proses_hari < $batas_hari;
+
                     if ($filters['status_waktu'] == 'tepat_waktu' && !$is_tepat_waktu) {
                         $include = false;
                     } elseif ($filters['status_waktu'] == 'tidak_tepat_waktu' && $is_tepat_waktu) {
@@ -1598,55 +1604,85 @@ class Laporan extends CI_Controller
             $subtitle_parts[] = 'Pengadilan: ' . strtoupper($filters['pengadilan']);
         }
         if (!empty($filters['status_waktu'])) {
-            $status_text = $filters['status_waktu'] == 'tepat_waktu' ? 'Tepat Waktu (< 90 hari)' : 'Tidak Tepat Waktu (≥ 90 hari)';
+            if ($filters['status_waktu'] == 'tepat_waktu') {
+                $status_text = 'Tepat Waktu (ANAK: < 14 hari, Lainnya: < 90 hari)';
+            } else {
+                $status_text = 'Tidak Tepat Waktu (≥ Batas masing-masing)';
+            }
             $subtitle_parts[] = 'Status: ' . $status_text;
         } else {
-            $subtitle_parts[] = 'Kriteria: Semua Waktu Penyelesaian';
+            $subtitle_parts[] = 'Kriteria: Semua Waktu Penyelesaian (ANAK: ≥14 hari = Terlambat, Lainnya: ≥90 hari = Terlambat)';
         }
         $subtitle_parts[] = 'Total Data: ' . count($perkaras_export) . ' Perkara';
 
         $subtitle = implode(' | ', $subtitle_parts);
 
-        // Start output with title
-        echo '<table border="1">';
+        // Start output with professional formatting
+        echo '<html>';
+        echo '<head>';
+        echo '<meta charset="UTF-8">';
+        echo '<style type="text/css">';
+        echo 'body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; margin: 0; padding: 0; }';
+        echo 'table { border-collapse: collapse; width: 100%; table-layout: fixed; }';
+        echo 'th, td { border: 1px solid black; padding: 5px; text-align: center; vertical-align: middle; }';
+        echo '.title { background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 14pt; text-align: center; padding: 10px; }';
+        echo '.subtitle { background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 11pt; text-align: center; padding: 8px; }';
+        echo '.header { background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; }';
+        echo '.data { background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; }';
+        echo '.footer { background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; font-style: italic; }';
+        echo '</style>';
+        echo '</head>';
+        echo '<body>';
 
-        // Title row
+        // Start main table with defined column widths
+        echo '<table cellpadding="0" cellspacing="0" style="width: 100%;">';
+
+        // Define column group for consistent widths
+        echo '<colgroup>';
+        echo '<col style="width: 4%;">'; // No
+        echo '<col style="width: 12%;">'; // Asal Pengadilan
+        echo '<col style="width: 12%;">'; // Perkara
+        echo '<col style="width: 10%;">'; // Nomor TK1
+        echo '<col style="width: 8%;">'; // Klasifikasi
+        echo '<col style="width: 8%;">'; // Tgl Register
+        echo '<col style="width: 10%;">'; // Nomor Banding
+        echo '<col style="width: 12%;">'; // Lama Proses
+        echo '<col style="width: 8%;">'; // Status Banding
+        echo '<col style="width: 8%;">'; // Pemberitahuan
+        echo '<col style="width: 8%;">'; // Permohonan Kasasi
+        echo '<col style="width: 8%;">'; // Pengiriman Berkas
+        echo '<col style="width: 8%;">'; // Status
+        echo '</colgroup>';
+
+        // Title row (span across all 13 columns)
         echo '<tr>';
-        echo '<td colspan="13" style="background-color: #28a745; color: white; font-weight: bold; font-size: 16px; text-align: center; padding: 10px;">';
-        echo $title;
-        echo '</td>';
+        echo '<td colspan="13" class="title">' . $title . '</td>';
         echo '</tr>';
 
-        // Subtitle row
+        // Subtitle row (span across all 13 columns)
         echo '<tr>';
-        echo '<td colspan="13" style="background-color: #20c997; color: white; font-size: 12px; text-align: center; padding: 5px;">';
-        echo $subtitle;
-        echo '</td>';
+        echo '<td colspan="13" class="subtitle">' . $subtitle . '</td>';
         echo '</tr>';
 
-        // Empty row for spacing
-        echo '<tr>';
-        echo '<td colspan="13" style="height: 10px;"></td>';
-        echo '</tr>';
+        // Empty spacing row (span across all 13 columns)
+        echo '<tr><td colspan="13" style="height: 3px; border: none; background-color: white;"></td></tr>';
 
         // Header row
-        echo '<tr style="background-color: #28a745; color: white; font-weight: bold;">';
-        echo '<td>No</td>';
-        echo '<td>Pengadilan</td>';
-        echo '<td>Jenis Perkara</td>';
-        echo '<td>Perkara Tk1</td>';
-        echo '<td>Klasifikasi</td>';
-        echo '<td>Tgl Register</td>';
-        echo '<td>Perkara Banding</td>';
-        echo '<td>Lama Proses</td>';
-        echo '<td>Status Tk Banding</td>';
-        echo '<td>Putusan Banding</td>';
-        echo '<td>Kasasi</td>';
-        echo '<td>Berkas Kasasi</td>';
-        echo '<td>Status</td>';
-        echo '</tr>';
-
-        // Data rows
+        echo '<tr>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">NO.</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">ASAL PENGADILAN</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">PERKARA</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">NOMOR PERKARA TK I</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">KLASIFIKASI</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">TGL REGISTER BANDING</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">NOMOR PERKARA BANDING</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">LAMA PROSES & STATUS WAKTU</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">STATUS PERKARA TK BANDING</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">PEMBERITAHUAN PUTUSAN BANDING</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">PERMOHONAN KASASI</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">PENGIRIMAN BERKAS KASASI</th>';
+        echo '<th style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; text-align: center; border: 1px solid black; padding: 5px;">STATUS</th>';
+        echo '</tr>';        // Data rows
         $no = 1;
         foreach ($perkaras_export as $row) {
             // Parse lama proses untuk menentukan status
@@ -1658,37 +1694,41 @@ class Laporan extends CI_Controller
                 }
             }
 
-            $status_waktu = ($lama_proses_hari > 0 && $lama_proses_hari < 90) ? 'TEPAT WAKTU' : 'TIDAK TEPAT WAKTU';
+            // Tentukan batas hari berdasarkan jenis perkara
+            $batas_hari = ($row->perkara == 'ANAK') ? 14 : 90;
+            $status_waktu = ($lama_proses_hari > 0 && $lama_proses_hari < $batas_hari) ? 'TEPAT WAKTU' : 'TIDAK TEPAT WAKTU';
 
             echo '<tr>';
-            echo '<td>' . $no++ . '</td>';
-            echo '<td>' . htmlspecialchars($row->asal_pengadilan) . '</td>';
-            echo '<td>' . htmlspecialchars($row->perkara) . '</td>';
-            echo '<td>' . htmlspecialchars($row->nomor_perkara_tk1) . '</td>';
-            echo '<td>' . htmlspecialchars($row->klasifikasi) . '</td>';
-            echo '<td>' . ($row->tgl_register_banding ? $this->format_tanggal($row->tgl_register_banding) : '-') . '</td>';
-            echo '<td>' . htmlspecialchars($row->nomor_perkara_banding) . '</td>';
-            echo '<td>' . $status_waktu . ' - ' . htmlspecialchars($row->lama_proses) . '</td>';
-            echo '<td>' . htmlspecialchars($row->status_perkara_tk_banding) . '</td>';
-            echo '<td>' . ($row->pemberitahuan_putusan_banding ? $this->format_tanggal($row->pemberitahuan_putusan_banding) : '-') . '</td>';
-            echo '<td>' . ($row->permohonan_kasasi ? $this->format_tanggal($row->permohonan_kasasi) : '-') . '</td>';
-            echo '<td>' . ($row->pengiriman_berkas_kasasi ? $this->format_tanggal($row->pengiriman_berkas_kasasi) : '-') . '</td>';
-            echo '<td>' . htmlspecialchars($row->status) . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . $no++ . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: left; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->asal_pengadilan) . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: left; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->perkara) . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->nomor_perkara_tk1) . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->klasifikasi) . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->tgl_register_banding ? $this->format_tanggal($row->tgl_register_banding) : '-') . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->nomor_perkara_banding) . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . $status_waktu . ' - ' . htmlspecialchars($row->lama_proses) . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->status_perkara_tk_banding) . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->pemberitahuan_putusan_banding ? $this->format_tanggal($row->pemberitahuan_putusan_banding) : '-') . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->permohonan_kasasi ? $this->format_tanggal($row->permohonan_kasasi) : '-') . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->pengiriman_berkas_kasasi ? $this->format_tanggal($row->pengiriman_berkas_kasasi) : '-') . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->status) . '</td>';
             echo '</tr>';
         }
 
-        // Footer with export info
+        // Footer with export info (span across all 13 columns for regular laporan)
         echo '<tr>';
-        echo '<td colspan="13" style="height: 10px;"></td>';
+        echo '<td colspan="13" style="height: 8px; border: none; background-color: white;"></td>';
         echo '</tr>';
 
         echo '<tr>';
-        echo '<td colspan="13" style="background-color: #f8f9fa; text-align: center; font-size: 10px; padding: 8px;">';
+        echo '<td colspan="13" style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 8px; font-style: italic;">';
         echo 'Diekspor pada: ' . date('d-m-Y H:i:s') . ' | Sistem Informasi Perkara - Pengadilan Tinggi Banjarmasin';
         echo '</td>';
         echo '</tr>';
 
         echo '</table>';
+        echo '</body>';
+        echo '</html>';
     }
 
     // =========================
@@ -1924,35 +1964,106 @@ class Laporan extends CI_Controller
             $title .= " - PER TRIWULAN";
         }
 
-        // Start output
-        echo '<table border="1">';
+        // Build subtitle with export info
+        $subtitle_parts = [];
+        if ($periode == 'bulan') {
+            $subtitle_parts[] = 'Periode: Bulan ' . $nama_bulan[$bulan] . ' ' . $tahun;
+        } elseif ($periode == 'triwulan') {
+            $subtitle_parts[] = 'Periode: Per Triwulan Tahun ' . $tahun;
+        } else {
+            $subtitle_parts[] = 'Periode: Seluruh Bulan Tahun ' . $tahun;
+        }
+        $subtitle_parts[] = 'Diekspor pada: ' . date('d-m-Y H:i:s');
+        $subtitle = implode(' | ', $subtitle_parts);
 
-        // Title
-        echo '<tr><td colspan="17" style="background-color: #28a745; color: white; font-weight: bold; font-size: 14px; text-align: center; padding: 10px;">' . $title . '</td></tr>';
-        echo '<tr><td colspan="17" style="height: 10px;"></td></tr>';
+        // Enhanced styling with table wrapping
+        echo '<html>';
+        echo '<head>';
+        echo '<meta charset="UTF-8">';
+        echo '<style type="text/css">';
+        echo 'body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; margin: 0; padding: 0; }';
+        echo 'table { border-collapse: collapse; width: 100%; table-layout: fixed; }';
+        echo 'th, td { border: 1px solid black; padding: 6px; text-align: center; word-wrap: break-word; vertical-align: middle; }';
+        echo '.title { background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 14pt; text-align: center; padding: 12px; border: none; }';
+        echo '.subtitle { background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 11pt; text-align: center; padding: 10px; border: none; }';
+        echo '.header-main { background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; }';
+        echo '.header-sub { background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; }';
+        echo '.data-row { background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; }';
+        echo '.total-row { background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; }';
+        echo '.footer { background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; font-style: italic; border: none; }';
+        echo '</style>';
+        echo '</head>';
+        echo '<body>';
 
-        // Headers
+        // Start main table with defined column widths
+        echo '<table cellpadding="0" cellspacing="0" style="width: 100%; table-layout: fixed; border-collapse: collapse;">';
+
+        // Define column group for consistent widths (17 columns total) - Much wider distribution
+        echo '<colgroup>';
+        echo '<col style="width: 120px;">'; // Bulan/Triwulan
+        // Pidana (3 cols)
+        echo '<col style="width: 80px;"><col style="width: 80px;"><col style="width: 100px;">';
+        // Perdata (3 cols)
+        echo '<col style="width: 80px;"><col style="width: 80px;"><col style="width: 100px;">';
+        // Anak (3 cols)
+        echo '<col style="width: 80px;"><col style="width: 80px;"><col style="width: 100px;">';
+        // Tipikor (3 cols)
+        echo '<col style="width: 80px;"><col style="width: 80px;"><col style="width: 100px;">';
+        // Total (3 cols)
+        echo '<col style="width: 80px;"><col style="width: 80px;"><col style="width: 100px;">';
+        // Persentase (2 cols)
+        echo '<col style="width: 90px;"><col style="width: 110px;">';
+        echo '</colgroup>';
+
+        // Title row (span across all 17 columns) - No border
         echo '<tr>';
-        echo '<th rowspan="2" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">' . ($periode == 'triwulan' ? 'TRIWULAN' : 'BULAN') . '</th>';
-        echo '<th colspan="3" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">PIDANA</th>';
-        echo '<th colspan="3" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">PERDATA</th>';
-        echo '<th colspan="3" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">ANAK</th>';
-        echo '<th colspan="3" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">TIPIKOR</th>';
-        echo '<th colspan="3" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">TOTAL</th>';
-        echo '<th colspan="2" style="background-color: #198754; color: white; text-align: center; font-weight: bold;">%</th>';
+        echo '<td colspan="17" style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 14pt; text-align: center; padding: 12px; border: none;">' . $title . '</td>';
         echo '</tr>';
 
+        // Subtitle row (span across all 17 columns) - No border
         echo '<tr>';
-        for ($i = 0; $i < 4; $i++) {
-            echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">PUTUS</th>';
-            echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">KASASI</th>';
-            echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">TIDAK KASASI</th>';
-        }
-        echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">PUTUS</th>';
-        echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">KASASI</th>';
-        echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">TIDAK KASASI</th>';
-        echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">KASASI</th>';
-        echo '<th style="background-color: #198754; color: white; text-align: center; font-weight: bold;">TIDAK KASASI</th>';
+        echo '<td colspan="17" style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 11pt; text-align: center; padding: 10px; border: none;">' . $subtitle . '</td>';
+        echo '</tr>';
+
+        // Empty spacing row (span across all 17 columns)
+        echo '<tr><td colspan="17" style="height: 5px; border: none;"></td></tr>';
+
+        // Main headers row 1
+        echo '<tr>';
+        echo '<th rowspan="2" style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; width: 120px; vertical-align: middle; border: 1px solid black; padding: 6px;">' . ($periode == 'triwulan' ? 'TRIWULAN' : 'BULAN') . '</th>';
+        echo '<th colspan="3" style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; border: 1px solid black; padding: 6px;">PIDANA</th>';
+        echo '<th colspan="3" style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; border: 1px solid black; padding: 6px;">PERDATA</th>';
+        echo '<th colspan="3" style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; border: 1px solid black; padding: 6px;">ANAK</th>';
+        echo '<th colspan="3" style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; border: 1px solid black; padding: 6px;">TIPIKOR</th>';
+        echo '<th colspan="3" style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; border: 1px solid black; padding: 6px;">TOTAL</th>';
+        echo '<th colspan="2" style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 11pt; border: 1px solid black; padding: 6px;">PERSENTASE</th>';
+        echo '</tr>';
+
+        // Sub headers row 2
+        echo '<tr>';
+        // Pidana
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 80px; border: 1px solid black; padding: 6px;">PUTUS</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 80px; border: 1px solid black; padding: 6px;">KASASI</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 100px; border: 1px solid black; padding: 6px;">TIDAK KASASI</th>';
+        // Perdata
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 80px; border: 1px solid black; padding: 6px;">PUTUS</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 80px; border: 1px solid black; padding: 6px;">KASASI</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 100px; border: 1px solid black; padding: 6px;">TIDAK KASASI</th>';
+        // Anak
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 80px; border: 1px solid black; padding: 6px;">PUTUS</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 80px; border: 1px solid black; padding: 6px;">KASASI</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 100px; border: 1px solid black; padding: 6px;">TIDAK KASASI</th>';
+        // Tipikor
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 80px; border: 1px solid black; padding: 6px;">PUTUS</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 80px; border: 1px solid black; padding: 6px;">KASASI</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 100px; border: 1px solid black; padding: 6px;">TIDAK KASASI</th>';
+        // Total
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 80px; border: 1px solid black; padding: 6px;">PUTUS</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 80px; border: 1px solid black; padding: 6px;">KASASI</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 100px; border: 1px solid black; padding: 6px;">TIDAK KASASI</th>';
+        // Persentase
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 90px; border: 1px solid black; padding: 6px;">KASASI %</th>';
+        echo '<th style="background-color: #90EE90; color: black; font-family: Calibri, Arial, sans-serif; font-weight: bold; font-size: 10pt; width: 110px; border: 1px solid black; padding: 6px;">TIDAK KASASI %</th>';
         echo '</tr>';
 
         // Data rows
@@ -1986,22 +2097,28 @@ class Laporan extends CI_Controller
             'tipikor_tidak_kasasi' => 0
         ];
 
+        // Counter for alternating row colors
+        $row_counter = 0;
+
         if ($periode == 'triwulan') {
             $triwulan_names = ['I', 'II', 'III', 'IV'];
             for ($tw = 1; $tw <= 4; $tw++) {
                 $data_tw = $data_periode[$tw] ?? array_fill_keys(array_keys($total_all), 0);
-                $this->outputExcelRow($data_tw, $total_all, $triwulan_names[$tw - 1]);
+                $this->outputExcelRowEnhanced($data_tw, $total_all, $triwulan_names[$tw - 1], $row_counter++);
             }
         } elseif ($periode == 'bulan') {
             $data_bln = $data_periode[$bulan] ?? array_fill_keys(array_keys($total_all), 0);
-            $this->outputExcelRow($data_bln, $total_all, $nama_bulan[$bulan]);
+            $this->outputExcelRowEnhanced($data_bln, $total_all, $nama_bulan[$bulan], $row_counter++);
         } else {
             for ($m = 1; $m <= 12; $m++) {
                 $bulan_key = sprintf('%02d', $m);
                 $data_bln = $data_periode[$bulan_key] ?? array_fill_keys(array_keys($total_all), 0);
-                $this->outputExcelRow($data_bln, $total_all, $nama_bulan[$bulan_key]);
+                $this->outputExcelRowEnhanced($data_bln, $total_all, $nama_bulan[$bulan_key], $row_counter++);
             }
         }
+
+        // Empty spacing row before total
+        echo '<tr><td colspan="17" style="height: 2px; border: none;"></td></tr>';
 
         // Grand total
         $grand_total_putus = $total_all['pidana_putus'] + $total_all['perdata_putus'] + $total_all['anak_putus'] + $total_all['tipikor_putus'];
@@ -2011,28 +2128,83 @@ class Laporan extends CI_Controller
         $grand_persen_kasasi = $grand_total_putus > 0 ? round(($grand_total_kasasi / $grand_total_putus) * 100, 2) : 0;
         $grand_persen_tidak_kasasi = $grand_total_putus > 0 ? round(($grand_total_tidak_kasasi / $grand_total_putus) * 100, 2) : 0;
 
-        echo '<tr style="background-color: #fff3cd; font-weight: bold;">';
-        echo '<td style="font-weight: bold; text-align: center;"><strong>TOTAL</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['pidana_putus'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['pidana_kasasi'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['pidana_tidak_kasasi'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['perdata_putus'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['perdata_kasasi'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['perdata_tidak_kasasi'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['anak_putus'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['anak_kasasi'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['anak_tidak_kasasi'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['tipikor_putus'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['tipikor_kasasi'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $total_all['tipikor_tidak_kasasi'] . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $grand_total_putus . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $grand_total_kasasi . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $grand_total_tidak_kasasi . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $grand_persen_kasasi . '</strong></td>';
-        echo '<td style="text-align: center;"><strong>' . $grand_persen_tidak_kasasi . '</strong></td>';
+        echo '<tr style="background-color: white; font-weight: bold;">';
+        echo '<td style="font-weight: bold; text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 11pt; border: 1px solid black; width: 120px; padding: 6px;"><strong>JUMLAH TOTAL</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 80px; padding: 6px;"><strong>' . number_format($total_all['pidana_putus']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 80px; padding: 6px;"><strong>' . number_format($total_all['pidana_kasasi']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 100px; padding: 6px;"><strong>' . number_format($total_all['pidana_tidak_kasasi']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 80px; padding: 6px;"><strong>' . number_format($total_all['perdata_putus']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 80px; padding: 6px;"><strong>' . number_format($total_all['perdata_kasasi']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 100px; padding: 6px;"><strong>' . number_format($total_all['perdata_tidak_kasasi']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 80px; padding: 6px;"><strong>' . number_format($total_all['anak_putus']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 80px; padding: 6px;"><strong>' . number_format($total_all['anak_kasasi']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 100px; padding: 6px;"><strong>' . number_format($total_all['anak_tidak_kasasi']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 80px; padding: 6px;"><strong>' . number_format($total_all['tipikor_putus']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 80px; padding: 6px;"><strong>' . number_format($total_all['tipikor_kasasi']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 100px; padding: 6px;"><strong>' . number_format($total_all['tipikor_tidak_kasasi']) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 80px; padding: 6px;"><strong>' . number_format($grand_total_putus) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 80px; padding: 6px;"><strong>' . number_format($grand_total_kasasi) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 100px; padding: 6px;"><strong>' . number_format($grand_total_tidak_kasasi) . '</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 90px; padding: 6px;"><strong>' . $grand_persen_kasasi . '%</strong></td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; border: 1px solid black; width: 110px; padding: 6px;"><strong>' . $grand_persen_tidak_kasasi . '%</strong></td>';
+        echo '</tr>';
+
+        // Footer spacing (span across all 17 columns)
+        echo '<tr><td colspan="17" style="height: 10px; border: none; background-color: white;"></td></tr>';
+
+        // Footer with additional info (span across all 17 columns) - No border
+        echo '<tr>';
+        echo '<td colspan="17" style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: none; padding: 10px; font-style: italic;">';
+        echo 'Catatan: Data diambil dari sistem informasi perkara banding yang tidak mengajukan upaya hukum kasasi<br/>';
+        echo 'Diekspor pada: ' . date('d F Y, H:i:s') . ' WIB | ';
+        echo 'Pengadilan Tinggi Banjarmasin';
+        echo '</td>';
         echo '</tr>';
 
         echo '</table>';
+        echo '</body>';
+        echo '</html>';
+    }
+
+    private function outputExcelRowEnhanced($data, &$total_all, $label, $row_counter)
+    {
+        // Accumulate totals
+        foreach ($data as $key => $value) {
+            if (isset($total_all[$key])) {
+                $total_all[$key] += $value;
+            }
+        }
+
+        $total_putus = $data['pidana_putus'] + $data['perdata_putus'] + $data['anak_putus'] + $data['tipikor_putus'];
+        $total_kasasi = $data['pidana_kasasi'] + $data['perdata_kasasi'] + $data['anak_kasasi'] + $data['tipikor_kasasi'];
+        $total_tidak_kasasi = $data['pidana_tidak_kasasi'] + $data['perdata_tidak_kasasi'] + $data['anak_tidak_kasasi'] + $data['tipikor_tidak_kasasi'];
+
+        $persen_kasasi = $total_putus > 0 ? round(($total_kasasi / $total_putus) * 100, 2) : 0;
+        $persen_tidak_kasasi = $total_putus > 0 ? round(($total_tidak_kasasi / $total_putus) * 100, 2) : 0;
+
+        // Alternating row colors
+        $bg_color = ($row_counter % 2 == 0) ? '#f8f9fa' : '#ffffff';
+
+        echo '<tr style="background-color: white;">';
+        echo '<td style="font-weight: bold; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; width: 120px; padding: 6px;">' . $label . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 80px; padding: 6px;">' . number_format($data['pidana_putus']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 80px; padding: 6px;">' . number_format($data['pidana_kasasi']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 100px; padding: 6px;">' . number_format($data['pidana_tidak_kasasi']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 80px; padding: 6px;">' . number_format($data['perdata_putus']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 80px; padding: 6px;">' . number_format($data['perdata_kasasi']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 100px; padding: 6px;">' . number_format($data['perdata_tidak_kasasi']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 80px; padding: 6px;">' . number_format($data['anak_putus']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 80px; padding: 6px;">' . number_format($data['anak_kasasi']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 100px; padding: 6px;">' . number_format($data['anak_tidak_kasasi']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 80px; padding: 6px;">' . number_format($data['tipikor_putus']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 80px; padding: 6px;">' . number_format($data['tipikor_kasasi']) . '</td>';
+        echo '<td style="text-align: center; background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; border: 1px solid black; width: 100px; padding: 6px;">' . number_format($data['tipikor_tidak_kasasi']) . '</td>';
+        echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; text-align: center; border: 1px solid black; width: 80px; padding: 6px;">' . number_format($total_putus) . '</td>';
+        echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; text-align: center; border: 1px solid black; width: 80px; padding: 6px;">' . number_format($total_kasasi) . '</td>';
+        echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; text-align: center; border: 1px solid black; width: 100px; padding: 6px;">' . number_format($total_tidak_kasasi) . '</td>';
+        echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; text-align: center; border: 1px solid black; width: 90px; padding: 6px;">' . $persen_kasasi . '%</td>';
+        echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: bold; text-align: center; border: 1px solid black; width: 110px; padding: 6px;">' . $persen_tidak_kasasi . '%</td>';
+        echo '</tr>';
     }
 
     private function outputExcelRow($data, &$total_all, $label)

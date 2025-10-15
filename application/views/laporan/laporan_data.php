@@ -468,9 +468,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
         <!-- Header halaman - tidak akan dicetak -->
         <div class="page-header no-print">
             <div>
-                <h2 class="page-title">Data Perkara Pidana Banding</h2>
+                <h2 class="page-title">Data Perkara Banding</h2>
                 <p class="text-muted mb-0">
-                    Laporan lengkap perkara pidana banding tahun <?= $filters['tahun'] ?? date('Y') ?>
+                    Laporan lengkap perkara banding tahun <?= $filters['tahun'] ?? date('Y') ?>
                 </p>
             </div>
             <div class="action-buttons">
@@ -557,7 +557,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
         <div class="print-area">
             <!-- Header laporan - untuk print -->
             <div class="report-header">
-                <div class="report-title">DATA PERKARA PIDANA BANDING PUTUSAN TAHUN <?= $filters['tahun'] ?? date('Y') ?></div>
+                <div class="report-title">DATA PERKARA BANDING PUTUSAN TAHUN <?= $filters['tahun'] ?? date('Y') ?></div>
                 <div class="report-subtitle">YANG TIDAK MENGAJUKAN UPAYA HUKUM KASASI TAHUN <?= $filters['tahun'] ?? date('Y') ?></div>
             </div>
 

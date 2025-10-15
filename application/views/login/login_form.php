@@ -244,7 +244,11 @@
                 icon: 'success',
                 title: 'Berhasil!',
                 text: '<?= addslashes($this->session->flashdata('success')) ?>',
-                confirmButtonColor: '#006400'
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#28a745',
+                allowOutsideClick: false,
+                allowEscapeKey: false
             });
         <?php endif; ?>
 

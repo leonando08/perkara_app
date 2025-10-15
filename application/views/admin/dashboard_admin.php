@@ -44,7 +44,6 @@
                     <option value="">Semua Status</option>
                     <option value="Proses" <?= ($this->input->get('status') == 'Proses') ? 'selected' : '' ?>>Proses</option>
                     <option value="Selesai" <?= ($this->input->get('status') == 'Selesai') ? 'selected' : '' ?>>Selesai</option>
-                    <option value="Ditolak" <?= ($this->input->get('status') == 'Ditolak') ? 'selected' : '' ?>>Ditolak</option>
                 </select>
             </div>
             <div class="col-md-3 d-flex align-items-end">
@@ -381,9 +380,6 @@
                                             case "Selesai":
                                                 echo '<span class="badge bg-success">Selesai</span>';
                                                 break;
-                                            case "Ditolak":
-                                                echo '<span class="badge bg-danger">Ditolak</span>';
-                                                break;
                                             default:
                                                 echo '<span class="badge bg-secondary">-</span>';
                                         }
@@ -580,11 +576,11 @@
                         icon: 'success',
                         title: 'Berhasil!',
                         text: '<?= addslashes($this->session->flashdata('success')) ?>',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        toast: true,
-                        position: 'top-end'
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#28a745',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
                     });
                 <?php endif; ?>
 
@@ -594,8 +590,11 @@
                         icon: 'error',
                         title: 'Gagal!',
                         text: '<?= addslashes($this->session->flashdata('error')) ?>',
+                        showConfirmButton: true,
                         confirmButtonText: 'OK',
-                        confirmButtonColor: '#dc3545'
+                        confirmButtonColor: '#dc3545',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
                     });
                 <?php endif; ?>
 
