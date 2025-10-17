@@ -679,7 +679,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                                     </span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="text-column"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
+                                            <td class="text-column"><?= str_replace('Minutas tanggal', 'Putusan Banding PT tanggal', htmlspecialchars($row->status_perkara_tk_banding)) ?></td>
                                             <td class="putusan-column">
                                                 <?= $row->pemberitahuan_putusan_banding ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?>
                                             </td>

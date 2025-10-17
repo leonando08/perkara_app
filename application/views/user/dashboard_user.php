@@ -131,6 +131,10 @@
             width: 120px;
         }
 
+        .table .putusan-banding-column {
+            width: 160px;
+        }
+
         .table .status-column {
             width: 100px;
         }
@@ -519,7 +523,7 @@
                             <th class="text-column align-middle">Perkara Banding</th>
                             <th class="lama-column text-center align-middle">Lama</th>
                             <th class="text-column align-middle">Status Tk Banding</th>
-                            <th class="date-column text-center align-middle">Putusan Banding</th>
+                            <th class="putusan-banding-column text-center align-middle">Putusan Banding</th>
                             <th class="date-column text-center align-middle">Kasasi</th>
                             <th class="date-column text-center align-middle">Berkas Kasasi</th>
                             <th class="status-column text-center align-middle">Status</th>
@@ -559,8 +563,8 @@
                                         <?= htmlspecialchars($row->nomor_perkara_banding) ?>
                                     </td>
                                     <td class="lama-column"><?= htmlspecialchars($row->lama_proses) ?></td>
-                                    <td class="text-column"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
-                                    <td class="date-column">
+                                    <td class="text-column"><?= str_replace('Minutas tanggal', 'Putusan Banding PT tanggal', htmlspecialchars($row->status_perkara_tk_banding)) ?></td>
+                                    <td class="putusan-banding-column">
                                         <?= $row->pemberitahuan_putusan_banding ? date("d-m-Y", strtotime($row->pemberitahuan_putusan_banding)) : '-' ?>
                                     </td>
                                     <td class="date-column">

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Dropdown Profile</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #333; color: #fff; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Dropdown Profile - Debug Tool</h1>
+    
+    <div class="test-section">
+        <h3>1. Test Basic Elements</h3>
+        <button onclick="testElements()">Test DOM Elements</button>
+        <div id="element-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. Test JavaScript Functions</h3>
+        <button onclick="testJavaScript()">Test JS</button>
+        <div id="js-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. Test Bootstrap</h3>
+        <button onclick="testBootstrap()">Test Bootstrap</button>
+        <div id="bootstrap-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. Test URLs</h3>
+        <button onclick="testUrls()">Test Profile URLs</button>
+        <div id="url-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>5. Manual Dropdown Test</h3>
+        <button onclick="manualDropdownTest()">Force Toggle Dropdown</button>
+        <div id="manual-results"></div>
+    </div>
+
+    <script>
+        function testElements() {
+            const results = document.getElementById('element-results');
+            let html = '<h4>DOM Elements Check:</h4>';
+            
+            const dropdown = document.getElementById('userDropdown');
+            html += dropdown ? '<p class="success">✅ Dropdown button found</p>' : '<p class="error">❌ Dropdown button NOT found</p>';
+            
+            const menu = document.querySelector('.dropdown-menu');
+            html += menu ? '<p class="success">✅ Dropdown menu found</p>' : '<p class="error">❌ Dropdown menu NOT found</p>';
+            
+            const items = document.querySelectorAll('.dropdown-item');
+            html += `<p class="info">ℹ️ Found ${items.length} dropdown items</p>`;
+            
+            results.innerHTML = html;
+        }
+        
+        function testJavaScript() {
+            const results = document.getElementById('js-results');
+            let html = '<h4>JavaScript Check:</h4>';
+            
+            // Test jQuery
+            html += typeof $ !== 'undefined' ? '<p class="success">✅ jQuery available</p>' : '<p class="error">❌ jQuery not found</p>';
+            
+            // Test Bootstrap
+            html += typeof bootstrap !== 'undefined' ? '<p class="success">✅ Bootstrap JS available</p>' : '<p class="error">❌ Bootstrap JS not found</p>';
+            
+            // Test console
+            try {
+                console.log('Test log');
+                html += '<p class="success">✅ Console working</p>';
+            } catch(e) {
+                html += '<p class="error">❌ Console error: ' + e.message + '</p>';
+            }
+            
+            results.innerHTML = html;
+        }
+        
+        function testBootstrap() {
+            const results = document.getElementById('bootstrap-results');
+            let html = '<h4>Bootstrap Check:</h4>';
+            
+            // Check Bootstrap CSS
+            const links = document.querySelectorAll('link[href*="bootstrap"]');
+            html += links.length > 0 ? '<p class="success">✅ Bootstrap CSS found</p>' : '<p class="error">❌ Bootstrap CSS not found</p>';
+            
+            // Check Bootstrap JS
+            const scripts = document.querySelectorAll('script[src*="bootstrap"]');
+            html += scripts.length > 0 ? '<p class="success">✅ Bootstrap JS script found</p>' : '<p class="error">❌ Bootstrap JS script not found</p>';
+            
+            results.innerHTML = html;
+        }
+        
+        function testUrls() {
+            const results = document.getElementById('url-results');
+            let html = '<h4>URL Tests:</h4>';
+            
+            const urls = [
+                '/profile',
+                '/profile/edit', 
+                '/profile/change_password',
+                '/profile/debug'
+            ];
+            
+            html += '<p>Click links to test:</p>';
+            urls.forEach(url => {
+                html += `<a href="${url}" target="_blank" style="display:block; margin:5px 0;">${url}</a>`;
+            });
+            
+            results.innerHTML = html;
+        }
+        
+        function manualDropdownTest() {
+            const results = document.getElementById('manual-results');
+            let html = '<h4>Manual Dropdown Test:</h4>';
+            
+            const dropdown = document.getElementById('userDropdown');
+            const menu = document.querySelector('.dropdown-menu');
+            
+            if (dropdown && menu) {
+                // Force toggle
+                if (menu.style.display === 'block') {
+                    menu.style.display = 'none';
+                    html += '<p class="info">🔄 Dropdown hidden</p>';
+                } else {
+                    menu.style.display = 'block';
+                    menu.style.position = 'absolute';
+                    menu.style.top = '100%';
+                    menu.style.right = '0';
+                    menu.style.zIndex = '9999';
+                    html += '<p class="info">🔄 Dropdown shown (forced)</p>';
+                }
+                
+                // Add click handlers to items
+                const items = menu.querySelectorAll('.dropdown-item');
+                items.forEach((item, index) => {
+                    item.onclick = function(e) {
+                        e.preventDefault();
+                        alert('Clicked item: ' + this.textContent.trim());
+                        if (this.href) {
+                            window.open(this.href, '_blank');
+                        }
+                    };
+                });
+                
+                html += `<p class="success">✅ Added click handlers to ${items.length} items</p>`;
+                html += '<p class="info">Now try clicking the dropdown items!</p>';
+            } else {
+                html += '<p class="error">❌ Could not find dropdown elements</p>';
+            }
+            
+            results.innerHTML = html;
+        }
+        
+        // Auto-run basic tests on load
+        window.onload = function() {
+            console.log('🧪 Debug tool loaded');
+            testElements();
+            testJavaScript();
+            testBootstrap();
+        };
+    </script>
+</body>
+</html>

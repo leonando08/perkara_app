@@ -163,7 +163,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
         background-color: #198754;
         color: white;
         font-weight: 600;
-        padding: 0.75rem 0.5rem;
+        padding: 1rem 0.5rem;
         white-space: nowrap;
         vertical-align: middle;
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -172,11 +172,28 @@ defined('BASEPATH') or exit('No direct script access allowed');
         z-index: 10;
         text-align: center;
         font-size: 0.8rem;
+        line-height: 1.2;
+        height: auto;
+        min-height: 60px;
+        display: table-cell;
+    }
+
+    /* CSS khusus untuk header dengan rowspan */
+    .table thead th[rowspan] {
+        vertical-align: middle;
+        padding: 1.2rem 0.5rem;
+        display: table-cell;
+        text-align: center;
+    }
+
+    /* CSS untuk header normal (tanpa rowspan) */
+    .table thead th:not([rowspan]) {
+        padding: 0.8rem 0.5rem;
     }
 
     .table tbody td {
         padding: 0.5rem 0.25rem;
-        vertical-align: middle;
+        vertical-align: top;
         border: 1px solid #dee2e6;
         background-color: white;
         text-align: center;
@@ -249,8 +266,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
     .table th:nth-child(3),
     .table td:nth-child(3) {
-        width: 140px;
-        min-width: 120px;
+        width: 200px;
+        min-width: 180px;
         text-align: left;
     }
 
@@ -262,8 +279,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
     .table th:nth-child(5),
     .table td:nth-child(5) {
-        width: 140px;
-        min-width: 120px;
+        width: 200px;
+        min-width: 180px;
         text-align: left;
     }
 
@@ -275,8 +292,15 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
     .table th:nth-child(7),
     .table td:nth-child(7) {
-        width: 120px;
-        min-width: 100px;
+        width: 250px;
+        min-width: 220px;
+        max-width: 250px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        vertical-align: top;
+        line-height: 1.4;
+        padding: 0.5rem 0.25rem;
     }
 
     .table th:nth-child(8),
@@ -614,13 +638,15 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                     <tr>
                                         <td><?= $no++ ?></td>
                                         <td style="text-align: left; word-wrap: break-word; max-width: 120px;"><?= htmlspecialchars($row->asal_pengadilan) ?></td>
-                                        <td style="text-align: left; word-wrap: break-word; max-width: 140px;"><?= htmlspecialchars($row->nomor_perkara_tk1) ?></td>
+                                        <td style="text-align: left; word-wrap: break-word; max-width: 200px;"><?= htmlspecialchars($row->nomor_perkara_tk1) ?></td>
                                         <td>
                                             <?= $row->tgl_register_banding ? date('d-m-Y', strtotime($row->tgl_register_banding)) : '-' ?>
                                         </td>
-                                        <td style="text-align: left; word-wrap: break-word; max-width: 140px;"><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
+                                        <td style="text-align: left; word-wrap: break-word; max-width: 200px;"><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
                                         <td><?= htmlspecialchars($row->lama_proses) ?> hari</td>
-                                        <td style="word-wrap: break-word; max-width: 100px;"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
+                                        <td style="text-align: left; vertical-align: top; word-wrap: break-word; white-space: normal; max-width: 250px; line-height: 1.4; padding: 0.5rem 0.25rem;">
+                                            <?= htmlspecialchars(str_replace('Minutas tanggal', 'Putusan Banding PT tanggal', $row->status_perkara_tk_banding)) ?>
+                                        </td>
                                         <td><?= $row->pemberitahuan_putusan_banding ? date('d-m-Y', strtotime($row->pemberitahuan_putusan_banding)) : '-' ?></td>
                                         <td><?= $row->permohonan_kasasi ? date('d-m-Y', strtotime($row->permohonan_kasasi)) : '-' ?></td>
                                         <td><?= $row->pengiriman_berkas_kasasi ? date('d-m-Y', strtotime($row->pengiriman_berkas_kasasi)) : '-' ?></td>

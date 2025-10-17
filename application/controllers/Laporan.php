@@ -37,6 +37,14 @@ class Laporan extends CI_Controller
     }
 
     // =========================
+    // Helper untuk mengubah teks minutas
+    // =========================
+    private function format_status_banding($status)
+    {
+        return str_replace('Minutas tanggal', 'Putusan Banding PT tanggal', $status);
+    }
+
+    // =========================
     // Halaman laporan
     // =========================
     public function index()
@@ -162,7 +170,7 @@ class Laporan extends CI_Controller
                     6,
                     $this->getMultiCellHeight($header['Nomor Banding'], $row->nomor_perkara_banding),
                     6,
-                    $this->getMultiCellHeight($header['Status Tk Banding'], $row->status_perkara_tk_banding),
+                    $this->getMultiCellHeight($header['Status Tk Banding'], $this->format_status_banding($row->status_perkara_tk_banding)),
                     6,
                     6,
                     6,
@@ -190,7 +198,7 @@ class Laporan extends CI_Controller
 
                 $this->multiCellColumn($pdf, $header['Nomor Banding'], $row->nomor_perkara_banding);
                 $pdf->Cell($header['Lama Proses'], $maxHeight, $row->lama_proses, 1, 0, 'C');
-                $this->multiCellColumn($pdf, $header['Status Tk Banding'], $row->status_perkara_tk_banding);
+                $this->multiCellColumn($pdf, $header['Status Tk Banding'], $this->format_status_banding($row->status_perkara_tk_banding));
 
                 $pdf->Cell(
                     $header['Pemberitahuan Putusan'],
@@ -317,7 +325,7 @@ class Laporan extends CI_Controller
                 $pdf->Cell(22, 8, $this->format_tanggal($row->tgl_register_banding), 1, 0, 'C');
                 $pdf->Cell(40, 8, substr($row->nomor_perkara_banding, 0, 25), 1, 0, 'L');
                 $pdf->Cell(18, 8, $row->lama_proses . ' hari', 1, 0, 'C');
-                $pdf->Cell(30, 8, substr($row->status_perkara_tk_banding, 0, 15), 1, 0, 'C');
+                $pdf->Cell(30, 8, substr($this->format_status_banding($row->status_perkara_tk_banding), 0, 15), 1, 0, 'C');
                 $pdf->Cell(20, 8, $this->format_tanggal($row->pemberitahuan_putusan_banding), 1, 0, 'C');
                 $pdf->Cell(20, 8, $this->format_tanggal($row->permohonan_kasasi), 1, 0, 'C');
                 $pdf->Cell(20, 8, $this->format_tanggal($row->pengiriman_berkas_kasasi), 1, 0, 'C');
@@ -525,7 +533,7 @@ class Laporan extends CI_Controller
                             <td class="date-cell"><?= $this->format_tanggal($row->tgl_register_banding) ?></td>
                             <td class="text-left"><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
                             <td><?= htmlspecialchars($row->lama_proses) ?> hari</td>
-                            <td><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
+                            <td><?= htmlspecialchars($this->format_status_banding($row->status_perkara_tk_banding)) ?></td>
                             <td class="date-cell"><?= $this->format_tanggal($row->pemberitahuan_putusan_banding) ?></td>
                             <td class="date-cell"><?= $this->format_tanggal($row->permohonan_kasasi) ?></td>
                             <td class="date-cell"><?= $this->format_tanggal($row->pengiriman_berkas_kasasi) ?></td>
@@ -654,7 +662,7 @@ class Laporan extends CI_Controller
                                 <td class="date-cell"><?= $this->format_tanggal($row->tgl_register_banding) ?></td>
                                 <td><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
                                 <td class="center"><?= htmlspecialchars($row->lama_proses) ?></td>
-                                <td><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
+                                <td><?= htmlspecialchars($this->format_status_banding($row->status_perkara_tk_banding)) ?></td>
                                 <td class="date-cell"><?= $this->format_tanggal($row->pemberitahuan_putusan_banding) ?></td>
                                 <td class="date-cell"><?= $this->format_tanggal($row->permohonan_kasasi) ?></td>
                                 <td class="date-cell"><?= $this->format_tanggal($row->pengiriman_berkas_kasasi) ?></td>
@@ -1707,7 +1715,7 @@ class Laporan extends CI_Controller
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->tgl_register_banding ? $this->format_tanggal($row->tgl_register_banding) : '-') . '</td>';
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->nomor_perkara_banding) . '</td>';
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . $status_waktu . ' - ' . htmlspecialchars($row->lama_proses) . '</td>';
-            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->status_perkara_tk_banding) . '</td>';
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($this->format_status_banding($row->status_perkara_tk_banding)) . '</td>';
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->pemberitahuan_putusan_banding ? $this->format_tanggal($row->pemberitahuan_putusan_banding) : '-') . '</td>';
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->permohonan_kasasi ? $this->format_tanggal($row->permohonan_kasasi) : '-') . '</td>';
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->pengiriman_berkas_kasasi ? $this->format_tanggal($row->pengiriman_berkas_kasasi) : '-') . '</td>';

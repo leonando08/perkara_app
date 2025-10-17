@@ -74,60 +74,50 @@
             transform: scale(1.03);
         }
 
-        .captcha-box {
-            font-family: 'Courier New', monospace;
-            font-size: 1.1rem;
-            font-weight: bold;
-            letter-spacing: 3px;
-            background: linear-gradient(135deg, #e6e6e6, #ffffff);
-            text-align: center;
-            border-radius: 8px;
-            padding: 10px;
+        .captcha-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             margin-bottom: 10px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-            color: #333;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            cursor: default;
-            width: 100%;
         }
 
-        .captcha-box::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            left: 0;
-            top: 0;
-            background: repeating-linear-gradient(45deg,
-                    transparent,
-                    transparent 10px,
-                    rgba(0, 0, 0, 0.05) 10px,
-                    rgba(0, 0, 0, 0.05) 20px);
-            pointer-events: none;
+        .captcha-image {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.3s;
         }
 
-        .captcha-box::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            left: 0;
-            top: 0;
-            background: linear-gradient(45deg,
-                    transparent 25%,
-                    rgba(255, 255, 255, 0.1) 25%,
-                    rgba(255, 255, 255, 0.1) 50%,
-                    transparent 50%,
-                    transparent 75%,
-                    rgba(255, 255, 255, 0.1) 75%);
-            background-size: 4px 4px;
-            pointer-events: none;
+        .captcha-image:hover {
+            border-color: #006400;
+        }
+
+        .captcha-refresh {
+            background: #006400;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .captcha-refresh:hover {
+            background: #004d00;
+            transform: scale(1.05);
+        }
+
+        .captcha-refresh:active {
+            transform: scale(0.95);
+        }
+
+        .captcha-refresh:disabled {
+            background: #ccc !important;
+            cursor: not-allowed !important;
+            transform: none !important;
         }
 
         .login-right {
@@ -147,6 +137,26 @@
         a {
             color: #008000;
             font-weight: 600;
+        }
+
+        /* Disabled states untuk cooldown */
+        .btn-login:disabled {
+            background: #6c757d !important;
+            border-color: #6c757d !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
+
+        .form-control:disabled {
+            background-color: #e9ecef;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .captcha-refresh:disabled {
+            background: #6c757d !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
         }
 
         a:hover {
@@ -184,26 +194,43 @@
             <hr>
             <p class="text-center text-muted">Sistem Informasi Perkara</p>
 
-            <?= form_open('auth/login') ?>
+            <?= form_open('auth/login', ['id' => 'loginForm']) ?>
+
             <div class="mb-3">
                 <label class="form-label">Username</label>
-                <input type="text" name="username" class="form-control" placeholder="Username" required>
+                <input type="text" name="username" class="form-control" placeholder="Username" required autocomplete="username" maxlength="50">
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
                 <div class="password-toggle">
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Password" required autocomplete="current-password" maxlength="100">
                     <button type="button" class="password-toggle-btn" onclick="togglePassword('password')">
                         <i class="bi bi-eye"></i>
                     </button>
                 </div>
             </div>
             <div class="mb-3">
-                <label class="form-label">CAPTCHA</label>
-                <div class="captcha-box"><?= $this->session->userdata('captcha'); ?></div>
-                <input type="text" name="captcha" class="form-control" placeholder="Masukkan kode di atas" required>
+                <label class="form-label">CAPTCHA <span class="text-danger">*</span></label>
+                <div class="captcha-container">
+                    <img src="<?= site_url('auth/captcha') ?>?t=<?= time() ?>" alt="CAPTCHA" class="captcha-image" id="captcha-image" width="180" height="50" <?= isset($cooldown) && $cooldown ? 'style="opacity: 0.5;"' : '' ?>>
+                    <button type="button" class="captcha-refresh" onclick="refreshCaptcha()" title="Klik untuk refresh captcha" <?= isset($cooldown) && $cooldown ? 'disabled' : '' ?>>
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                </div>
+                <input type="text" name="captcha" id="captcha-input" class="form-control" placeholder="<?= isset($cooldown) && $cooldown ? 'Captcha dinonaktifkan sementara' : 'Masukkan kode di atas' ?>" <?= isset($cooldown) && $cooldown ? 'disabled' : 'required' ?> autocomplete="off" maxlength="10" style="text-transform: uppercase;">
+                <?php if (isset($cooldown) && $cooldown): ?>
+                    <small class="text-danger"><i class="bi bi-clock"></i> Captcha dinonaktifkan karena terlalu banyak kesalahan</small>
+                <?php else: ?>
+                    <small class="text-muted">Klik gambar atau tombol refresh untuk mengganti captcha</small>
+                <?php endif; ?>
             </div>
-            <button type="submit" class="btn btn-login">Login</button>
+            <button type="submit" class="btn btn-login" id="login-btn" <?= isset($cooldown) && $cooldown ? 'disabled' : '' ?>>
+                <span id="login-text"><?= isset($cooldown) && $cooldown ? 'Login Dinonaktifkan' : 'Login' ?></span>
+                <span id="login-spinner" class="d-none">
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Memproses...
+                </span>
+            </button>
             <?= form_close() ?>
 
 
@@ -217,6 +244,20 @@
     </div>
 
     <script>
+        // Security: Disable right-click
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Security: Disable F12, Ctrl+Shift+I, Ctrl+U
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.key === 'u')) {
+                e.preventDefault();
+            }
+        });
+
         function togglePassword(id) {
             const input = document.getElementById(id);
             const icon = event.currentTarget.querySelector("i");
@@ -229,15 +270,177 @@
             }
         }
 
+        function refreshCaptcha() {
+            const captchaImage = document.getElementById('captcha-image');
+            const captchaInput = document.getElementById('captcha-input');
+            const refreshBtn = document.querySelector('.captcha-refresh');
+            const timestamp = new Date().getTime();
+
+            console.log('Refreshing captcha with timestamp:', timestamp);
+
+            // Visual feedback - disable button temporarily
+            refreshBtn.disabled = true;
+            refreshBtn.style.opacity = '0.5';
+
+            // Clear captcha input
+            captchaInput.value = '';
+
+            // Add loading effect
+            captchaImage.style.opacity = '0.5';
+
+            // Use dedicated refresh endpoint
+            const newSrc = '<?= site_url('auth/refresh_captcha') ?>?' + timestamp;
+            console.log('Loading new captcha:', newSrc);
+
+            captchaImage.onload = function() {
+                console.log('Captcha refreshed successfully');
+                captchaImage.style.opacity = '1';
+                refreshBtn.disabled = false;
+                refreshBtn.style.opacity = '1';
+            };
+
+            captchaImage.onerror = function() {
+                console.error('Failed to refresh captcha, trying fallback');
+                // Fallback to regular captcha endpoint
+                captchaImage.src = '<?= site_url('auth/captcha') ?>?' + timestamp;
+                captchaImage.style.opacity = '1';
+                refreshBtn.disabled = false;
+                refreshBtn.style.opacity = '1';
+            };
+
+            captchaImage.src = newSrc;
+        }
+
+        // Auto uppercase captcha input
+        document.addEventListener('DOMContentLoaded', function() {
+            const captchaInput = document.getElementById('captcha-input');
+            const captchaImage = document.getElementById('captcha-image');
+            const loginForm = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('login-btn');
+            const loginText = document.getElementById('login-text');
+            const loginSpinner = document.getElementById('login-spinner');
+
+            // Auto uppercase
+            captchaInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+
+            // Refresh captcha on image click
+            captchaImage.addEventListener('click', function() {
+                console.log('Captcha image clicked - refreshing...');
+                refreshCaptcha();
+            });
+
+            // Also add refresh on button click (redundant but safe)
+            const refreshBtn = document.querySelector('.captcha-refresh');
+            refreshBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Refresh button clicked');
+                refreshCaptcha();
+            });
+
+            // Handle captcha load error
+            captchaImage.addEventListener('error', function() {
+                console.log('Captcha failed to load, retrying in 2 seconds...');
+                setTimeout(() => {
+                    const timestamp = new Date().getTime();
+                    captchaImage.src = '<?= site_url('auth/captcha') ?>?' + timestamp;
+                }, 2000);
+            });
+
+            // Handle captcha load success
+            captchaImage.addEventListener('load', function() {
+                console.log('Captcha loaded successfully:', captchaImage.src);
+            });
+
+            // Prevent multiple form submissions
+            loginForm.addEventListener('submit', function(e) {
+                if (loginBtn.disabled) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Disable button and show spinner
+                loginBtn.disabled = true;
+                loginText.classList.add('d-none');
+                loginSpinner.classList.remove('d-none');
+
+                // Re-enable after 10 seconds to prevent permanent lock
+                setTimeout(() => {
+                    loginBtn.disabled = false;
+                    loginText.classList.remove('d-none');
+                    loginSpinner.classList.add('d-none');
+                }, 10000);
+            }); // Security: Clear form on page visibility change
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    // Optional: Clear sensitive data when tab is hidden
+                    // document.getElementById('password').value = '';
+                }
+            });
+
+            // Auto-refresh captcha every 4 minutes
+            setInterval(refreshCaptcha, 240000);
+        });
+
         // SweetAlert notifications
         <?php if (isset($error)): ?>
-            Swal.fire({
-                icon: 'error',
-                title: 'Login Gagal!',
-                text: '<?= addslashes($error) ?>',
-                confirmButtonColor: '#006400'
-            });
+            <?php if (isset($cooldown) && $cooldown): ?>
+                // Special handling untuk cooldown
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Captcha Dinonaktifkan!',
+                    text: '<?= addslashes($error) ?>',
+                    confirmButtonColor: '#006400',
+                    confirmButtonText: 'Mengerti',
+                    timer: 8000,
+                    timerProgressBar: true,
+                    allowOutsideClick: false
+                }).then(() => {
+                    // Start countdown timer
+                    startCooldownTimer(180); // 3 menit = 180 detik
+                });
+            <?php else: ?>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Gagal!',
+                    text: '<?= addslashes($error) ?>',
+                    confirmButtonColor: '#006400',
+                    timer: 5000,
+                    timerProgressBar: true
+                }).then(() => {
+                    refreshCaptcha(); // Auto refresh captcha after error
+                });
+            <?php endif; ?>
         <?php endif; ?>
+
+        function startCooldownTimer(seconds) {
+            const loginBtn = document.getElementById('login-btn');
+            const loginText = document.getElementById('login-text');
+            const captchaInput = document.getElementById('captcha-input');
+
+            const countdown = setInterval(() => {
+                const minutes = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+
+                loginText.textContent = `Menunggu ${minutes}:${secs.toString().padStart(2, '0')}`;
+                captchaInput.placeholder = `Tunggu ${minutes}:${secs.toString().padStart(2, '0')} untuk mencoba lagi`;
+
+                seconds--;
+
+                if (seconds < 0) {
+                    clearInterval(countdown);
+                    // Update UI untuk menunjukkan cooldown selesai
+                    loginText.textContent = 'Cooldown selesai, memuat ulang...';
+                    captchaInput.placeholder = 'Memuat ulang halaman...';
+
+                    // Delay reload untuk memastikan server reset attempts
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000); // 2 detik delay
+                }
+            }, 1000);
+        }
 
         <?php if ($this->session->flashdata('success')): ?>
             Swal.fire({
@@ -251,53 +454,6 @@
                 allowEscapeKey: false
             });
         <?php endif; ?>
-
-        // Mencegah akses ke captcha
-        document.addEventListener('DOMContentLoaded', function() {
-            const captchaBox = document.querySelector('.captcha-box');
-
-            // Mencegah copy
-            captchaBox.addEventListener('copy', function(e) {
-                e.preventDefault();
-                return false;
-            });
-
-            // Mencegah cut
-            captchaBox.addEventListener('cut', function(e) {
-                e.preventDefault();
-                return false;
-            });
-
-            // Mencegah paste
-            captchaBox.addEventListener('paste', function(e) {
-                e.preventDefault();
-                return false;
-            });
-
-            // Mencegah drag
-            captchaBox.addEventListener('drag', function(e) {
-                e.preventDefault();
-                return false;
-            });
-
-            // Mencegah drop
-            captchaBox.addEventListener('drop', function(e) {
-                e.preventDefault();
-                return false;
-            });
-
-            // Mencegah klik kanan
-            captchaBox.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                return false;
-            });
-
-            // Mencegah select
-            captchaBox.addEventListener('selectstart', function(e) {
-                e.preventDefault();
-                return false;
-            });
-        });
     </script>
 </body>
 

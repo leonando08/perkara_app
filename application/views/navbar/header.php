@@ -13,6 +13,8 @@ $role     = $this->session->userdata('role');
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
@@ -1116,6 +1118,113 @@ $role     = $this->session->userdata('role');
             transform: translateY(-1px);
         }
 
+        /* User Profile Dropdown Styles */
+        .dropdown-toggle::after {
+            display: none;
+        }
+
+        .dropdown-toggle {
+            border: none !important;
+            background: transparent !important;
+            color: white !important;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .dropdown-toggle:hover,
+        .dropdown-toggle:focus {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.2);
+        }
+
+        .dropdown-toggle:active {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border-radius: 0.5rem;
+            padding: 0.5rem 0;
+            min-width: 250px;
+            margin-top: 0.5rem;
+            animation: dropdownFadeIn 0.2s ease-out;
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            left: auto !important;
+            display: none;
+            background-color: #fff;
+            z-index: 1050;
+        }
+
+        .dropdown-menu.show {
+            display: block !important;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-header {
+            font-weight: 600;
+            color: #495057;
+            padding: 0.75rem 1rem 0.5rem;
+            margin-bottom: 0;
+            font-size: 0.875rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .dropdown-item {
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
+            color: #374151;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #006400;
+        }
+
+        .dropdown-item:focus {
+            background-color: #f8f9fa;
+            color: #006400;
+            outline: none;
+        }
+
+        .dropdown-item.text-danger:hover,
+        .dropdown-item.text-danger:focus {
+            background-color: #fef2f2;
+            color: #dc2626;
+        }
+
+        .dropdown-item i {
+            width: 1.25rem;
+            text-align: center;
+            opacity: 0.7;
+            margin-right: 0.5rem;
+        }
+
+        .dropdown-divider {
+            margin: 0.5rem 0;
+            border-color: #e5e7eb;
+        }
+
         /* Main Content Area */
         /* Main content positioning is handled by sidebar.php */
 
@@ -1247,14 +1356,137 @@ $role     = $this->session->userdata('role');
                 <span class="d-sm-none">SIP</span>
             </a>
             <div class="ms-auto d-flex align-items-center">
-                <span class="navbar-text me-3">
-                    <i class="fas fa-user me-1"></i>
-                    <?= htmlspecialchars($username); ?>
-                    <small class="ms-1">(<?= htmlspecialchars($role); ?>)</small>
-                </span>
+                <!-- User Profile Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-link text-white dropdown-toggle d-flex align-items-center"
+                        type="button"
+                        id="userDropdown"
+                        aria-expanded="false"
+                        onclick="console.log('Dropdown button clicked directly!')">
+                        <i class="fas fa-user-circle me-2" style="font-size: 1.5rem;"></i>
+                        <div class="d-flex flex-column align-items-start">
+                            <span class="fw-medium"><?= htmlspecialchars($username); ?></span>
+                            <small class="text-white-50"><?= ucfirst(htmlspecialchars($role)); ?></small>
+                        </div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li>
+                            <h6 class="dropdown-header">
+                                <i class="fas fa-user-circle me-2"></i>
+                                <?= htmlspecialchars($username); ?>
+                            </h6>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="<?= site_url('profile'); ?>">
+                                <i class="fas fa-user me-2"></i>
+                                Profil Saya
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="<?= site_url('profile/edit'); ?>">
+                                <i class="fas fa-edit me-2"></i>
+                                Edit Profil
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="<?= site_url('profile/change_password'); ?>">
+                                <i class="fas fa-key me-2"></i>
+                                Ubah Password
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <?php if ($role === 'admin'): ?>
+                            <li>
+                                <a class="dropdown-item" href="<?= site_url('admin/dashboard_admin'); ?>">
+                                    <i class="fas fa-tachometer-alt me-2"></i>
+                                    Dashboard Admin
+                                </a>
+                            </li>
+                        <?php else: ?>
+                            <li>
+                                <a class="dropdown-item" href="<?= site_url('user/dashboard_user'); ?>">
+                                    <i class="fas fa-tachometer-alt me-2"></i>
+                                    Dashboard User
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="<?= site_url('auth/logout'); ?>" onclick="return confirm('Yakin ingin logout?')">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- Sidebar -->
     <?php require_once(APPPATH . 'views/navbar/sidebar.php'); ?>
+
+    <!-- Bootstrap JS (needed for dropdown functionality) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript for dropdown functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, setting up dropdown...');
+
+            const dropdownToggle = document.getElementById('userDropdown');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            if (dropdownToggle && dropdownMenu) {
+                console.log('Dropdown elements found');
+
+                // Click event for dropdown toggle
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    console.log('Dropdown clicked!');
+
+                    // Toggle dropdown
+                    if (dropdownMenu.classList.contains('show')) {
+                        dropdownMenu.classList.remove('show');
+                        this.setAttribute('aria-expanded', 'false');
+                    } else {
+                        dropdownMenu.classList.add('show');
+                        this.setAttribute('aria-expanded', 'true');
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                        dropdownToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                // Handle dropdown item clicks
+                const dropdownItems = dropdownMenu.querySelectorAll('.dropdown-item');
+                dropdownItems.forEach(function(item) {
+                    item.addEventListener('click', function(e) {
+                        console.log('Dropdown item clicked:', this.href);
+
+                        if (this.href) {
+                            window.location.href = this.href;
+                        }
+                    });
+                });
+
+                console.log('Dropdown setup complete');
+            } else {
+                console.error('Dropdown elements not found!');
+            }
+        });
+    </script>

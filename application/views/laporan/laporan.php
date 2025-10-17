@@ -490,7 +490,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                         <?= htmlspecialchars($row->nomor_perkara_banding) ?>
                                     </td>
                                     <td class="lama-column"><?= htmlspecialchars($row->lama_proses) ?></td>
-                                    <td class="status-column"><?= htmlspecialchars($row->status_perkara_tk_banding) ?></td>
+                                    <td class="status-column"><?= str_replace('Minutas tanggal', 'Putusan Banding PT tanggal', htmlspecialchars($row->status_perkara_tk_banding)) ?></td>
                                     <td class="date-column">
                                         <?php
                                         if (!empty($row->pemberitahuan_putusan_banding) && $row->pemberitahuan_putusan_banding !== '0000-00-00') {
