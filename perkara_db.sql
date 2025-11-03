@@ -1,6 +1,6 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Server version:               5.7.44 - MySQL Community Server (GPL)
+-- Server version:               8.0.30 - MySQL Community Server - GPL
 -- Server OS:                    Linux
 -- HeidiSQL Version:             12.1.0.6537
 -- --------------------------------------------------------
@@ -13,11 +13,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
-
--- Dumping database structure for perkara_db
-CREATE DATABASE IF NOT EXISTS `perkara_db` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `perkara_db`;
 
 -- Dumping structure for table perkara_db.jenis_perkara
 DROP TABLE IF EXISTS `jenis_perkara`;
@@ -59,6 +54,7 @@ CREATE TABLE IF NOT EXISTS `jenis_perkara` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Referensi Jenis Perkara(Hirarki)';
 
 -- Dumping data for table perkara_db.jenis_perkara: ~434 rows (approximately)
+DELETE FROM `jenis_perkara`;
 INSERT INTO `jenis_perkara` (`id`, `parent_id`, `kode`, `nama`, `nama_lengkap`, `format_nomor`, `keterangan`, `tipe_level`, `aktif`, `urutan`, `level`, `lft`, `rgt`, `diedit_oleh`, `diedit_tanggal`, `diinput_oleh`, `diinput_tanggal`, `diperbaharui_oleh`, `diperbaharui_tanggal`) VALUES
 	(1, NULL, 'PDT', 'Perdata', 'Perdata', '#nomor_urut_perkara#/#kode_alur_perkara#/#tahun#/PN #kode_pn#', NULL, 1, 'Y', 1, 0, 1, 212, '', NULL, NULL, NULL, 'admin', '2010-11-20 07:59:31'),
 	(2, NULL, 'PID', 'Pidana', 'Pidana', '#nomor_urut_perkara#/#kode_alur_perkara#/#tahun#/PN #kode_pn#', NULL, 1, 'Y', 2, 0, 213, 446, '', NULL, NULL, NULL, 'admin', '2010-11-20 07:59:40'),
@@ -521,6 +517,7 @@ CREATE TABLE IF NOT EXISTS `perkara_banding` (
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table perkara_db.perkara_banding: ~7 rows (approximately)
+DELETE FROM `perkara_banding`;
 INSERT INTO `perkara_banding` (`id`, `no`, `asal_pengadilan`, `perkara`, `nomor_perkara_tk1`, `klasifikasi`, `tgl_register_banding`, `nomor_perkara_banding`, `lama_proses`, `status_perkara_tk_banding`, `pemberitahuan_putusan_banding`, `permohonan_kasasi`, `pengiriman_berkas_kasasi`, `status`, `created_by`) VALUES
 	(10, 1, 'PARINGIN', 'PIDANA', '78/Pid.Sus/2024/PN Prn', 'Narkotika', '2024-08-10', '369/PID.SUS/2024/PT BJM', '25 hari', 'Minutas tanggal : 2025-01-06', '2025-01-13', NULL, '2025-02-19', 'Proses', NULL),
 	(11, 2, 'PARINGIN', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Lalu-Lintas', '2024-12-10', '369/PID.SUS/2024/PT BJM', '17 Hari', 'Minutas tanggal : 2025-01-06', '2025-01-13', '2025-01-20', '2025-02-13', 'Selesai', NULL),
@@ -546,6 +543,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table perkara_db.users: ~5 rows (approximately)
+DELETE FROM `users`;
 INSERT INTO `users` (`id`, `username`, `password`, `role`, `email`, `nama_lengkap`, `created_at`, `updated_at`) VALUES
 	(3, 'admin1', '$2y$10$aXuRPu4g7l8NawAQdDsaSePAV/olPtx3Ol5gkFWWLmCn9f684lA9W', 'admin', 'admin1@gmail.com', 'Super Admin', '2025-09-16 02:23:57', '2025-10-17 08:04:19'),
 	(4, 'user', '$2y$10$XApdDBg8hNcaKjkL.76U9e/R9MneJbN8Nu/MsjTM24Bar3aQAd90.', 'user', 'user@example.com', 'User user', '2025-09-16 03:10:50', '2025-10-17 02:27:07'),

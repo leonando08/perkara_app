@@ -932,15 +932,30 @@ class Laporan extends CI_Controller
         echo ob_get_clean();
     }
 
-    private function get_rekap_data()
+    private function get_rekap_data($tahun, $bulan = null)
     {
-        $query = $this->db->query("
+        if ($bulan) {
+            $query = $this->db->query("
             SELECT 
-                SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND permohonan_kasasi <> '' THEN 1 ELSE 0 END) AS jumlah_kasasi,
-                SUM(CASE WHEN permohonan_kasasi IS NULL OR permohonan_kasasi = '' THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
-                SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL AND pemberitahuan_putusan_banding <> '' THEN 1 ELSE 0 END) AS jumlah_putus_banding
+                SUM(CASE WHEN permohonan_kasasi IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_kasasi,
+                SUM(CASE WHEN permohonan_kasasi IS NULL THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
+                SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_putus_banding
             FROM perkara_banding
-        ");
+            WHERE tgl_register_banding IS NOT NULL
+              AND YEAR(tgl_register_banding) = ?
+              AND MONTH(tgl_register_banding) = ?
+        ", [$tahun, $bulan]);
+        } else {
+            $query = $this->db->query("
+            SELECT 
+                SUM(CASE WHEN permohonan_kasasi IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_kasasi,
+                SUM(CASE WHEN permohonan_kasasi IS NULL THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
+                SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_putus_banding
+            FROM perkara_banding
+            WHERE tgl_register_banding IS NOT NULL
+              AND YEAR(tgl_register_banding) = ?
+        ", [$tahun]);
+        }
 
         return $query->row_array();
     }
@@ -967,13 +982,15 @@ class Laporan extends CI_Controller
             $bulan_format = sprintf('%02d', $bulan);
 
             $query = $this->db->query("
-                SELECT 
-                    SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND permohonan_kasasi <> '' THEN 1 ELSE 0 END) AS jumlah_kasasi,
-                    SUM(CASE WHEN permohonan_kasasi IS NULL OR permohonan_kasasi = '' THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
-                    SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL AND pemberitahuan_putusan_banding <> '' THEN 1 ELSE 0 END) AS jumlah_putus_banding
-                FROM perkara_banding 
-                WHERE YEAR(tgl_register_banding) = ? AND MONTH(tgl_register_banding) = ?
-            ", [$tahun, $bulan]);
+            SELECT 
+                SUM(CASE WHEN permohonan_kasasi IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_kasasi,
+                SUM(CASE WHEN permohonan_kasasi IS NULL THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
+                SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_putus_banding
+            FROM perkara_banding 
+            WHERE tgl_register_banding IS NOT NULL
+              AND YEAR(tgl_register_banding) = ? 
+              AND MONTH(tgl_register_banding) = ?
+        ", [$tahun, $bulan]);
 
             $data = $query->row_array();
             $result[] = [
@@ -1005,20 +1022,24 @@ class Laporan extends CI_Controller
             '12' => 'Desember'
         ];
 
+        $bulan_format = sprintf('%02d', $bulan);
+
         $query = $this->db->query("
-            SELECT 
-                SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND permohonan_kasasi <> '' THEN 1 ELSE 0 END) AS jumlah_kasasi,
-                SUM(CASE WHEN permohonan_kasasi IS NULL OR permohonan_kasasi = '' THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
-                SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL AND pemberitahuan_putusan_banding <> '' THEN 1 ELSE 0 END) AS jumlah_putus_banding
-            FROM perkara_banding 
-            WHERE YEAR(tgl_register_banding) = ? AND MONTH(tgl_register_banding) = ?
-        ", [$tahun, $bulan]);
+        SELECT 
+            SUM(CASE WHEN permohonan_kasasi IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_kasasi,
+            SUM(CASE WHEN permohonan_kasasi IS NULL THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
+            SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_putus_banding
+        FROM perkara_banding 
+        WHERE tgl_register_banding IS NOT NULL
+          AND YEAR(tgl_register_banding) = ? 
+          AND MONTH(tgl_register_banding) = ?
+    ", [$tahun, $bulan]);
 
         $data = $query->row_array();
 
         return [[
-            'bulan' => $bulan,
-            'nama_bulan' => $nama_bulan[$bulan],
+            'bulan' => $bulan_format,
+            'nama_bulan' => $nama_bulan[$bulan_format],
             'jumlah_kasasi' => $data['jumlah_kasasi'] ?: 0,
             'jumlah_tidak_kasasi' => $data['jumlah_tidak_kasasi'] ?: 0,
             'jumlah_putus_banding' => $data['jumlah_putus_banding'] ?: 0
@@ -1028,11 +1049,11 @@ class Laporan extends CI_Controller
     private function get_tahun_options()
     {
         $query = $this->db->query("
-            SELECT DISTINCT YEAR(tgl_register_banding) as tahun 
-            FROM perkara_banding 
-            WHERE tgl_register_banding IS NOT NULL 
-            ORDER BY tahun DESC
-        ");
+        SELECT DISTINCT YEAR(tgl_register_banding) as tahun 
+        FROM perkara_banding 
+        WHERE tgl_register_banding IS NOT NULL 
+        ORDER BY tahun DESC
+    ");
 
         $result = [];
         foreach ($query->result_array() as $row) {
@@ -1047,7 +1068,6 @@ class Laporan extends CI_Controller
 
         return $result;
     }
-
     // =========================
     // Rekapitulasi Data (format sesuai gambar)
     // =========================

@@ -1,27 +1,16 @@
-# Dockerfile untuk CodeIgniter + Apache + PHP
 FROM php:8.1-apache
 
-# Install ekstensi PHP yang dibutuhkan
-RUN docker-php-ext-install mysqli pdo pdo_mysql && docker-php-ext-enable mysqli
+# Install ekstensi GD dan dependency-nya
+RUN apt-get update && apt-get install -y \
+    libjpeg-dev libpng-dev libfreetype6-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd
 
+# (Opsional) tambahkan ekstensi lain jika dibutuhkan oleh CI3
+RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Aktifkan mod_rewrite Apache
-RUN a2enmod rewrite
-
-# Set session.save_path ke /tmp agar session PHP bisa berjalan di Docker
-RUN echo 'session.save_path = "/tmp"' > /usr/local/etc/php/conf.d/docker-session.ini
-
-# Copy source code ke /var/www/html
+# Salin semua file project ke folder web Apache
 COPY . /var/www/html/
 
-# Set permission
-RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
-
-# Ubah DocumentRoot jika perlu (default: /var/www/html)
-# ENV APACHE_DOCUMENT_ROOT /var/www/html
-
-# Konfigurasi .htaccess untuk CodeIgniter (jika belum ada)
-# Pastikan AllowOverride All di /etc/apache2/apache2.conf untuk /var/www/html
-
-EXPOSE 80
-CMD ["apache2-foreground"]
+# Ubah izin agar www-data bisa akses
+RUN chown -R www-data:www-data /var/www/html
