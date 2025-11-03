@@ -244,11 +244,6 @@
     </div>
 
     <script>
-        // Security: Disable right-click
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
         // Security: Disable F12, Ctrl+Shift+I, Ctrl+U
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F12' ||
