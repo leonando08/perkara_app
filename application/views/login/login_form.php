@@ -194,7 +194,7 @@
             <hr>
             <p class="text-center text-muted">Sistem Informasi Perkara</p>
 
-            <?= form_open('auth/login', ['id' => 'loginForm']) ?>
+            <?= form_open('auth_simple/login', ['id' => 'loginForm']) ?>
 
             <div class="mb-3">
                 <label class="form-label">Username</label>
@@ -235,7 +235,9 @@
 
 
             <div class="mt-3 text-center">
-                <a href="<?= site_url('auth/register') ?>" class="text-decoration-none">Belum punya akun? Daftar</a>
+                <a href="<?= base_url('index.php/auth_simple/register') ?>" class="text-decoration-none">
+                    Belum punya akun? Daftar di sini
+                </a>
             </div>
         </div>
         <div class="col-md-6 login-right">
@@ -447,6 +449,17 @@
                 confirmButtonColor: '#28a745',
                 allowOutsideClick: false,
                 allowEscapeKey: false
+            });
+        <?php endif; ?>
+
+        <?php if ($this->session->flashdata('info')): ?>
+            Swal.fire({
+                icon: 'info',
+                title: 'Informasi',
+                text: '<?= addslashes($this->session->flashdata('info')) ?>',
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#006400'
             });
         <?php endif; ?>
     </script>

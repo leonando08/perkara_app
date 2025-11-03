@@ -1,0 +1,167 @@
+===================================================================
+TROUBLESHOOTING LOGIN - PN BANJARBARU
+===================================================================
+
+MASALAH: Login dengan username pnbanjarbaru tidak bisa
+
+===================================================================
+LANGKAH PERBAIKAN OTOMATIS
+===================================================================
+
+1. Buka browser dan akses:
+   http://localhost/Perkara_app/test_login_pnbanjarbaru.php
+
+2. Script akan otomatis:
+   ✅ Membuat tabel pengadilan (jika belum ada)
+   ✅ Menambah kolom pengadilan_id, nip, jabatan ke tabel users
+   ✅ Insert data PN BANJARBARU
+   ✅ Create/update user pnbanjarbaru dengan password yang benar
+   ✅ Verifikasi password hash
+   ✅ Test password verification
+
+3. Setelah script selesai, klik link login yang muncul
+
+===================================================================
+PENYEBAB UMUM LOGIN GAGAL
+===================================================================
+
+PENYEBAB 1: User belum dibuat di database
+SOLUSI: Jalankan test_login_pnbanjarbaru.php
+
+PENYEBAB 2: Password hash tidak cocok
+SOLUSI: Script akan update password dengan hash yang benar
+
+PENYEBAB 3: Kolom pengadilan_id belum ada
+SOLUSI: Script akan menambahkan kolom otomatis
+
+PENYEBAB 4: Tabel pengadilan belum ada
+SOLUSI: Script akan membuat tabel dan insert data
+
+PENYEBAB 5: Captcha cooldown aktif
+SOLUSI: 
+- Clear browser cookies
+- Tunggu 3 menit
+- Atau akses: http://localhost/Perkara_app/index.php/auth/clear_cooldown
+
+PENYEBAB 6: Password salah ketik
+SOLUSI: Pastikan password diketik: banjarbaru123 (huruf kecil semua)
+
+===================================================================
+CARA LOGIN MANUAL
+===================================================================
+
+1. Buka: http://localhost/Perkara_app/index.php/auth/login
+
+2. Isi form:
+   Username: pnbanjarbaru
+   Password: banjarbaru123
+   Captcha: [lihat gambar]
+
+3. Klik Login
+
+===================================================================
+CEK DATABASE MANUAL (via phpMyAdmin)
+===================================================================
+
+1. Buka phpMyAdmin: http://localhost/phpmyadmin
+
+2. Pilih database: perkara_db
+
+3. Jalankan query ini:
+
+SELECT 
+    u.id,
+    u.username,
+    u.role,
+    u.email,
+    u.nama_lengkap,
+    u.password,
+    p.nama_pengadilan,
+    p.kode_pengadilan
+FROM users u
+LEFT JOIN pengadilan p ON p.id = u.pengadilan_id
+WHERE u.username = 'pnbanjarbaru';
+
+4. Hasil yang diharapkan:
+   - Ada 1 row data
+   - username: pnbanjarbaru
+   - role: admin
+   - nama_pengadilan: PN BANJARBARU
+   - password: $2y$10$... (hash bcrypt)
+
+===================================================================
+FIX CAPTCHA COOLDOWN
+===================================================================
+
+Jika muncul pesan "Terlalu banyak kesalahan captcha":
+
+CARA 1: Tunggu 3 menit
+
+CARA 2: Clear cooldown manual
+Akses URL ini: http://localhost/Perkara_app/index.php/auth/clear_cooldown
+
+CARA 3: Clear cookies browser
+- Tekan Ctrl+Shift+Delete
+- Pilih "Cookies and other site data"
+- Clear data
+- Refresh halaman login
+
+===================================================================
+UPDATE PASSWORD MANUAL (jika perlu)
+===================================================================
+
+Jalankan SQL ini di phpMyAdmin:
+
+UPDATE users 
+SET password = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'
+WHERE username = 'pnbanjarbaru';
+
+Password setelah update: banjarbaru123
+
+===================================================================
+CEK ERROR LOG
+===================================================================
+
+Jika masih gagal, cek file log error:
+
+File: application/logs/log-[tanggal].php
+
+Cari error yang berkaitan dengan:
+- "Error in get_by_username"
+- "Table 'pengadilan' doesn't exist"
+- "Unknown column"
+
+===================================================================
+TEST CONNECTION DATABASE
+===================================================================
+
+Buka file: test_login_pnbanjarbaru.php
+
+Akan menampilkan:
+✅ Status koneksi database
+✅ Status tabel pengadilan
+✅ Status user pnbanjarbaru
+✅ Hasil test password verification
+
+===================================================================
+KONTAK DEBUGGING
+===================================================================
+
+Jika masih bermasalah, cek:
+
+1. Laragon sudah running?
+   - Apache: hijau
+   - MySQL: hijau
+
+2. Database perkara_db ada?
+   - Cek di phpMyAdmin
+
+3. File config database benar?
+   - File: application/config/database.php
+   - Cek hostname, username, password, database
+
+4. Browser cache sudah di-clear?
+   - Ctrl+Shift+Delete
+   - Clear all
+
+===================================================================

@@ -11,6 +11,7 @@ use Gregwar\Captcha\CaptchaBuilder;
  * @property CI_Input $input
  * @property CI_DB_query_builder $db
  * @property User_model $User_model
+ * @property Pengadilan_model $Pengadilan_model
  * @property CI_Form_validation $form_validation
  */
 
@@ -316,20 +317,48 @@ class Auth extends CI_Controller
                     $this->session->unset_userdata($attempts_key);
                     $this->session->unset_userdata($captcha_cooldown_key);
 
-                    $this->session->set_userdata([
+                    // Set session data termasuk nama pengadilan untuk multi-instansi
+                    $session_data = [
                         'user_id' => $user->id,
                         'username' => $user->username,
                         'role' => $user->role,
+                        'email' => $user->email,
+                        'nama_lengkap' => $user->nama_lengkap,
                         'logged_in' => TRUE,
                         'login_time' => time(),
                         'login_ip' => $ip
-                    ]);
+                    ];
+
+                    // Tambahkan data pengadilan ke session
+                    if (isset($user->pengadilan_id) && !empty($user->pengadilan_id)) {
+                        $session_data['pengadilan_id'] = $user->pengadilan_id;
+                        $session_data['nama_pengadilan'] = $user->nama_pengadilan;
+                        $session_data['kode_pengadilan'] = $user->kode_pengadilan;
+                    }
+
+                    // Tambahkan data tambahan user
+                    if (!empty($user->nip)) {
+                        $session_data['nip'] = $user->nip;
+                    }
+                    if (!empty($user->jabatan)) {
+                        $session_data['jabatan'] = $user->jabatan;
+                    }
+
+                    $this->session->set_userdata($session_data);
 
                     // Set flash message untuk login berhasil
-                    $this->session->set_flashdata('login_success', 'Login berhasil! Selamat datang ' . $user->username);
+                    $welcome_msg = 'Login berhasil! Selamat datang ' . $user->nama_lengkap;
+                    if (isset($user->nama_pengadilan)) {
+                        $welcome_msg .= ' - ' . $user->nama_pengadilan;
+                    }
+                    $this->session->set_flashdata('login_success', $welcome_msg);
 
-                    if ($user->role === 'admin') redirect('admin/dashboard_admin');
-                    else redirect('user/dashboard_user');
+                    // Redirect sesuai role
+                    if ($user->role === 'admin') {
+                        redirect('admin/dashboard_admin');
+                    } else {
+                        redirect('user/dashboard_user');
+                    }
                 } else {
                     // Increment login attempts
                     $this->session->set_userdata($login_key, $login_attempts + 1);

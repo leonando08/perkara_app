@@ -1,0 +1,81 @@
+===================================================================
+CARA MENJALANKAN MIGRASI DATABASE - PENGADILAN FEATURE
+===================================================================
+
+LANGKAH-LANGKAH:
+
+1. Buka browser, akses phpMyAdmin:
+   URL: http://localhost/phpmyadmin
+
+2. Login phpMyAdmin (biasanya):
+   Username: root
+   Password: (kosongkan atau sesuai setting Laragon Anda)
+
+3. Di sidebar kiri, klik database: perkara_db
+
+4. Klik tab "SQL" di bagian atas
+
+5. Copy SEMUA kode SQL di bawah ini dan paste ke kotak SQL:
+
+===================================================================
+-- COPY DARI SINI --
+===================================================================
+
+-- 1. Buat tabel pengadilan
+CREATE TABLE IF NOT EXISTS `pengadilan` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `kode_pengadilan` varchar(20) NOT NULL,
+  `nama_pengadilan` varchar(255) NOT NULL,
+  `alamat` text,
+  `telepon` varchar(20),
+  `email` varchar(100),
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `kode_pengadilan` (`kode_pengadilan`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 2. Insert data pengadilan contoh
+INSERT INTO `pengadilan` (`kode_pengadilan`, `nama_pengadilan`, `alamat`, `telepon`, `email`) VALUES
+('PN-JKT', 'Pengadilan Negeri Jakarta Pusat', 'Jl. Gajah Mada No. 17, Jakarta Pusat', '021-12345678', 'info@pn-jakpus.go.id'),
+('PN-BDG', 'Pengadilan Negeri Bandung', 'Jl. LL. RE Martadinata, Bandung', '022-87654321', 'info@pn-bandung.go.id'),
+('PN-SBY', 'Pengadilan Negeri Surabaya', 'Jl. Arjuna No. 16, Surabaya', '031-11223344', 'info@pn-surabaya.go.id'),
+('PN-MDN', 'Pengadilan Negeri Medan', 'Jl. Imam Bonjol, Medan', '061-99887766', 'info@pn-medan.go.id'),
+('PN-SMG', 'Pengadilan Negeri Semarang', 'Jl. Pemuda No. 100, Semarang', '024-55667788', 'info@pn-semarang.go.id'),
+('PN-YGY', 'Pengadilan Negeri Yogyakarta', 'Jl. Abubakar Ali, Yogyakarta', '0274-44556677', 'info@pn-yogyakarta.go.id');
+
+-- 3. Tambahkan kolom pengadilan_id ke tabel users (jika belum ada)
+ALTER TABLE `users` 
+ADD COLUMN `pengadilan_id` int(11) DEFAULT NULL AFTER `role`,
+ADD COLUMN `nip` varchar(50) DEFAULT NULL AFTER `pengadilan_id`,
+ADD COLUMN `jabatan` varchar(100) DEFAULT NULL AFTER `nip`,
+ADD KEY `pengadilan_id` (`pengadilan_id`),
+ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`pengadilan_id`) REFERENCES `pengadilan` (`id`) ON DELETE SET NULL;
+
+-- 4. Update user admin1 supaya punya pengadilan (opsional, untuk testing)
+UPDATE `users` SET `pengadilan_id` = 1, `nip` = '197012311998031001', `jabatan` = 'Administrator' WHERE `username` = 'admin1';
+
+===================================================================
+-- SAMPAI SINI --
+===================================================================
+
+6. Klik tombol "Go" atau "Kirim" untuk menjalankan
+
+7. Jika muncul error "Duplicate column name", itu normal. Artinya kolom sudah ada.
+   Yang penting tabel 'pengadilan' berhasil dibuat.
+
+8. Setelah selesai, coba login lagi di aplikasi
+
+===================================================================
+CARA CEK HASIL MIGRASI:
+===================================================================
+
+Jalankan query ini di tab SQL phpMyAdmin:
+
+SELECT u.username, u.nama, p.nama_pengadilan, p.kode_pengadilan 
+FROM users u 
+LEFT JOIN pengadilan p ON p.id = u.pengadilan_id 
+LIMIT 5;
+
+Jika tidak error dan muncul data, artinya migrasi berhasil!
+
+===================================================================

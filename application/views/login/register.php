@@ -51,7 +51,8 @@
             margin-bottom: 1.5rem;
         }
 
-        .form-control {
+        .form-control,
+        .form-select {
             border-radius: 12px;
             padding: 12px;
             font-size: 0.95rem;
@@ -128,30 +129,72 @@
             <hr>
             <p class="text-center text-muted">Daftar Akun Baru</p>
 
-            <?= form_open('auth/register') ?>
+            <?= form_open('auth_simple/process_register', ['id' => 'registerForm']) ?>
+
             <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input type="text" name="username" class="form-control" placeholder="Username" value="<?= set_value('username') ?>" required>
+                <label class="form-label">Username <span class="text-danger">*</span></label>
+                <input type="text" name="username" class="form-control" placeholder="Masukkan username" required maxlength="50" value="<?= set_value('username') ?>">
+                <small class="form-text text-muted">Username untuk login ke sistem</small>
             </div>
+
             <div class="mb-3">
-                <label class="form-label">Password</label>
+                <label class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" name="email" class="form-control" placeholder="Masukkan email" required maxlength="100" value="<?= set_value('email') ?>">
+                <small class="form-text text-muted">Email harus valid dan belum terdaftar</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Asal Pengadilan <span class="text-danger">*</span></label>
+                <select name="pengadilan_id" class="form-select" required>
+                    <option value="">-- Pilih Asal Pengadilan --</option>
+                    <?php if (isset($pengadilan_list) && !empty($pengadilan_list)): ?>
+                        <?php foreach ($pengadilan_list as $pengadilan): ?>
+                            <option value="<?= $pengadilan->id ?>" <?= set_select('pengadilan_id', $pengadilan->id) ?>>
+                                <?= $pengadilan->nama_pengadilan ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <option value="" disabled>Data pengadilan tidak tersedia</option>
+                    <?php endif; ?>
+                </select>
+                <small class="form-text text-muted">Pilih asal pengadilan tempat Anda bertugas</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password <span class="text-danger">*</span></label>
                 <div class="password-toggle">
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Password (min. 6 karakter)" required>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Password (min. 8 karakter)" required minlength="8">
                     <button type="button" class="password-toggle-btn" onclick="togglePassword('password')">
                         <i class="bi bi-eye"></i>
                     </button>
                 </div>
+                <div id="password-strength" class="mt-2"></div>
+                <small class="form-text text-muted">
+                    <strong>Password harus memenuhi kriteria:</strong><br>
+                    <span id="length-check" class="text-muted">❌ Minimal 8 karakter</span><br>
+                    <span id="upper-check" class="text-muted">❌ Minimal 1 huruf besar (A-Z)</span><br>
+                    <span id="lower-check" class="text-muted">❌ Minimal 1 huruf kecil (a-z)</span><br>
+                    <span id="number-check" class="text-muted">❌ Minimal 1 angka (0-9)</span><br>
+                    <span id="special-check" class="text-muted">❌ Minimal 1 karakter khusus (!@#$%^&*)</span>
+                </small>
             </div>
+
             <div class="mb-3">
-                <label class="form-label">Konfirmasi Password</label>
+                <label class="form-label">Konfirmasi Password <span class="text-danger">*</span></label>
                 <div class="password-toggle">
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Konfirmasi Password" required>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Ulangi password" required minlength="8">
                     <button type="button" class="password-toggle-btn" onclick="togglePassword('confirm_password')">
                         <i class="bi bi-eye"></i>
                     </button>
                 </div>
-            </div>
-            <button type="submit" class="btn btn-register">Daftar</button>
+                <small id="confirm-password-feedback" class="form-text text-muted">Konfirmasi password harus sama</small>
+            </div> <button type="submit" class="btn btn-register" id="register-btn">
+                <span id="register-text">Daftar</span>
+                <span id="register-spinner" class="d-none">
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Memproses...
+                </span>
+            </button>
             <?= form_close() ?>
 
             <div class="mt-3 text-center">
@@ -176,7 +219,140 @@
             }
         }
 
+        // Validasi password real-time
+        function validatePassword(password) {
+            const lengthCheck = password.length >= 8;
+            const upperCheck = /[A-Z]/.test(password);
+            const lowerCheck = /[a-z]/.test(password);
+            const numberCheck = /[0-9]/.test(password);
+            const specialCheck = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+            // Update UI untuk setiap kriteria
+            document.getElementById('length-check').className = lengthCheck ? 'text-success' : 'text-danger';
+            document.getElementById('length-check').innerHTML = (lengthCheck ? '✅' : '❌') + ' Minimal 8 karakter';
+
+            document.getElementById('upper-check').className = upperCheck ? 'text-success' : 'text-danger';
+            document.getElementById('upper-check').innerHTML = (upperCheck ? '✅' : '❌') + ' Minimal 1 huruf besar (A-Z)';
+
+            document.getElementById('lower-check').className = lowerCheck ? 'text-success' : 'text-danger';
+            document.getElementById('lower-check').innerHTML = (lowerCheck ? '✅' : '❌') + ' Minimal 1 huruf kecil (a-z)';
+
+            document.getElementById('number-check').className = numberCheck ? 'text-success' : 'text-danger';
+            document.getElementById('number-check').innerHTML = (numberCheck ? '✅' : '❌') + ' Minimal 1 angka (0-9)';
+
+            document.getElementById('special-check').className = specialCheck ? 'text-success' : 'text-danger';
+            document.getElementById('special-check').innerHTML = (specialCheck ? '✅' : '❌') + ' Minimal 1 karakter khusus (!@#$%^&*)';
+
+            // Password strength indicator
+            const strength = [lengthCheck, upperCheck, lowerCheck, numberCheck, specialCheck].filter(Boolean).length;
+            const strengthDiv = document.getElementById('password-strength');
+
+            if (strength === 0) {
+                strengthDiv.innerHTML = '';
+            } else if (strength <= 2) {
+                strengthDiv.innerHTML = '<div class="alert alert-danger py-1 px-2 small">Password Lemah</div>';
+            } else if (strength <= 4) {
+                strengthDiv.innerHTML = '<div class="alert alert-warning py-1 px-2 small">Password Sedang</div>';
+            } else {
+                strengthDiv.innerHTML = '<div class="alert alert-success py-1 px-2 small">Password Kuat</div>';
+            }
+
+            return lengthCheck && upperCheck && lowerCheck && numberCheck && specialCheck;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm_password');
+            const registerForm = document.getElementById('registerForm');
+            const registerBtn = document.getElementById('register-btn');
+            const registerText = document.getElementById('register-text');
+            const registerSpinner = document.getElementById('register-spinner');
+
+            // Validasi password saat user mengetik
+            passwordInput.addEventListener('input', function() {
+                validatePassword(this.value);
+            });
+
+            // Validasi konfirmasi password saat user mengetik
+            confirmPasswordInput.addEventListener('input', function() {
+                const password = passwordInput.value;
+                const confirmPassword = this.value;
+                const feedback = document.getElementById('confirm-password-feedback');
+
+                if (confirmPassword === '') {
+                    feedback.className = 'form-text text-muted';
+                    feedback.textContent = 'Konfirmasi password harus sama';
+                } else if (password === confirmPassword) {
+                    feedback.className = 'form-text text-success';
+                    feedback.textContent = '✅ Password cocok';
+                } else {
+                    feedback.className = 'form-text text-danger';
+                    feedback.textContent = '❌ Password tidak cocok';
+                }
+            });
+
+            // Prevent multiple form submissions
+            registerForm.addEventListener('submit', function(e) {
+                if (registerBtn.disabled) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Validate password strength
+                const password = passwordInput.value;
+                if (!validatePassword(password)) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Password Tidak Valid!',
+                        html: 'Password harus memenuhi semua kriteria:<br>' +
+                            '• Minimal 8 karakter<br>' +
+                            '• Minimal 1 huruf besar (A-Z)<br>' +
+                            '• Minimal 1 huruf kecil (a-z)<br>' +
+                            '• Minimal 1 angka (0-9)<br>' +
+                            '• Minimal 1 karakter khusus (!@#$%^&*)',
+                        confirmButtonColor: '#006400'
+                    });
+                    return false;
+                }
+
+                // Validate password match
+                const confirmPassword = confirmPasswordInput.value;
+                if (password !== confirmPassword) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Password Tidak Cocok!',
+                        text: 'Password dan konfirmasi password harus sama.',
+                        confirmButtonColor: '#006400'
+                    });
+                    return false;
+                }
+
+                // Disable button and show spinner
+                registerBtn.disabled = true;
+                registerText.classList.add('d-none');
+                registerSpinner.classList.remove('d-none');
+
+                // Re-enable after 10 seconds to prevent permanent lock
+                setTimeout(() => {
+                    registerBtn.disabled = false;
+                    registerText.classList.remove('d-none');
+                    registerSpinner.classList.add('d-none');
+                }, 10000);
+            });
+        });
+
         // SweetAlert notifications
+        <?php if (validation_errors()): ?>
+            Swal.fire({
+                icon: 'error',
+                title: 'Data Tidak Valid!',
+                html: '<?= str_replace(["\n", "\r"], "<br>", addslashes(validation_errors())) ?>',
+                confirmButtonColor: '#006400'
+            });
+        <?php endif; ?>
+
         <?php if (isset($error)): ?>
             Swal.fire({
                 icon: 'error',
@@ -186,11 +362,33 @@
             });
         <?php endif; ?>
 
-        <?php if (validation_errors()): ?>
+        <?php if ($this->session->flashdata('success')): ?>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '<?= addslashes($this->session->flashdata('success')) ?>',
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#28a745'
+            }).then(() => {
+                window.location.href = '<?= site_url('auth_simple/login') ?>';
+            });
+        <?php endif; ?>
+
+        <?php if ($this->session->flashdata('error')): ?>
             Swal.fire({
                 icon: 'error',
-                title: 'Validasi Gagal!',
-                html: '<?= addslashes(str_replace(array("\n", "\r"), '<br>', validation_errors())) ?>',
+                title: 'Gagal!',
+                text: '<?= addslashes($this->session->flashdata('error')) ?>',
+                confirmButtonColor: '#006400'
+            });
+        <?php endif; ?>
+
+        <?php if ($this->session->flashdata('info')): ?>
+            Swal.fire({
+                icon: 'info',
+                title: 'Informasi',
+                text: '<?= addslashes($this->session->flashdata('info')) ?>',
                 confirmButtonColor: '#006400'
             });
         <?php endif; ?>

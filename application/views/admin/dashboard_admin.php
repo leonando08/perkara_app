@@ -213,38 +213,54 @@
         .number-column {
             width: 60px !important;
             min-width: 60px !important;
+            max-width: 60px !important;
         }
 
         .date-column {
             width: 120px !important;
             min-width: 120px !important;
+            max-width: 120px !important;
         }
 
         .putusan-banding-column {
             width: 160px !important;
             min-width: 160px !important;
+            max-width: 160px !important;
         }
 
         .status-column {
             width: 100px !important;
             min-width: 100px !important;
+            max-width: 100px !important;
         }
 
         .action-column {
             width: 100px !important;
             min-width: 100px !important;
+            max-width: 100px !important;
         }
 
         .parent-column {
-            width: 150px !important;
-            min-width: 150px !important;
+            width: 120px !important;
+            min-width: 120px !important;
+            max-width: 120px !important;
+        }
+
+        .pengadilan-column {
+            width: 200px !important;
+            min-width: 200px !important;
+            max-width: 200px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
 
         .text-column {
             min-width: 180px !important;
-            white-space: normal !important;
-            word-wrap: break-word !important;
-            overflow-wrap: break-word !important;
+            max-width: 250px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
 
         .lama-column {
@@ -322,7 +338,7 @@
                     <thead>
                         <tr>
                             <th class="number-column text-center align-middle">No</th>
-                            <th class="text-column align-middle">Pengadilan</th>
+                            <th class="pengadilan-column align-middle">Pengadilan</th>
                             <th class="parent-column align-middle">Jenis Perkara</th>
                             <th class="text-column align-middle">Perkara Tk1</th>
                             <th class="text-column align-middle">Klasifikasi</th>
@@ -351,7 +367,7 @@
                             foreach ($perkaras as $row): ?>
                                 <tr>
                                     <td class="number-column"><?= $no++ ?></td>
-                                    <td class="text-column" title="<?= htmlspecialchars($row->asal_pengadilan) ?>">
+                                    <td class="pengadilan-column" title="<?= htmlspecialchars($row->asal_pengadilan) ?>">
                                         <?= htmlspecialchars($row->asal_pengadilan) ?>
                                     </td>
                                     <td class="parent-column" title="<?= $row->perkara ? htmlspecialchars($row->perkara) : '-' ?>">

@@ -1,0 +1,216 @@
+===============================================================
+SOLUSI DOCKER INTERNAL SERVER ERROR - PERKARA APP
+===============================================================
+
+DETECTED: Anda menggunakan Docker (bukan Laragon biasa)
+Evidence: Apache/2.4.65 (Debian) + Port 8080 + docker-compose.yml
+
+===============================================================
+MASALAH & SOLUSI:
+===============================================================
+
+❌ MASALAH: Config database salah untuk Docker
+✅ SOLUSI: Sudah diperbaiki ke Docker setup
+
+❌ MASALAH: Base URL tidak sesuai Docker port
+✅ SOLUSI: Sudah diubah ke http://localhost:8080/
+
+===============================================================
+LANGKAH MENGATASI - DOCKER SETUP:
+===============================================================
+
+STEP 1: START DOCKER CONTAINERS
+--------------------------------
+Buka Command Prompt/Terminal di folder project:
+
+cd c:\laragon\www\Perkara_app
+docker-compose up -d
+
+Tunggu sampai containers running (2-3 menit pertama kali)
+
+STEP 2: CHECK CONTAINER STATUS  
+------------------------------
+docker ps
+
+Output yang diharapkan:
+- perkara_app_web (port 8080:80)
+- perkara_app_db (port 3307:3306)
+
+STEP 3: ACCESS DOCKER DEBUG
+----------------------------
+Buka browser:
+http://localhost:8080/docker_debug.php
+
+Script akan OTOMATIS:
+✅ Test database connection Docker
+✅ Create tables & user pnbanjarbaru
+✅ Verify password hash
+✅ Show login credentials
+✅ Give direct login link
+
+STEP 4: LOGIN
+-------------
+Dari docker_debug.php, klik tombol "LOGIN NOW" atau akses:
+http://localhost:8080/index.php/auth/login
+
+Credentials:
+- Username: pnbanjarbaru
+- Password: banjarbaru123
+
+===============================================================
+KONFIGURASI DOCKER YANG SUDAH DIPERBAIKI:
+===============================================================
+
+✅ application/config/database.php:
+   - hostname: 'db' (Docker service name)
+   - username: 'perkara_user'
+   - password: 'perkara_pass'
+   - database: 'perkara_db'
+
+✅ application/config/config.php:
+   - base_url: 'http://localhost:8080/'
+
+✅ docker-compose.yml (sudah ada):
+   - Web service: port 8080:80
+   - DB service: port 3307:3306
+   - MySQL 8.0.30
+   - Volume mapping
+
+===============================================================
+TROUBLESHOOTING DOCKER:
+===============================================================
+
+ERROR: "Internal Server Error" masih muncul
+--------------------------------------------
+1. Restart containers:
+   docker-compose down
+   docker-compose up -d
+
+2. Check container logs:
+   docker-compose logs web
+   docker-compose logs db
+
+3. Wait for MySQL initialization (first time: 2-3 minutes)
+
+4. Access docker_debug.php lagi
+
+ERROR: "Cannot connect to database"
+-----------------------------------
+1. Check MySQL container:
+   docker-compose logs db
+
+2. Wait longer (MySQL needs time to initialize)
+
+3. Manual connect test:
+   mysql -h localhost -P 3307 -u perkara_user -pperkara_pass perkara_db
+
+ERROR: "Port 8080 already in use"
+---------------------------------
+1. Change port in docker-compose.yml:
+   ports:
+     - "8081:80"  # Ubah dari 8080 ke 8081
+
+2. Update config.php:
+   $config['base_url'] = 'http://localhost:8081/';
+
+3. Restart: docker-compose down && docker-compose up -d
+
+ERROR: "Container not found"
+----------------------------
+1. Build containers first:
+   docker-compose build
+
+2. Start:
+   docker-compose up -d
+
+===============================================================
+USEFUL DOCKER COMMANDS:
+===============================================================
+
+# Start containers (background)
+docker-compose up -d
+
+# Stop containers
+docker-compose down
+
+# Restart specific service
+docker-compose restart web
+docker-compose restart db
+
+# View logs
+docker-compose logs web
+docker-compose logs db
+docker-compose logs -f  # Follow logs
+
+# Check running containers
+docker ps
+
+# Access web container shell
+docker exec -it perkara_app_web bash
+
+# Access MySQL directly
+mysql -h localhost -P 3307 -u perkara_user -pperkara_pass perkara_db
+
+# Remove all containers & volumes (CAUTION: deletes data)
+docker-compose down -v
+
+# Rebuild containers
+docker-compose build --no-cache
+docker-compose up -d
+
+===============================================================
+QUICK ACCESS URLs (DOCKER):
+===============================================================
+
+✅ Docker Debug & Setup:
+   http://localhost:8080/docker_debug.php
+
+✅ Login Page:
+   http://localhost:8080/index.php/auth/login
+
+✅ Home Page:
+   http://localhost:8080/
+
+✅ phpMyAdmin (if available):
+   http://localhost:8080/phpmyadmin
+   
+✅ Direct MySQL Access:
+   Host: localhost
+   Port: 3307
+   User: perkara_user
+   Pass: perkara_pass
+   DB: perkara_db
+
+===============================================================
+EXPECTED DOCKER WORKFLOW:
+===============================================================
+
+1. ✅ Run: docker-compose up -d
+2. ✅ Wait 2-3 minutes (first time)
+3. ✅ Access: http://localhost:8080/docker_debug.php
+4. ✅ Click "LOGIN NOW" button
+5. ✅ Login dengan pnbanjarbaru / banjarbaru123
+
+===============================================================
+FILES UPDATED FOR DOCKER:
+===============================================================
+
+✅ application/config/database.php (Docker MySQL)
+✅ application/config/config.php (Port 8080)
+✅ docker_debug.php (Docker-specific debug)
+✅ Existing: docker-compose.yml, Dockerfile
+
+===============================================================
+NEXT ACTION:
+===============================================================
+
+RUN THESE COMMANDS:
+
+1. cd c:\laragon\www\Perkara_app
+2. docker-compose up -d
+3. Wait 2-3 minutes
+4. Open: http://localhost:8080/docker_debug.php
+
+The docker_debug.php script will handle everything else automatically!
+
+===============================================================

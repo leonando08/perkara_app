@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Register - Quick Check</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 40px; background: #f8f9fa; }
+        .test-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="test-card">
+            <h2>🧪 Quick Test - Register Page</h2>
+            <hr>
+            
+            <div class="mb-4">
+                <h4>Test 1: Direct Access</h4>
+                <p>Klik tombol di bawah untuk membuka halaman register:</p>
+                <a href="http://localhost:8080/index.php/auth_simple/register" 
+                   class="btn btn-primary btn-lg" 
+                   target="_blank">
+                    📝 Buka Halaman Register
+                </a>
+            </div>
+
+            <div class="mb-4">
+                <h4>Test 2: Check Endpoint</h4>
+                <p>Status endpoint register:</p>
+                <div id="endpoint-status" class="p-3 bg-light rounded">
+                    <span class="spinner-border spinner-border-sm"></span> Checking...
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h4>Test 3: Check Database</h4>
+                <p>Data pengadilan di database:</p>
+                <div id="db-status" class="p-3 bg-light rounded">
+                    Silakan buka browser console (F12) dan cek apakah ada 13 data pengadilan
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="alert alert-info">
+                <h5>✅ Checklist:</h5>
+                <ul class="mb-0">
+                    <li>Link "Belum punya akun? Daftar" harus bisa diklik dan tidak redirect balik ke login</li>
+                    <li>Halaman register harus tampil dengan form lengkap</li>
+                    <li>Dropdown "Asal Pengadilan" harus menampilkan 13 pilihan PN</li>
+                    <li>Form registrasi harus bisa diisi dan disubmit</li>
+                </ul>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="http://localhost:8080" class="btn btn-outline-secondary">
+                    ← Kembali ke Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check endpoint status
+        fetch('/index.php/auth_simple/register', { method: 'HEAD' })
+            .then(response => {
+                const statusDiv = document.getElementById('endpoint-status');
+                if (response.ok) {
+                    statusDiv.innerHTML = '<span class="success">✅ Endpoint accessible (Status: ' + response.status + ')</span>';
+                } else {
+                    statusDiv.innerHTML = '<span class="error">❌ Endpoint returned status: ' + response.status + '</span>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('endpoint-status').innerHTML = 
+                    '<span class="error">❌ Error: ' + error.message + '</span>';
+            });
+
+        // Log test info
+        console.log('=== REGISTER PAGE TEST ===');
+        console.log('Test URL:', 'http://localhost:8080/index.php/auth_simple/register');
+        console.log('Expected: Halaman register dengan dropdown pengadilan');
+        console.log('Database should have: 13 pengadilan records');
+        console.log('========================');
+    </script>
+</body>
+</html>
