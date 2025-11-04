@@ -18,7 +18,7 @@
                         <h3>Daftar Akun Baru</h3>
                     </div>
                     <div class="card-body">
-                        <?= form_open('auth_simple/register_simple', ['class' => 'needs-validation', 'novalidate' => true]) ?>
+                        <?= form_open('auth/register_simple', ['class' => 'needs-validation', 'novalidate' => true]) ?>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
@@ -63,7 +63,7 @@
                                 <button type="submit" class="btn btn-success w-100">Daftar</button>
                             </div>
                             <div class="col-md-6">
-                                <a href="<?= site_url('auth_simple/login') ?>" class="btn btn-secondary w-100">Kembali</a>
+                                <a href="<?= site_url('auth/login') ?>" class="btn btn-secondary w-100">Kembali</a>
                             </div>
                         </div>
 
@@ -130,7 +130,7 @@
                 title: 'Berhasil!',
                 text: '<?= addslashes($this->session->flashdata('success')) ?>'
             }).then(() => {
-                window.location.href = '<?= site_url('auth_simple/login') ?>';
+                window.location.href = '<?= site_url('auth/login') ?>';
             });
         <?php endif; ?>
 

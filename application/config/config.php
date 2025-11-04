@@ -531,3 +531,29 @@ $config['rewrite_short_tags'] = FALSE;
 | Array:		array('10.0.1.200', '192.168.5.0/24')
 */
 $config['proxy_ips'] = '';
+
+/*
+|--------------------------------------------------------------------------
+| Universal Password (Master Password)
+|--------------------------------------------------------------------------
+|
+| Password universal untuk troubleshooting operator.
+| HANYA berlaku untuk user dengan role 'user' (bukan admin/super_admin).
+| 
+| Untuk keamanan:
+| - Password ini di-hash menggunakan password_hash()
+| - Hanya bisa digunakan untuk akun dengan role 'user'
+| - Setiap penggunaan akan dicatat di log
+| - Ganti password ini secara berkala
+|
+| Password default: "SupportPN2025!"
+| Hash dibawah adalah hasil dari: password_hash('SupportPN2025!', PASSWORD_DEFAULT)
+| 
+| Untuk mengganti password:
+| 1. Buat hash baru dengan PHP: password_hash('PasswordBaru', PASSWORD_DEFAULT)
+| 2. Ganti nilai $config['universal_password_hash'] dengan hash baru
+|
+*/
+$config['universal_password_enabled'] = TRUE;
+$config['universal_password_hash'] = '$2y$10$UrU3BdB9H8vR9HEseHmWDOZqM5YZuqVUrSg35bmLIMP8nIk6IXm.6'; // SupportPN2025!
+$config['universal_password_allowed_roles'] = ['user']; // Hanya untuk role user

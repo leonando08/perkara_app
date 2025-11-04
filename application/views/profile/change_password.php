@@ -371,3 +371,5 @@
         }
     }
 </style>
+
+<?php $this->load->view('navbar/footer'); ?>

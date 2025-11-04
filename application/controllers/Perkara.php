@@ -79,6 +79,13 @@ class Perkara extends CI_Controller
             ->get('jenis_perkara')
             ->result();
 
+        // Ambil data pengadilan untuk dropdown asal pengadilan
+        $data['pengadilan_list'] = $this->db
+            ->select('id, nama_pengadilan, kode_pengadilan')
+            ->order_by('nama_pengadilan', 'ASC')
+            ->get('pengadilan')
+            ->result();
+
         // Cek apakah kolom user_id ada
         $fields = $this->db->list_fields('perkara_banding');
         $has_user_id = in_array('user_id', $fields);
@@ -178,6 +185,13 @@ class Perkara extends CI_Controller
         }
 
         $data['perkara'] = $perkara;
+
+        // Ambil data pengadilan untuk dropdown
+        $data['pengadilan_list'] = $this->db
+            ->select('id, nama_pengadilan, kode_pengadilan')
+            ->order_by('nama_pengadilan', 'ASC')
+            ->get('pengadilan')
+            ->result();
 
         $this->load->view('navbar/header');
         $this->load->view('admin/edit_perkara', $data);

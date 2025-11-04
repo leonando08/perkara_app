@@ -151,7 +151,7 @@
             <hr>
             <p class="text-center text-muted">Sistem Informasi Perkara</p>
 
-            <?= form_open('auth_simple/register', ['id' => 'registerForm']) ?>
+            <?= form_open('auth/register', ['id' => 'registerForm']) ?>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -227,7 +227,7 @@
                     </button>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <a href="<?= site_url('auth_simple/login') ?>" class="btn btn-back">
+                    <a href="<?= site_url('auth/login') ?>" class="btn btn-back">
                         <i class="bi bi-arrow-left"></i> Kembali ke Login
                     </a>
                 </div>
@@ -235,7 +235,7 @@
             <?= form_close() ?>
 
             <div class="mt-3 text-center">
-                <small class="text-muted">Sudah punya akun? <a href="<?= site_url('auth_simple/login') ?>" class="text-decoration-none">Login disini</a></small>
+                <small class="text-muted">Sudah punya akun? <a href="<?= site_url('auth/login') ?>" class="text-decoration-none">Login disini</a></small>
             </div>
         </div>
         <div class="col-md-5 register-right">
@@ -330,7 +330,7 @@
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#28a745'
             }).then(() => {
-                window.location.href = '<?= site_url('auth_simple/login') ?>';
+                window.location.href = '<?= site_url('auth/login') ?>';
             });
         <?php endif; ?>
 

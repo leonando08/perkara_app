@@ -52,9 +52,20 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Asal Pengadilan<span class="text-danger">*</span></label>
-                        <input type="text" name="asal_pengadilan" class="form-control" required
-                            value="<?= htmlspecialchars($perkara->asal_pengadilan) ?>">
-                        <div class="invalid-feedback">Asal pengadilan harus diisi</div>
+                        <select name="asal_pengadilan" class="form-select" required>
+                            <option value="">-- Pilih Asal Pengadilan --</option>
+                            <?php if (isset($pengadilan_list) && !empty($pengadilan_list)): ?>
+                                <?php foreach ($pengadilan_list as $pengadilan): ?>
+                                    <option value="<?= htmlspecialchars($pengadilan->nama_pengadilan) ?>"
+                                        <?= ($perkara->asal_pengadilan == $pengadilan->nama_pengadilan) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($pengadilan->nama_pengadilan) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="">Data pengadilan tidak tersedia</option>
+                            <?php endif; ?>
+                        </select>
+                        <div class="invalid-feedback">Asal pengadilan harus dipilih</div>
                     </div>
 
                     <div class="col-md-6">
@@ -115,8 +126,22 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Status Perkara Tk Banding</label>
-                        <input type="text" name="status_perkara_tk_banding" class="form-control"
+                        <?php
+                        // Extract date dari text jika ada format "Putusan Banding PT tanggal : DD-MM-YYYY"
+                        $existing_date = '';
+                        if (!empty($perkara->status_perkara_tk_banding)) {
+                            if (preg_match('/\d{2}-\d{2}-\d{4}/', $perkara->status_perkara_tk_banding, $matches)) {
+                                // Convert DD-MM-YYYY ke YYYY-MM-DD untuk input date
+                                $parts = explode('-', $matches[0]);
+                                $existing_date = $parts[2] . '-' . $parts[1] . '-' . $parts[0];
+                            }
+                        }
+                        ?>
+                        <input type="date" name="status_perkara_tk_banding_date" id="status_perkara_tk_banding_date_user" class="form-control"
+                            value="<?= $existing_date ?>">
+                        <input type="hidden" name="status_perkara_tk_banding" id="status_perkara_tk_banding_user"
                             value="<?= htmlspecialchars($perkara->status_perkara_tk_banding) ?>">
+                        <small class="form-text text-muted">Format otomatis: Putusan Banding PT tanggal : [tanggal yang Anda pilih]</small>
                     </div>
 
                     <div class="col-md-6">
@@ -186,6 +211,31 @@
             alertBox.classList.add('hide');
         }
     }, 3000);
+
+    // Auto format Status Perkara Tk Banding dengan tanggal (untuk user edit)
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('status_perkara_tk_banding_date_user');
+        const hiddenInput = document.getElementById('status_perkara_tk_banding_user');
+
+        if (dateInput && hiddenInput) {
+            dateInput.addEventListener('change', function() {
+                if (this.value) {
+                    // Format tanggal dari YYYY-MM-DD ke DD-MM-YYYY
+                    const date = new Date(this.value);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+                    const formattedDate = `${day}-${month}-${year}`;
+
+                    // Set nilai dengan format otomatis
+                    hiddenInput.value = `Putusan Banding PT tanggal : ${formattedDate}`;
+                    console.log('Status Perkara Tk Banding:', hiddenInput.value);
+                } else {
+                    hiddenInput.value = '';
+                }
+            });
+        }
+    });
 </script>
 
 <?php $this->load->view('navbar/footer'); ?>

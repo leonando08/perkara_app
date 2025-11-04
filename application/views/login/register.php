@@ -129,7 +129,7 @@
             <hr>
             <p class="text-center text-muted">Daftar Akun Baru</p>
 
-            <?= form_open('auth_simple/process_register', ['id' => 'registerForm']) ?>
+            <?= form_open('auth/process_register', ['id' => 'registerForm']) ?>
 
             <div class="mb-3">
                 <label class="form-label">Username <span class="text-danger">*</span></label>
@@ -371,7 +371,7 @@
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#28a745'
             }).then(() => {
-                window.location.href = '<?= site_url('auth_simple/login') ?>';
+                window.location.href = '<?= site_url('auth/login') ?>';
             });
         <?php endif; ?>
 
