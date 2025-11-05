@@ -43,26 +43,41 @@
             .footer {
                 background-color: #ffffff;
                 border-top: 1px solid rgba(0, 0, 0, 0.1);
-                padding: 0.5rem 0;
+                padding: 0.75rem 1.5rem;
                 position: fixed;
                 bottom: 0;
-                left: 160px;
+                left: 280px;
+                /* Match sidebar width from global-layout.css */
                 right: 0;
-                width: calc(100% - 160px);
+                width: calc(100% - 280px);
                 z-index: 1000;
                 display: flex;
                 justify-content: flex-end;
                 align-items: center;
+                box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
             }
 
-            /* Main content padding handled by global-layout.css */
+            .footer small {
+                color: #6c757d;
+                font-weight: 500;
+            }
 
+            /* Tablet responsiveness (769px - 1024px) */
+            @media (min-width: 769px) and (max-width: 1024px) {
+                .footer {
+                    left: 240px;
+                    /* Match tablet sidebar width */
+                    width: calc(100% - 240px);
+                }
+            }
+
+            /* Mobile responsiveness (≤ 768px) */
             @media (max-width: 768px) {
                 .footer {
                     left: 0;
                     width: 100%;
                     font-size: 0.8rem;
-                    padding: 0.5rem 0;
+                    padding: 0.75rem 1rem;
                     justify-content: center;
                 }
             }

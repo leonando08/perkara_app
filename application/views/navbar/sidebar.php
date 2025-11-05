@@ -6,8 +6,8 @@ $role = $this->session->userdata('role');
 $current_url = current_url();
 ?>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
+<!-- Sidebar - no-transition class akan di-remove setelah restore selesai -->
+<div class="sidebar no-transition" id="sidebar">
     <div class="sidebar-header mb-3">
         <h6 class="sidebar-title">
             <i class="fas fa-th-list me-2"></i>Menu Utama
@@ -118,9 +118,11 @@ $current_url = current_url();
         box-shadow: 1px 0 5px rgba(0, 0, 0, 0.05);
         overflow-y: auto;
         overflow-x: hidden;
-        transition: all 0.3s ease;
+        transition: all 0.15s ease;
         z-index: 1040;
         border-right: 1px solid #e5e7eb;
+        /* PENTING: Prevent smooth scroll behavior yang menyebabkan "jump" effect */
+        scroll-behavior: auto !important;
     }
 
     .sidebar-header {
@@ -138,6 +140,21 @@ $current_url = current_url();
         margin: 0;
     }
 
+    .current-page-indicator {
+        background: linear-gradient(135deg, #e8f5e9, #f1f8f4);
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        border-left: 3px solid #006400;
+        box-shadow: 0 1px 3px rgba(0, 100, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .current-page-indicator small {
+        font-size: 0.75rem;
+    }
+
+    /* Removed bounce animation for better performance */
+
     .sidebar .nav-item {
         margin-bottom: 0.5rem;
     }
@@ -148,7 +165,7 @@ $current_url = current_url();
         font-size: 0.875rem;
         padding: 0.675rem 1rem;
         border-radius: 0.5rem;
-        transition: all 0.2s ease;
+        transition: all 0.1s ease;
         position: relative;
         display: flex;
         align-items: center;
@@ -164,7 +181,7 @@ $current_url = current_url();
         width: 1.25rem;
         text-align: center;
         color: #718096;
-        transition: color 0.2s ease;
+        transition: color 0.1s ease;
         flex-shrink: 0;
     }
 
@@ -179,45 +196,68 @@ $current_url = current_url();
         color: #006400;
     }
 
-    /* Active state untuk submenu dengan efek visual yang jelas */
+    /* Active state untuk submenu - elegant dan clean */
     .sidebar .submenu-link.active {
-        background: linear-gradient(135deg, #006400, #004d00);
+        background: linear-gradient(135deg, #006400, #008000);
         color: #ffffff !important;
         position: relative;
         font-weight: 600;
-        box-shadow: 0 2px 4px rgba(0, 100, 0, 0.2);
+        box-shadow: 0 2px 6px rgba(0, 100, 0, 0.25);
+        border-left: 3px solid #28a745;
+        transform: translateX(2px);
     }
 
     .sidebar .submenu-link.active::before {
         content: '';
         position: absolute;
         left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 70%;
-        background: #00ff00;
-        border-radius: 0 2px 2px 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #00ff00, #28a745);
+        box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
     }
 
     .sidebar .submenu-link.active i {
         color: #ffffff !important;
     }
 
-    /* Parent menu active state */
+    /* Active menu hover - smooth transition */
+    .sidebar .submenu-link.active:hover {
+        background: linear-gradient(135deg, #007a00, #009600);
+        transform: translateX(4px);
+        box-shadow: 0 3px 10px rgba(0, 100, 0, 0.35);
+    }
+
+    /* Parent menu active state - subtle and elegant */
     .sidebar .menu-toggle.parent-active {
         background: #f0fdf4;
         color: #006400;
         font-weight: 600;
-        border-left: 3px solid #006400;
+        border-left: 3px solid #28a745;
     }
 
     .sidebar .menu-toggle.parent-active i {
         color: #006400;
     }
 
+    .sidebar .menu-toggle.parent-active .fa-chevron-down {
+        color: #006400;
+    }
+
     .sidebar .collapse {
         padding: 0.5rem 0;
+        /* Override Bootstrap default collapse animation */
+        transition: height 0.2s ease !important;
+    }
+
+    /* CRITICAL: Completely disable transitions on initial page load */
+    .sidebar.no-transition,
+    .sidebar.no-transition * {
+        transition: none !important;
+        -webkit-transition: none !important;
+        animation: none !important;
+        -webkit-animation: none !important;
     }
 
     .sidebar .collapse .nav-link {
@@ -227,7 +267,7 @@ $current_url = current_url();
     }
 
     .sidebar .fa-chevron-down {
-        transition: transform 0.2s ease;
+        transition: transform 0.15s ease;
         font-size: 0.75rem;
         opacity: 0.75;
         flex-shrink: 0;
@@ -237,9 +277,9 @@ $current_url = current_url();
         transform: rotate(180deg);
     }
 
-    /* Highlight efek saat klik */
+    /* Highlight efek saat klik - faster */
     .sidebar .submenu-link.clicked {
-        animation: clickPulse 0.3s ease;
+        animation: clickPulse 0.15s ease;
     }
 
     @keyframes clickPulse {
@@ -249,7 +289,6 @@ $current_url = current_url();
 
         50% {
             transform: scale(0.98);
-            background: #e0f2e0;
         }
 
         100% {
@@ -268,7 +307,7 @@ $current_url = current_url();
         background: rgba(0, 0, 0, 0.5);
         z-index: 1035;
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.15s ease;
     }
 
     /* Content adjustment - Layout now handled by global-layout.css */
@@ -371,11 +410,11 @@ $current_url = current_url();
 
     /* Ensure collapse animation is smooth and doesn't duplicate */
     .collapse {
-        transition: height 0.35s ease;
+        transition: height 0.2s ease;
     }
 
     .collapsing {
-        transition: height 0.35s ease;
+        transition: height 0.2s ease;
     }
 
     /* Prevent menu flickering */
@@ -385,7 +424,7 @@ $current_url = current_url();
 
     /* Smooth transition for menu states */
     .menu-toggle[aria-expanded="true"] {
-        transition: all 0.2s ease;
+        transition: all 0.15s ease;
     }
 </style>
 
@@ -421,12 +460,11 @@ $current_url = current_url();
             });
         });
 
-        // Prevent menu toggle dari navigasi dan handle collapse manually
+        // Handle menu toggle - single click untuk expand/collapse
         const menuToggles = document.querySelectorAll('.menu-toggle');
         menuToggles.forEach(toggle => {
             toggle.addEventListener('click', function(e) {
                 e.preventDefault();
-                e.stopPropagation();
 
                 const target = this.getAttribute('data-bs-target');
                 const collapse = document.querySelector(target);
@@ -482,36 +520,63 @@ $current_url = current_url();
                     matchScore = 100;
                     isMatch = true;
                 }
-                // Check for specific patterns with high scores
-                else if (cleanCurrentPath.includes('/laporan/laporan_data') && cleanLinkPath.includes('/laporan/laporan_data')) {
-                    matchScore = 90;
+                // Dashboard & Perkara patterns - Prioritas tertinggi untuk edit/tambah
+                else if (cleanCurrentPath.includes('/admin/edit_perkara') && cleanLinkPath.includes('/admin/dashboard_admin')) {
+                    matchScore = 95;
                     isMatch = true;
-                } else if (cleanCurrentPath.includes('/laporan/rekap') && cleanLinkPath.includes('/laporan/rekap')) {
-                    matchScore = 90;
-                    isMatch = true;
-                } else if (cleanCurrentPath.includes('/laporan') && cleanLinkPath.includes('/laporan') &&
-                    !cleanCurrentPath.includes('/laporan_data') && !cleanCurrentPath.includes('/rekap') &&
-                    !cleanLinkPath.includes('/laporan_data') && !cleanLinkPath.includes('/rekap')) {
-                    matchScore = 85;
-                    isMatch = true;
-                }
-                // Dashboard patterns
-                else if (cleanCurrentPath.includes('/admin/dashboard_admin') && cleanLinkPath.includes('/admin/dashboard_admin')) {
-                    matchScore = 90;
-                    isMatch = true;
-                } else if (cleanCurrentPath.includes('/user/dashboard_user') && cleanLinkPath.includes('/user/dashboard_user')) {
-                    matchScore = 90;
+                } else if (cleanCurrentPath.includes('/user/edit') && cleanLinkPath.includes('/user/dashboard_user')) {
+                    matchScore = 95;
                     isMatch = true;
                 } else if (cleanCurrentPath.includes('/perkara/tambah') && cleanLinkPath.includes('/perkara/tambah')) {
+                    matchScore = 100;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/admin/dashboard_admin') && cleanLinkPath.includes('/admin/dashboard_admin')) {
+                    matchScore = 100;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/user/dashboard_user') && cleanLinkPath.includes('/user/dashboard_user')) {
+                    matchScore = 100;
+                    isMatch = true;
+                }
+                // Laporan patterns - PENTING: Check yang lebih spesifik DULU!
+                // rekapitulasi_bulanan harus dicek SEBELUM rekap
+                else if (cleanCurrentPath.includes('/laporan/rekapitulasi_bulanan') && cleanLinkPath.includes('/laporan/rekapitulasi_bulanan')) {
+                    matchScore = 100;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/laporan/laporan_putus_tepat_waktu') && cleanLinkPath.includes('/laporan/laporan_putus_tepat_waktu')) {
+                    matchScore = 100;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/laporan/laporan_data') && cleanLinkPath.includes('/laporan/laporan_data')) {
+                    matchScore = 100;
+                    isMatch = true;
+                }
+                // CRITICAL: Exact match untuk /laporan/rekap (bukan rekapitulasi)
+                // Pastikan tidak match dengan rekapitulasi_bulanan
+                else if (cleanCurrentPath.includes('/laporan/rekap') && cleanLinkPath.includes('/laporan/rekap') &&
+                    !cleanCurrentPath.includes('rekapitulasi') && !cleanLinkPath.includes('rekapitulasi')) {
+                    matchScore = 100;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/laporan/cetak') && cleanLinkPath.includes('/laporan/index')) {
+                    matchScore = 95;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/laporan') && cleanLinkPath.includes('/laporan') &&
+                    cleanCurrentPath.split('/').length === cleanLinkPath.split('/').length) {
                     matchScore = 90;
                     isMatch = true;
                 }
                 // User management patterns
-                else if (cleanCurrentPath.includes('/admin/kelola_user') && cleanLinkPath.includes('/admin/kelola_user')) {
-                    matchScore = 90;
+                else if (cleanCurrentPath.includes('/admin/edit_user') && cleanLinkPath.includes('/admin/kelola_user')) {
+                    matchScore = 95;
+                    isMatch = true;
+                } else if (cleanCurrentPath.includes('/admin/kelola_user') && cleanLinkPath.includes('/admin/kelola_user')) {
+                    matchScore = 100;
                     isMatch = true;
                 } else if (cleanCurrentPath.includes('/admin/tambah_user') && cleanLinkPath.includes('/admin/tambah_user')) {
-                    matchScore = 90;
+                    matchScore = 100;
+                    isMatch = true;
+                }
+                // Profile patterns
+                else if (cleanCurrentPath.includes('/profile') && cleanLinkPath.includes('/profile')) {
+                    matchScore = 100;
                     isMatch = true;
                 }
 
@@ -526,6 +591,11 @@ $current_url = current_url();
         // Apply active state only to the best matching link
         if (activeLink) {
             activeLink.classList.add('active');
+
+            // Add tooltip to indicate current page
+            activeLink.setAttribute('title', 'Anda sedang di halaman ini');
+            activeLink.setAttribute('data-bs-toggle', 'tooltip');
+            activeLink.setAttribute('data-bs-placement', 'right');
 
             // Find and expand parent collapse
             const parentCollapse = activeLink.closest('.collapse');
@@ -542,94 +612,137 @@ $current_url = current_url();
                     parentToggle.setAttribute('aria-expanded', 'true');
                 }
             }
+
+            // JANGAN auto-scroll ke active link - biarkan posisi tersimpan yang digunakan
+            // Ini mencegah "jump" effect yang mengganggu
+            // User sudah tahu posisinya dari sebelumnya, tidak perlu di-scroll ulang
         }
 
-        // Handle submenu link clicks - ensure only one is active at a time
+        // Initialize Bootstrap tooltips for active menu
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Show current page indicator at top of sidebar
+        if (activeLink) {
+            const currentPageIndicator = document.getElementById('currentPageIndicator');
+            const currentPageText = document.getElementById('currentPageText');
+            const menuText = activeLink.textContent.trim();
+
+            if (currentPageIndicator && currentPageText) {
+                currentPageText.textContent = menuText;
+                currentPageIndicator.style.display = 'block';
+                currentPageIndicator.style.transition = 'all 0.3s ease';
+                currentPageIndicator.style.opacity = '1';
+                currentPageIndicator.style.transform = 'translateY(0)';
+            }
+        }
+
+        // Handle submenu link clicks - instant response
         submenuLinks.forEach(link => {
             link.addEventListener('click', function(e) {
-                // Stop event bubbling untuk mencegah efek ganda
-                e.stopPropagation();
+                // Add visual feedback
+                this.classList.add('clicked');
 
-                // Remove active class from ALL submenu links first
-                document.querySelectorAll('.submenu-link').forEach(otherLink => {
-                    otherLink.classList.remove('active');
-                });
-
-                // Remove parent-active from all toggles
-                document.querySelectorAll('.menu-toggle').forEach(toggle => {
-                    toggle.classList.remove('parent-active');
-                });
-
-                // Add active class to clicked link
-                this.classList.add('active', 'clicked');
-
-                // Mark parent as active
-                const parentCollapse = this.closest('.collapse');
-                if (parentCollapse) {
-                    const parentToggle = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
-                    if (parentToggle) {
-                        parentToggle.classList.add('parent-active');
-                        parentToggle.setAttribute('aria-expanded', 'true');
-                    }
-                }
-
-                // Remove clicked animation class after animation completes
-                setTimeout(() => {
-                    this.classList.remove('clicked');
-                }, 300);
-
-                // Pada mobile, tutup sidebar setelah delay singkat untuk menampilkan animasi
+                // Pada mobile, tutup sidebar langsung
                 if (window.innerWidth <= 768) {
-                    setTimeout(() => {
-                        sidebar.classList.remove('show');
-                        sidebarOverlay.classList.remove('show');
-                        document.body.classList.remove('sidebar-open');
-                    }, 500);
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.classList.remove('sidebar-open');
                 }
-
-                // Allow normal navigation
-                return true;
             });
         });
 
-        // Save and restore menu state menggunakan sessionStorage
+        // Save and restore menu state + scroll position menggunakan sessionStorage
         const saveMenuState = () => {
             const openMenus = [];
             document.querySelectorAll('.collapse.show').forEach(collapse => {
                 openMenus.push(collapse.id);
             });
             sessionStorage.setItem('openMenus', JSON.stringify(openMenus));
+
+            // Save scroll position
+            const sidebarMenu = document.querySelector('.sidebar-menu');
+            if (sidebarMenu) {
+                sessionStorage.setItem('sidebarScrollPos', sidebarMenu.scrollTop);
+            }
         };
 
         const restoreMenuState = () => {
+            const sidebar = document.getElementById('sidebar');
+
             try {
                 const openMenus = JSON.parse(sessionStorage.getItem('openMenus') || '[]');
+                const scrollPos = sessionStorage.getItem('sidebarScrollPos');
+
+                // 1. Expand menu LANGSUNG tanpa animasi (masih ada class no-transition)
                 openMenus.forEach(menuId => {
                     const collapse = document.getElementById(menuId);
                     if (collapse) {
-                        const bsCollapse = bootstrap.Collapse.getInstance(collapse) || new bootstrap.Collapse(collapse, {
-                            toggle: false
-                        });
-                        bsCollapse.show();
+                        collapse.classList.add('show');
 
                         const toggle = document.querySelector(`[data-bs-target="#${menuId}"]`);
                         if (toggle) {
+                            toggle.classList.remove('collapsed');
                             toggle.setAttribute('aria-expanded', 'true');
                         }
                     }
                 });
+
+                // 2. Set scroll position LANGSUNG (synchronous)
+                if (scrollPos !== null && sidebar) {
+                    sidebar.scrollTop = parseInt(scrollPos);
+                }
+
             } catch (e) {
                 console.error('Error restoring menu state:', e);
             }
+
+            // 3. Remove no-transition class setelah DOM fully loaded
+            // Ini akan re-enable smooth transitions untuk interaksi user
+            if (sidebar) {
+                // Double RAF untuk ensure rendering selesai
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        sidebar.classList.remove('no-transition');
+                    });
+                });
+            }
         };
 
-        // Restore menu state on page load
+        // CRITICAL: Run IMMEDIATELY - sebelum browser render
         restoreMenuState();
 
         // Save menu state when collapse changes
         collapseElements.forEach(el => {
             el.addEventListener('shown.bs.collapse', saveMenuState);
             el.addEventListener('hidden.bs.collapse', saveMenuState);
+        });
+
+        // Save scroll position on scroll
+        const sidebarMenu = document.querySelector('.sidebar-menu');
+        if (sidebarMenu) {
+            let scrollTimeout;
+            sidebarMenu.addEventListener('scroll', function() {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    sessionStorage.setItem('sidebarScrollPos', this.scrollTop);
+                }, 100); // Debounce untuk performa
+            });
+        }
+
+        // Save state before navigation - ensure state is saved
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Simpan state IMMEDIATELY sebelum navigasi
+                saveMenuState();
+            });
+        });
+
+        // Backup: Save state sebelum page unload
+        window.addEventListener('beforeunload', function() {
+            saveMenuState();
         });
 
         // Handle window resize
@@ -672,10 +785,8 @@ $current_url = current_url();
                             }
                         });
 
-                        // Redirect to logout
-                        setTimeout(() => {
-                            window.location.href = '<?= site_url('auth/logout'); ?>';
-                        }, 500);
+                        // Redirect to logout - instant
+                        window.location.href = '<?= site_url('auth/logout'); ?>';
                     }
                 });
             });
