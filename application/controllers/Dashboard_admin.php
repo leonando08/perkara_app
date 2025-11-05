@@ -5,6 +5,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @property CI_Input $input
  * @property CI_DB_query_builder $db
  * @property User_model $User_model
+ * @property Perkara_model $Perkara_model
  */
 class Dashboard_admin extends CI_Controller
 {
@@ -14,6 +15,7 @@ class Dashboard_admin extends CI_Controller
         $this->load->database();
         $this->load->library('session');
         $this->load->helper('url');
+        $this->load->model('Perkara_model');
 
         // Proteksi halaman hanya untuk admin
         if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
@@ -26,24 +28,20 @@ class Dashboard_admin extends CI_Controller
         // Data user
         $data['username'] = $this->session->userdata('username');
 
-        // Notifikasi permohonan kasasi besok
-        $besok = date('Y-m-d', strtotime('+1 day'));
-        $data['notif'] = $this->db
-            ->where('permohonan_kasasi', $besok)
-            ->where('status', 'Proses')
-            ->get('perkara_banding')
-            ->num_rows();
+        // Notifikasi permohonan kasasi besok (menggunakan model)
+        $data['notif'] = $this->Perkara_model->count_besok();
 
-        // Notifikasi terlambat
-        $hariIni = date('Y-m-d');
-        $data['terlambat'] = $this->db
-            ->where('permohonan_kasasi <', $hariIni)
-            ->where('status', 'Proses')
-            ->get('perkara_banding')
-            ->num_rows();
+        // Notifikasi terlambat (menggunakan model)
+        $data['terlambat'] = $this->Perkara_model->count_terlambat();
 
-        // Ambil semua data perkara
-        $data['perkaras'] = $this->db->order_by('id', 'ASC')->get('perkara_banding')->result_array();
+        // Ambil data perkara dengan filter (menggunakan model yang sudah ada filter pengadilan)
+        $filters = [
+            'perkara' => $this->input->get('perkara'),
+            'asal_pengadilan' => $this->input->get('cari_pengadilan'),
+            'status' => $this->input->get('status')
+        ];
+
+        $data['perkaras'] = $this->Perkara_model->get_filtered($filters);
 
         $this->load->view('admin/dashboard_admin', $data);
     }

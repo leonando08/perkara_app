@@ -13,6 +13,26 @@ class Perkara_model extends CI_Model
     public function __construct()
     {
         parent::__construct();
+        $this->load->library('session');
+    }
+
+    /**
+     * Helper method untuk menambahkan filter pengadilan secara otomatis
+     * Dipanggil oleh semua method query untuk isolasi data per pengadilan
+     */
+    private function apply_pengadilan_filter()
+    {
+        // Super admin bisa melihat semua data
+        if ($this->session->userdata('role') === 'super_admin') {
+            return;
+        }
+
+        // User biasa dan admin hanya bisa melihat data pengadilan mereka
+        $nama_pengadilan = $this->session->userdata('nama_pengadilan');
+        if ($nama_pengadilan) {
+            // Filter berdasarkan asal_pengadilan (bukan 'pengadilan')
+            $this->db->where('pb.asal_pengadilan', $nama_pengadilan);
+        }
     }
 
     // ======================
@@ -20,8 +40,7 @@ class Perkara_model extends CI_Model
     // ======================
     public function get_all()
     {
-        return $this->db
-            ->select('
+        $this->db->select('
                 pb.id,
                 pb.asal_pengadilan,
                 pb.perkara,
@@ -36,8 +55,12 @@ class Perkara_model extends CI_Model
                 pb.pengiriman_berkas_kasasi,
                 pb.status
             ')
-            ->from($this->table . ' pb')
-            ->order_by('pb.id', 'ASC')
+            ->from($this->table . ' pb');
+
+        // Apply filter pengadilan untuk isolasi data
+        $this->apply_pengadilan_filter();
+
+        return $this->db->order_by('pb.id', 'ASC')
             ->get()
             ->result();
     }
@@ -47,8 +70,7 @@ class Perkara_model extends CI_Model
     // ======================
     public function getById($id)
     {
-        return $this->db
-            ->select('
+        $this->db->select('
                 pb.id,
                 pb.asal_pengadilan,
                 pb.perkara,
@@ -64,9 +86,12 @@ class Perkara_model extends CI_Model
                 pb.status
             ')
             ->from($this->table . ' pb')
-            ->where('pb.id', $id)
-            ->get()
-            ->row();
+            ->where('pb.id', $id);
+
+        // Apply filter pengadilan untuk isolasi data
+        $this->apply_pengadilan_filter();
+
+        return $this->db->get()->row();
     }
 
     // ======================
@@ -90,6 +115,9 @@ class Perkara_model extends CI_Model
             pb.status
         ');
         $this->db->from($this->table . ' pb');
+
+        // Apply filter pengadilan untuk isolasi data
+        $this->apply_pengadilan_filter();
 
         if (!empty($filters['bulan'])) {
             $this->db->like('pb.tgl_register_banding', $filters['bulan'], 'after');
@@ -125,6 +153,14 @@ class Perkara_model extends CI_Model
     // ======================
     public function add($data)
     {
+        // Auto-assign asal_pengadilan dari session (kecuali super_admin yang bisa pilih manual)
+        if (!isset($data['asal_pengadilan']) && $this->session->userdata('role') !== 'super_admin') {
+            $nama_pengadilan = $this->session->userdata('nama_pengadilan');
+            if ($nama_pengadilan) {
+                $data['asal_pengadilan'] = $nama_pengadilan;
+            }
+        }
+
         return $this->db->insert($this->table, $data);
     }
 
@@ -133,9 +169,17 @@ class Perkara_model extends CI_Model
     // ======================
     public function update($id, $data)
     {
-        return $this->db
-            ->where('id', $id)
-            ->update($this->table, $data);
+        $this->db->where('id', $id);
+
+        // Apply filter pengadilan untuk keamanan (user tidak bisa update data pengadilan lain)
+        if ($this->session->userdata('role') !== 'super_admin') {
+            $nama_pengadilan = $this->session->userdata('nama_pengadilan');
+            if ($nama_pengadilan) {
+                $this->db->where('asal_pengadilan', $nama_pengadilan);
+            }
+        }
+
+        return $this->db->update($this->table, $data);
     }
 
     // ======================
@@ -143,9 +187,17 @@ class Perkara_model extends CI_Model
     // ======================
     public function delete($id)
     {
-        return $this->db
-            ->where('id', $id)
-            ->delete($this->table);
+        $this->db->where('id', $id);
+
+        // Apply filter pengadilan untuk keamanan (user tidak bisa delete data pengadilan lain)
+        if ($this->session->userdata('role') !== 'super_admin') {
+            $nama_pengadilan = $this->session->userdata('nama_pengadilan');
+            if ($nama_pengadilan) {
+                $this->db->where('asal_pengadilan', $nama_pengadilan);
+            }
+        }
+
+        return $this->db->delete($this->table);
     }
 
     // ======================
@@ -154,10 +206,14 @@ class Perkara_model extends CI_Model
     public function count_besok()
     {
         $besok = date('Y-m-d', strtotime('+1 day'));
-        return $this->db
-            ->where('permohonan_kasasi', $besok)
-            ->where('status', 'Proses')
-            ->count_all_results($this->table);
+        $this->db->from($this->table . ' pb');
+        $this->db->where('pb.permohonan_kasasi', $besok);
+        $this->db->where('pb.status', 'Proses');
+
+        // Apply filter pengadilan_id
+        $this->apply_pengadilan_filter();
+
+        return $this->db->count_all_results();
     }
 
     // ======================
@@ -166,10 +222,14 @@ class Perkara_model extends CI_Model
     public function count_terlambat()
     {
         $hariIni = date('Y-m-d');
-        return $this->db
-            ->where('permohonan_kasasi <', $hariIni)
-            ->where('status', 'Proses')
-            ->count_all_results($this->table);
+        $this->db->from($this->table . ' pb');
+        $this->db->where('pb.permohonan_kasasi <', $hariIni);
+        $this->db->where('pb.status', 'Proses');
+
+        // Apply filter pengadilan_id
+        $this->apply_pengadilan_filter();
+
+        return $this->db->count_all_results();
     }
 
     // ======================
@@ -177,8 +237,7 @@ class Perkara_model extends CI_Model
     // ======================
     public function search_by_pengadilan($keyword)
     {
-        return $this->db
-            ->select('
+        $this->db->select('
                 pb.id,
                 pb.asal_pengadilan,
                 pb.perkara,
@@ -194,8 +253,12 @@ class Perkara_model extends CI_Model
                 pb.status
             ')
             ->from($this->table . ' pb')
-            ->like('pb.asal_pengadilan', $keyword)
-            ->order_by('pb.id', 'ASC')
+            ->like('pb.asal_pengadilan', $keyword);
+
+        // Apply filter pengadilan
+        $this->apply_pengadilan_filter();
+
+        return $this->db->order_by('pb.id', 'ASC')
             ->get()
             ->result();
     }
@@ -205,8 +268,7 @@ class Perkara_model extends CI_Model
     // ======================
     public function get_by_month($bulan)
     {
-        return $this->db
-            ->select('
+        $this->db->select('
                 pb.id,
                 pb.asal_pengadilan,
                 pb.perkara,
@@ -222,8 +284,12 @@ class Perkara_model extends CI_Model
                 pb.status
             ')
             ->from($this->table . ' pb')
-            ->like('pb.tgl_register_banding', $bulan, 'after')
-            ->order_by('pb.id', 'ASC')
+            ->like('pb.tgl_register_banding', $bulan, 'after');
+
+        // Apply filter pengadilan
+        $this->apply_pengadilan_filter();
+
+        return $this->db->order_by('pb.id', 'ASC')
             ->get()
             ->result();
     }

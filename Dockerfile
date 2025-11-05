@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y \
 # (Opsional) tambahkan ekstensi lain jika dibutuhkan oleh CI3
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
+# Aktifkan mod_rewrite untuk .htaccess
+RUN a2enmod rewrite
+
 # Salin semua file project ke folder web Apache
 COPY . /var/www/html/
 

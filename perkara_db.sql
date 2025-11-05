@@ -17,19 +17,19 @@
 -- Dumping structure for table perkara_db.jenis_perkara
 DROP TABLE IF EXISTS `jenis_perkara`;
 CREATE TABLE IF NOT EXISTS `jenis_perkara` (
-  `id` int(11) unsigned NOT NULL COMMENT 'Primary key: (by system)',
-  `parent_id` int(11) unsigned DEFAULT NULL COMMENT 'Id Jenis Perkara Induk: (hirarki)',
+  `id` int unsigned NOT NULL COMMENT 'Primary key: (by system)',
+  `parent_id` int unsigned DEFAULT NULL COMMENT 'Id Jenis Perkara Induk: (hirarki)',
   `kode` varchar(30) DEFAULT NULL COMMENT 'Kode Jenis Perkara: isian bebas',
-  `nama` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `nama` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `nama_lengkap` varchar(500) DEFAULT NULL COMMENT 'Nama Lengkap Jenis Perkara: (by system)',
   `format_nomor` varchar(250) DEFAULT NULL COMMENT 'Format Nomor Perkara',
   `keterangan` varchar(500) DEFAULT NULL COMMENT 'Keterangan: isian bebas',
-  `tipe_level` tinyint(4) unsigned NOT NULL DEFAULT '1' COMMENT 'Flag untuk jenis perkara lainnya: 1=Terdefinisi 0=Lainnya (by system)',
+  `tipe_level` tinyint unsigned NOT NULL DEFAULT '1' COMMENT 'Flag untuk jenis perkara lainnya: 1=Terdefinisi 0=Lainnya (by system)',
   `aktif` char(1) NOT NULL DEFAULT 'Y' COMMENT 'Status Aktif: pilihan Y=Ya; T=Tidak',
-  `urutan` int(11) unsigned DEFAULT NULL COMMENT 'Urutan Jenis Perkara berdasarkan parent_id',
-  `level` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Level tree: (by system)',
-  `lft` int(11) DEFAULT NULL COMMENT 'Left: (by system)',
-  `rgt` int(11) DEFAULT NULL COMMENT 'Right: (by system)',
+  `urutan` int unsigned DEFAULT NULL COMMENT 'Urutan Jenis Perkara berdasarkan parent_id',
+  `level` int unsigned NOT NULL DEFAULT '0' COMMENT 'Level tree: (by system)',
+  `lft` int DEFAULT NULL COMMENT 'Left: (by system)',
+  `rgt` int DEFAULT NULL COMMENT 'Right: (by system)',
   `diedit_oleh` varchar(30) DEFAULT '' COMMENT 'Diedit Oleh: (by system)',
   `diedit_tanggal` datetime DEFAULT NULL COMMENT 'Diedit Tanggal: (by system)',
   `diinput_oleh` varchar(30) DEFAULT '' COMMENT 'Diinput Oleh: (by system)',
@@ -491,65 +491,105 @@ INSERT INTO `jenis_perkara` (`id`, `parent_id`, `kode`, `nama`, `nama_lengkap`, 
 	(741, 158, NULL, 'Permohonan Restitusi', 'Permohonan Restitusi', '#nomor_urut_perkara#/#kode_alur_perkara#/#tahun#/PN #kode_pn#', NULL, 1, 'Y', NULL, 0, NULL, NULL, '', NULL, '', NULL, '', NULL),
 	(742, 158, NULL, 'Permohonan Kompensasi', 'Permohonan Kompensasi', '#nomor_urut_perkara#/#kode_alur_perkara#/#tahun#/PN #kode_pn#', NULL, 1, 'Y', NULL, 0, NULL, NULL, '', NULL, '', NULL, '', NULL);
 
+-- Dumping structure for table perkara_db.pengadilan
+DROP TABLE IF EXISTS `pengadilan`;
+CREATE TABLE IF NOT EXISTS `pengadilan` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `kode_pengadilan` varchar(20) NOT NULL,
+  `nama_pengadilan` varchar(255) NOT NULL,
+  `alamat` text,
+  `telepon` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `kode_pengadilan` (`kode_pengadilan`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table perkara_db.pengadilan: ~14 rows (approximately)
+DELETE FROM `pengadilan`;
+INSERT INTO `pengadilan` (`id`, `kode_pengadilan`, `nama_pengadilan`, `alamat`, `telepon`, `email`, `created_at`) VALUES
+	(1, 'PN-BJM', 'Pengadilan Negeri Banjarmasin', 'Jl. Brig Jend. Hasan Basri No.3, Banjarmasin', NULL, NULL, '2025-11-03 07:26:15'),
+	(2, 'PN-KDG', 'Pengadilan Negeri Kandangan', 'Jl. Brigjend Hasan Basri, Kandangan', NULL, NULL, '2025-11-03 07:26:15'),
+	(3, 'PN-MTP', 'Pengadilan Negeri Martapura', 'Jl. Trikora, Martapura', NULL, NULL, '2025-11-03 07:26:15'),
+	(4, 'PN-KTB', 'Pengadilan Negeri Kotabaru', 'Jl. H. Hasan Basri, Kotabaru', NULL, NULL, '2025-11-03 07:26:15'),
+	(5, 'PN-BRB', 'Pengadilan Negeri Barabai', 'Jl. Jenderal Sudirman, Barabai', NULL, NULL, '2025-11-03 07:26:15'),
+	(6, 'PN-AMT', 'Pengadilan Negeri Amuntai', 'Jl. Jenderal Ahmad Yani, Amuntai', NULL, NULL, '2025-11-03 07:26:35'),
+	(7, 'PN-TJG', 'Pengadilan Negeri Tanjung', 'Jl. Pasar Baru, Tanjung', NULL, NULL, '2025-11-03 07:26:35'),
+	(8, 'PN-RTU', 'Pengadilan Negeri Rantau', 'Jl. A. Yani, Rantau', NULL, NULL, '2025-11-03 07:26:35'),
+	(9, 'PN-PLH', 'Pengadilan Negeri Pelaihari', 'Jl. Aneka Tambang, Pelaihari', NULL, NULL, '2025-11-03 07:26:35'),
+	(10, 'PN-MRH', 'Pengadilan Negeri Marabahan', 'Jl. Jenderal Sudirman, Marabahan', NULL, NULL, '2025-11-03 07:26:35'),
+	(11, 'PN-BJB', 'Pengadilan Negeri Banjarbaru', 'Jl. Jenderal Ahmad Yani Km 36, Banjarbaru', NULL, NULL, '2025-11-03 07:26:35'),
+	(12, 'PN-BTL', 'Pengadilan Negeri Batulicin', 'Jl. Trans Kalimantan, Batulicin', NULL, NULL, '2025-11-03 07:26:35'),
+	(13, 'PN-PRG', 'Pengadilan Negeri Paringin', 'Jl. Pangeran Antasari, Paringin', NULL, NULL, '2025-11-03 07:26:35'),
+	(14, 'PT-BJM', 'Pengadilan Tinggi Banjarmasin', 'Jl. Bina Praja Timur (Komplek Perkantoran Provinsi Kalimantan Selatan) Palam, Cempaka, Banjarbaru Kalimantan Selatan', NULL, NULL, '2025-11-04 08:36:50');
+
 -- Dumping structure for table perkara_db.perkara_banding
 DROP TABLE IF EXISTS `perkara_banding`;
 CREATE TABLE IF NOT EXISTS `perkara_banding` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `no` int(11) DEFAULT NULL,
-  `asal_pengadilan` varchar(100) DEFAULT NULL,
-  `perkara` enum('PIDANA','PERDATA','ANAK','TIPIKOR') DEFAULT NULL,
-  `nomor_perkara_tk1` varchar(100) DEFAULT NULL,
-  `klasifikasi` varchar(255) DEFAULT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `no` int DEFAULT NULL,
+  `asal_pengadilan` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `perkara` enum('PIDANA','PERDATA','ANAK','TIPIKOR') COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `nomor_perkara_tk1` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `klasifikasi` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `tgl_register_banding` date DEFAULT NULL,
-  `nomor_perkara_banding` varchar(100) DEFAULT NULL,
-  `lama_proses` varchar(50) DEFAULT NULL,
-  `status_perkara_tk_banding` varchar(255) DEFAULT NULL,
+  `nomor_perkara_banding` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `lama_proses` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `status_perkara_tk_banding` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `pemberitahuan_putusan_banding` date DEFAULT NULL,
   `permohonan_kasasi` date DEFAULT NULL,
   `pengiriman_berkas_kasasi` date DEFAULT NULL,
-  `status` enum('Proses','Selesai','Ditolak') DEFAULT 'Proses',
-  `created_by` int(11) DEFAULT NULL,
+  `status` enum('Proses','Selesai','Ditolak') COLLATE utf8mb4_general_ci DEFAULT 'Proses',
+  `created_by` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_perkara_user` (`created_by`),
   KEY `fk_perkara_banding_klasifikasi` (`klasifikasi`),
   CONSTRAINT `fk_perkara_banding_klasifikasi` FOREIGN KEY (`klasifikasi`) REFERENCES `jenis_perkara` (`nama`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_perkara_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4;
+  CONSTRAINT `fk_perkara_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table perkara_db.perkara_banding: ~7 rows (approximately)
+-- Dumping data for table perkara_db.perkara_banding: ~10 rows (approximately)
 DELETE FROM `perkara_banding`;
 INSERT INTO `perkara_banding` (`id`, `no`, `asal_pengadilan`, `perkara`, `nomor_perkara_tk1`, `klasifikasi`, `tgl_register_banding`, `nomor_perkara_banding`, `lama_proses`, `status_perkara_tk_banding`, `pemberitahuan_putusan_banding`, `permohonan_kasasi`, `pengiriman_berkas_kasasi`, `status`, `created_by`) VALUES
-	(10, 1, 'PARINGIN', 'PIDANA', '78/Pid.Sus/2024/PN Prn', 'Narkotika', '2024-08-10', '369/PID.SUS/2024/PT BJM', '25 hari', 'Minutas tanggal : 2025-01-06', '2025-01-13', NULL, '2025-02-19', 'Proses', NULL),
-	(11, 2, 'PARINGIN', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Lalu-Lintas', '2024-12-10', '369/PID.SUS/2024/PT BJM', '17 Hari', 'Minutas tanggal : 2025-01-06', '2025-01-13', '2025-01-20', '2025-02-13', 'Selesai', NULL),
-	(12, NULL, 'KANDANGAN', 'PERDATA', '80/Pid.Sus/2024/PN Prn', 'Narkotika', '2025-09-10', '400/PID.SUS/2024/PT BJM', '28 hari', 'Minutas tanggal : 2025-01-10', '2025-09-16', '2025-09-16', '2025-09-16', 'Selesai', NULL),
-	(13, NULL, 'PN MARTAPURA', 'ANAK', '64724', 'Asal Usul Anak', '2025-09-09', '410/PID.SUS/2024/PT BJM', '27 hari', 'Minutas tanggal : 2025-01-10', '2025-09-13', '2025-09-14', '2025-09-14', 'Proses', NULL),
-	(14, NULL, 'KOTABARU', 'TIPIKOR', '100/Pid.Sus/2024/PN Prn', 'Korupsi', '2025-09-03', '400/PID.SUS/2024/PT BJM', '28 hari', 'Minutas tanggal : 2025-01-06', '2025-09-08', '2025-09-02', '2025-09-03', 'Selesai', NULL),
-	(15, NULL, 'BANJARMASIN', 'PIDANA', '40/Pid.Sus/2024/PN Prn', 'Pembunuhan', '2025-09-01', '2131637613', '25 hari', 'Minutas tanggal : 2025-01-09', '2025-09-01', '2025-09-03', '2025-09-06', 'Selesai', NULL),
-	(20, NULL, 'Jawa', 'PIDANA', '71/Pid.Sus/2024/PN Prn', 'BPSK', '2025-09-17', '300/PID.SUS/2024/PT BJM', '93 Hari', 'Minutas tanggal : 2025-01-19', '2025-09-16', '2025-09-17', '2025-09-16', 'Selesai', NULL);
+	(10, 1, 'Pengadilan Negeri Paringin', 'PIDANA', '78/Pid.Sus/2024/PN Prn', 'Narkotika', '2025-11-04', '369/PID.SUS/2024/PT BJM', '25 hari', 'Putusan Banding PT tanggal : 03-11-2025', '2025-01-13', '2025-11-04', '2025-02-19', 'Proses', NULL),
+	(11, 2, 'Pengadilan Negeri Paringin', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Lalu-Lintas', '2025-11-03', '369/PID.SUS/2024/PT BJM', '17 Hari', 'Putusan Banding PT tanggal : 03-11-2025', NULL, '2025-11-03', '2025-02-13', 'Selesai', NULL),
+	(12, NULL, 'Pengadilan Negeri Kandangan', 'PERDATA', '80/Pid.Sus/2024/PN Prn', 'Narkotika', '2025-09-10', '400/PID.SUS/2024/PT BJM', '28 hari', 'Minutas tanggal : 2025-01-10', '2025-09-16', '2025-09-16', '2025-09-16', 'Selesai', NULL),
+	(13, NULL, 'Pengadilan Negeri Martapura', 'ANAK', '64724', 'Asal Usul Anak', '2025-09-09', '410/PID.SUS/2024/PT BJM', '27 hari', 'Putusan Banding PT tanggal : 16-09-2025', '2025-09-13', '2025-09-14', '2025-09-14', 'Proses', NULL),
+	(14, NULL, 'Pengadilan Negeri Kotabaru', 'TIPIKOR', '100/Pid.Sus/2024/PN Prn', 'Korupsi', '2025-09-03', '400/PID.SUS/2024/PT BJM', '28 hari', 'Minutas tanggal : 2025-01-06', '2025-09-08', '2025-09-02', '2025-09-03', 'Selesai', NULL),
+	(15, NULL, 'Pengadilan Negeri Banjarmasin', 'PIDANA', '40/Pid.Sus/2024/PN Prn', 'Pembunuhan', '2025-10-02', '2131637613', '25 hari', 'Minutas tanggal : 2025-01-09', '2025-10-08', NULL, '2025-10-15', 'Selesai', NULL),
+	(20, NULL, 'Jawa', 'PIDANA', '71/Pid.Sus/2024/PN Prn', 'BPSK', '2025-09-17', '300/PID.SUS/2024/PT BJM', '93 Hari', 'Minutas tanggal : 2025-01-19', '2025-09-16', '2025-09-17', '2025-09-16', 'Selesai', NULL),
+	(21, NULL, 'Pengadilan Negeri Marabahan', 'PIDANA', '64724', 'Asuransi', '2025-11-04', '400/PID.SUS/2024/PT BJM', '25 hari', 'Minutas tanggal : 2025-01-06', '2025-11-04', '2025-11-04', '2025-11-04', 'Proses', NULL),
+	(22, NULL, 'Pengadilan Negeri Martapura', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Asuransi', '2025-11-04', '369/PID.SUS/2024/PT BJM', '25 hari', 'Putusan Banding PT tanggal : 04-11-2025', '2025-11-04', NULL, '2025-11-04', 'Proses', NULL),
+	(23, NULL, 'Pengadilan Negeri Paringin', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Asal Usul Anak', '2025-11-04', '300/PID.SUS/2024/PT BJM', '17 Hari', 'Putusan Banding PT tanggal : 04-11-2025', '2025-11-04', '2025-11-04', '2025-11-04', 'Proses', NULL);
 
 -- Dumping structure for table perkara_db.users
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` enum('admin','user') NOT NULL DEFAULT 'user',
-  `email` varchar(100) DEFAULT NULL,
-  `nama_lengkap` varchar(100) DEFAULT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `role` enum('admin','user') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'user',
+  `pengadilan_id` int DEFAULT NULL,
+  `aktif` enum('Y','N') COLLATE utf8mb4_general_ci DEFAULT 'Y',
+  `nip` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `jabatan` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `nama_lengkap` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `nama` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table perkara_db.users: ~5 rows (approximately)
 DELETE FROM `users`;
-INSERT INTO `users` (`id`, `username`, `password`, `role`, `email`, `nama_lengkap`, `created_at`, `updated_at`) VALUES
-	(3, 'admin1', '$2y$10$aXuRPu4g7l8NawAQdDsaSePAV/olPtx3Ol5gkFWWLmCn9f684lA9W', 'admin', 'admin1@gmail.com', 'Super Admin', '2025-09-16 02:23:57', '2025-10-17 08:04:19'),
-	(4, 'user', '$2y$10$XApdDBg8hNcaKjkL.76U9e/R9MneJbN8Nu/MsjTM24Bar3aQAd90.', 'user', 'user@example.com', 'User user', '2025-09-16 03:10:50', '2025-10-17 02:27:07'),
-	(6, 'admin2', '$2y$10$vGM5wVO5h7XwUTTR0cSAbuli1ughy8ucIYO.BDFRQaMpEUXwYiSmG', 'admin', 'admin2@example.com', 'User admin2', '2025-10-08 02:44:46', '2025-10-17 02:27:07'),
-	(7, 'leo12', '$2y$10$jsrS4BhJnKKINAbQ1GI5BOrQ8SdpskcWi0MEG19nSkQlMCaOAlXp2', 'user', 'leo12@gmail.com', 'User leo12', '2025-10-08 03:36:47', '2025-10-17 08:00:46'),
-	(8, 'leonando', '$2y$10$CvKaVgPI7z90j6c4VntzfOi9j0sPTncTg0shJfH0YhukjPVuYiehC', 'user', 'leonando@example.com', 'User leonando', '2025-10-08 03:43:13', '2025-10-17 02:27:07');
+INSERT INTO `users` (`id`, `username`, `password`, `role`, `pengadilan_id`, `aktif`, `nip`, `jabatan`, `email`, `nama_lengkap`, `nama`, `created_at`, `updated_at`) VALUES
+	(3, 'ptbanjarmasin', '$2y$10$hh1IY7XbShBl0Gy8qmn4Gu.4hupqCpFAvA7PnEeen1NEcPCssTPoS', 'admin', NULL, 'Y', NULL, NULL, 'admin1@gmail.com', 'PT Banjarmasin', NULL, '2025-09-16 02:23:57', '2025-11-04 00:30:29'),
+	(4, 'user', '$2y$10$XApdDBg8hNcaKjkL.76U9e/R9MneJbN8Nu/MsjTM24Bar3aQAd90.', 'user', NULL, 'Y', NULL, NULL, 'user@example.com', 'User user', NULL, '2025-09-16 03:10:50', '2025-10-17 02:27:07'),
+	(9, 'pnbanjarbaru', '$2y$10$tc1wpDdbZeHlFfHjk48A0ODeMplFRF.F7G0xk90gVP7nHgYdrurti', 'user', 1, 'Y', '198501012010011001', 'Administrator', 'admin@pn-banjarbaru.go.id', 'Pengadilan Negeri Banjarbaru', 'Admin Banjarbaru', '2025-11-03 06:33:24', '2025-11-04 07:07:32'),
+	(11, 'pnmartapura', '$2y$10$j7RPUU6knE/.xqQh9zSrs.wgLtY9JXTNnFd.iYltCftUnValnV9Dq', 'user', 3, 'Y', NULL, NULL, 'pnmartapura@gmail.go.id', 'Pengadilan Tinggi Martapura', NULL, '2025-11-03 07:33:57', '2025-11-03 07:34:59'),
+	(12, 'pnparingin', '$2y$10$wOfKEi6QQ5zEuMi.KTpXRuoMcvuO25IU7DZEnvOjrjvzehHrgZoR.', 'user', 13, 'Y', NULL, NULL, 'pnparingin@gmail.go.id', NULL, NULL, '2025-11-03 07:56:51', NULL);
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -977,20 +977,39 @@ class Laporan extends CI_Controller
             '12' => 'Desember'
         ];
 
+        // Get user's pengadilan filter
+        $nama_pengadilan = $this->session->userdata('nama_pengadilan');
+        $role = $this->session->userdata('role');
+
+        // DEBUG: Log filter info
+        log_message('debug', 'Rekap Filter - Role: ' . $role . ', Nama Pengadilan: ' . ($nama_pengadilan ?: 'NULL'));
+
         $result = [];
         for ($bulan = 1; $bulan <= 12; $bulan++) {
             $bulan_format = sprintf('%02d', $bulan);
 
+            // Build query with pengadilan filter - admin sees all, user sees only their pengadilan
+            $where_pengadilan = '';
+            $params = [$tahun, $bulan];
+
+            if ($role === 'user' && !empty($nama_pengadilan)) {
+                $where_pengadilan = ' AND asal_pengadilan = ?';
+                $params[] = $nama_pengadilan;
+                log_message('debug', 'Filter applied for: ' . $nama_pengadilan);
+            }
+
             $query = $this->db->query("
             SELECT 
-                SUM(CASE WHEN permohonan_kasasi IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_kasasi,
-                SUM(CASE WHEN permohonan_kasasi IS NULL THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
-                SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_putus_banding
+                SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND CAST(permohonan_kasasi AS CHAR) > '2000-01-01' 
+                     AND YEAR(permohonan_kasasi) = ? AND MONTH(permohonan_kasasi) = ? THEN 1 ELSE 0 END) AS jumlah_kasasi,
+                SUM(CASE WHEN (permohonan_kasasi IS NULL OR CAST(permohonan_kasasi AS CHAR) <= '2000-01-01')
+                     AND tgl_register_banding IS NOT NULL AND YEAR(tgl_register_banding) = ? AND MONTH(tgl_register_banding) = ? THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
+                SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL AND CAST(pemberitahuan_putusan_banding AS CHAR) > '2000-01-01'
+                     AND YEAR(pemberitahuan_putusan_banding) = ? AND MONTH(pemberitahuan_putusan_banding) = ? THEN 1 ELSE 0 END) AS jumlah_putus_banding
             FROM perkara_banding 
-            WHERE tgl_register_banding IS NOT NULL
-              AND YEAR(tgl_register_banding) = ? 
-              AND MONTH(tgl_register_banding) = ?
-        ", [$tahun, $bulan]);
+            WHERE 1=1
+              {$where_pengadilan}
+        ", array_merge([$tahun, $bulan, $tahun, $bulan, $tahun, $bulan], $role === 'user' && !empty($nama_pengadilan) ? [$nama_pengadilan] : []));
 
             $data = $query->row_array();
             $result[] = [
@@ -1024,16 +1043,31 @@ class Laporan extends CI_Controller
 
         $bulan_format = sprintf('%02d', $bulan);
 
+        // Get user's pengadilan filter
+        $nama_pengadilan = $this->session->userdata('nama_pengadilan');
+        $role = $this->session->userdata('role');
+
+        // Build query with pengadilan filter - admin sees all, user sees only their pengadilan
+        $where_pengadilan = '';
+        $params = [$tahun, $bulan];
+
+        if ($role === 'user' && !empty($nama_pengadilan)) {
+            $where_pengadilan = ' AND asal_pengadilan = ?';
+            $params[] = $nama_pengadilan;
+        }
+
         $query = $this->db->query("
         SELECT 
-            SUM(CASE WHEN permohonan_kasasi IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_kasasi,
-            SUM(CASE WHEN permohonan_kasasi IS NULL THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
-            SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL THEN 1 ELSE 0 END) AS jumlah_putus_banding
+            SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND CAST(permohonan_kasasi AS CHAR) > '2000-01-01' 
+                 AND YEAR(permohonan_kasasi) = ? AND MONTH(permohonan_kasasi) = ? THEN 1 ELSE 0 END) AS jumlah_kasasi,
+            SUM(CASE WHEN (permohonan_kasasi IS NULL OR CAST(permohonan_kasasi AS CHAR) <= '2000-01-01')
+                 AND tgl_register_banding IS NOT NULL AND YEAR(tgl_register_banding) = ? AND MONTH(tgl_register_banding) = ? THEN 1 ELSE 0 END) AS jumlah_tidak_kasasi,
+            SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL AND CAST(pemberitahuan_putusan_banding AS CHAR) > '2000-01-01'
+                 AND YEAR(pemberitahuan_putusan_banding) = ? AND MONTH(pemberitahuan_putusan_banding) = ? THEN 1 ELSE 0 END) AS jumlah_putus_banding
         FROM perkara_banding 
-        WHERE tgl_register_banding IS NOT NULL
-          AND YEAR(tgl_register_banding) = ? 
-          AND MONTH(tgl_register_banding) = ?
-    ", [$tahun, $bulan]);
+        WHERE 1=1
+          {$where_pengadilan}
+    ", array_merge([$tahun, $bulan, $tahun, $bulan, $tahun, $bulan], $role === 'user' && !empty($nama_pengadilan) ? [$nama_pengadilan] : []));
 
         $data = $query->row_array();
 
@@ -1095,61 +1129,97 @@ class Laporan extends CI_Controller
             4 => [10, 11, 12]  // Q4: Oct-Dec
         ];
 
+        // Get user's pengadilan filter
+        $nama_pengadilan = $this->session->userdata('nama_pengadilan');
+        $role = $this->session->userdata('role');
+
         $result = [];
 
         for ($tw = 1; $tw <= 4; $tw++) {
             $bulan_list = implode(',', $triwulan_bulan[$tw]);
 
+            // Build WHERE clause for pengadilan filter - admin sees all, user sees only their pengadilan
+            $where_pengadilan = '';
+            $params_base = [$tahun];
+
+            if ($role === 'user' && !empty($nama_pengadilan)) {
+                $where_pengadilan = ' AND asal_pengadilan = ?';
+            }
+
             // PIDANA
+            $params_pidana = $params_base;
+            if ($role === 'user' && !empty($nama_pengadilan)) {
+                $params_pidana[] = $nama_pengadilan;
+            }
             $pidana_query = $this->db->query("
                 SELECT 
-                    COUNT(*) as putus,
-                    SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND permohonan_kasasi <> '' THEN 1 ELSE 0 END) AS kasasi,
-                    SUM(CASE WHEN permohonan_kasasi IS NULL OR permohonan_kasasi = '' THEN 1 ELSE 0 END) AS tidak_kasasi
+                    SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL AND CAST(pemberitahuan_putusan_banding AS CHAR) > '2000-01-01'
+                         AND YEAR(pemberitahuan_putusan_banding) = ? AND MONTH(pemberitahuan_putusan_banding) IN ($bulan_list) THEN 1 ELSE 0 END) as putus,
+                    SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND CAST(permohonan_kasasi AS CHAR) > '2000-01-01'
+                         AND YEAR(permohonan_kasasi) = ? AND MONTH(permohonan_kasasi) IN ($bulan_list) THEN 1 ELSE 0 END) AS kasasi,
+                    SUM(CASE WHEN (permohonan_kasasi IS NULL OR CAST(permohonan_kasasi AS CHAR) <= '2000-01-01')
+                         AND tgl_register_banding IS NOT NULL AND YEAR(tgl_register_banding) = ? AND MONTH(tgl_register_banding) IN ($bulan_list) THEN 1 ELSE 0 END) AS tidak_kasasi
                 FROM perkara_banding 
-                WHERE YEAR(tgl_register_banding) = ? 
-                AND MONTH(tgl_register_banding) IN ($bulan_list)
-                AND perkara = 'PIDANA'
-            ", [$tahun]);
+                WHERE perkara = 'PIDANA'
+                {$where_pengadilan}
+            ", array_merge([$tahun, $tahun, $tahun], $role === 'user' && !empty($nama_pengadilan) ? [$nama_pengadilan] : []));
             $pidana_data = $pidana_query->row_array();
 
             // PERDATA
+            $params_perdata = $params_base;
+            if ($role === 'user' && !empty($nama_pengadilan)) {
+                $params_perdata[] = $nama_pengadilan;
+            }
             $perdata_query = $this->db->query("
                 SELECT 
-                    COUNT(*) as putus,
-                    SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND permohonan_kasasi <> '' THEN 1 ELSE 0 END) AS kasasi,
-                    SUM(CASE WHEN permohonan_kasasi IS NULL OR permohonan_kasasi = '' THEN 1 ELSE 0 END) AS tidak_kasasi
+                    SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL AND CAST(pemberitahuan_putusan_banding AS CHAR) > '2000-01-01'
+                         AND YEAR(pemberitahuan_putusan_banding) = ? AND MONTH(pemberitahuan_putusan_banding) IN ($bulan_list) THEN 1 ELSE 0 END) as putus,
+                    SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND CAST(permohonan_kasasi AS CHAR) > '2000-01-01'
+                         AND YEAR(permohonan_kasasi) = ? AND MONTH(permohonan_kasasi) IN ($bulan_list) THEN 1 ELSE 0 END) AS kasasi,
+                    SUM(CASE WHEN (permohonan_kasasi IS NULL OR CAST(permohonan_kasasi AS CHAR) <= '2000-01-01')
+                         AND tgl_register_banding IS NOT NULL AND YEAR(tgl_register_banding) = ? AND MONTH(tgl_register_banding) IN ($bulan_list) THEN 1 ELSE 0 END) AS tidak_kasasi
                 FROM perkara_banding 
-                WHERE YEAR(tgl_register_banding) = ? 
-                AND MONTH(tgl_register_banding) IN ($bulan_list)
-                AND perkara = 'PERDATA'
-            ", [$tahun]);
+                WHERE perkara = 'PERDATA'
+                {$where_pengadilan}
+            ", array_merge([$tahun, $tahun, $tahun], $role === 'user' && !empty($nama_pengadilan) ? [$nama_pengadilan] : []));
             $perdata_data = $perdata_query->row_array();
 
             // ANAK
+            $params_anak = $params_base;
+            if ($role === 'user' && !empty($nama_pengadilan)) {
+                $params_anak[] = $nama_pengadilan;
+            }
             $anak_query = $this->db->query("
                 SELECT 
-                    COUNT(*) as putus,
-                    SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND permohonan_kasasi <> '' THEN 1 ELSE 0 END) AS kasasi,
-                    SUM(CASE WHEN permohonan_kasasi IS NULL OR permohonan_kasasi = '' THEN 1 ELSE 0 END) AS tidak_kasasi
+                    SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL AND CAST(pemberitahuan_putusan_banding AS CHAR) > '2000-01-01'
+                         AND YEAR(pemberitahuan_putusan_banding) = ? AND MONTH(pemberitahuan_putusan_banding) IN ($bulan_list) THEN 1 ELSE 0 END) as putus,
+                    SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND CAST(permohonan_kasasi AS CHAR) > '2000-01-01'
+                         AND YEAR(permohonan_kasasi) = ? AND MONTH(permohonan_kasasi) IN ($bulan_list) THEN 1 ELSE 0 END) AS kasasi,
+                    SUM(CASE WHEN (permohonan_kasasi IS NULL OR CAST(permohonan_kasasi AS CHAR) <= '2000-01-01')
+                         AND tgl_register_banding IS NOT NULL AND YEAR(tgl_register_banding) = ? AND MONTH(tgl_register_banding) IN ($bulan_list) THEN 1 ELSE 0 END) AS tidak_kasasi
                 FROM perkara_banding 
-                WHERE YEAR(tgl_register_banding) = ? 
-                AND MONTH(tgl_register_banding) IN ($bulan_list)
-                AND perkara = 'ANAK'
-            ", [$tahun]);
+                WHERE perkara = 'ANAK'
+                {$where_pengadilan}
+            ", array_merge([$tahun, $tahun, $tahun], $role === 'user' && !empty($nama_pengadilan) ? [$nama_pengadilan] : []));
             $anak_data = $anak_query->row_array();
 
             // TIPIKOR
+            $params_tipikor = $params_base;
+            if ($role === 'user' && !empty($nama_pengadilan)) {
+                $params_tipikor[] = $nama_pengadilan;
+            }
             $tipikor_query = $this->db->query("
                 SELECT 
-                    COUNT(*) as putus,
-                    SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND permohonan_kasasi <> '' THEN 1 ELSE 0 END) AS kasasi,
-                    SUM(CASE WHEN permohonan_kasasi IS NULL OR permohonan_kasasi = '' THEN 1 ELSE 0 END) AS tidak_kasasi
+                    SUM(CASE WHEN pemberitahuan_putusan_banding IS NOT NULL AND CAST(pemberitahuan_putusan_banding AS CHAR) > '2000-01-01'
+                         AND YEAR(pemberitahuan_putusan_banding) = ? AND MONTH(pemberitahuan_putusan_banding) IN ($bulan_list) THEN 1 ELSE 0 END) as putus,
+                    SUM(CASE WHEN permohonan_kasasi IS NOT NULL AND CAST(permohonan_kasasi AS CHAR) > '2000-01-01'
+                         AND YEAR(permohonan_kasasi) = ? AND MONTH(permohonan_kasasi) IN ($bulan_list) THEN 1 ELSE 0 END) AS kasasi,
+                    SUM(CASE WHEN (permohonan_kasasi IS NULL OR CAST(permohonan_kasasi AS CHAR) <= '2000-01-01')
+                         AND tgl_register_banding IS NOT NULL AND YEAR(tgl_register_banding) = ? AND MONTH(tgl_register_banding) IN ($bulan_list) THEN 1 ELSE 0 END) AS tidak_kasasi
                 FROM perkara_banding 
-                WHERE YEAR(tgl_register_banding) = ? 
-                AND MONTH(tgl_register_banding) IN ($bulan_list)
-                AND perkara = 'TIPIKOR'
-            ", [$tahun]);
+                WHERE perkara = 'TIPIKOR'
+                {$where_pengadilan}
+            ", array_merge([$tahun, $tahun, $tahun], $role === 'user' && !empty($nama_pengadilan) ? [$nama_pengadilan] : []));
             $tipikor_data = $tipikor_query->row_array();
 
             $result[$tw] = [

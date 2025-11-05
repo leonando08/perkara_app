@@ -10,10 +10,12 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'      => '',
+
 	'hostname' => 'localhost', // gunakan nama service di docker-compose
 	'username' => 'root',
 	'password' => '',
 	'database' => 'db_perkara_app',
+
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,

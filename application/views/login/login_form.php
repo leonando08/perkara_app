@@ -212,20 +212,16 @@
             <div class="mb-3">
                 <label class="form-label">CAPTCHA <span class="text-danger">*</span></label>
                 <div class="captcha-container">
-                    <img src="<?= site_url('auth/captcha') ?>?t=<?= time() ?>" alt="CAPTCHA" class="captcha-image" id="captcha-image" width="180" height="50" <?= isset($cooldown) && $cooldown ? 'style="opacity: 0.5;"' : '' ?>>
-                    <button type="button" class="captcha-refresh" onclick="refreshCaptcha()" title="Klik untuk refresh captcha" <?= isset($cooldown) && $cooldown ? 'disabled' : '' ?>>
+                    <img src="<?= site_url('auth/captcha') ?>?t=<?= time() ?>" alt="CAPTCHA" class="captcha-image" id="captcha-image" width="180" height="50">
+                    <button type="button" class="captcha-refresh" onclick="refreshCaptcha()" title="Klik untuk refresh captcha">
                         <i class="bi bi-arrow-clockwise"></i> Refresh
                     </button>
                 </div>
-                <input type="text" name="captcha" id="captcha-input" class="form-control" placeholder="<?= isset($cooldown) && $cooldown ? 'Captcha dinonaktifkan sementara' : 'Masukkan kode di atas' ?>" <?= isset($cooldown) && $cooldown ? 'disabled' : 'required' ?> autocomplete="off" maxlength="10" style="text-transform: uppercase;">
-                <?php if (isset($cooldown) && $cooldown): ?>
-                    <small class="text-danger"><i class="bi bi-clock"></i> Captcha dinonaktifkan karena terlalu banyak kesalahan</small>
-                <?php else: ?>
-                    <small class="text-muted">Klik gambar atau tombol refresh untuk mengganti captcha</small>
-                <?php endif; ?>
+                <input type="text" name="captcha" id="captcha-input" class="form-control" placeholder="Masukkan kode di atas" required autocomplete="off" maxlength="10" style="text-transform: uppercase;">
+                <small class="text-muted">Klik gambar atau tombol refresh untuk mengganti captcha</small>
             </div>
-            <button type="submit" class="btn btn-login" id="login-btn" <?= isset($cooldown) && $cooldown ? 'disabled' : '' ?>>
-                <span id="login-text"><?= isset($cooldown) && $cooldown ? 'Login Dinonaktifkan' : 'Login' ?></span>
+            <button type="submit" class="btn btn-login" id="login-btn">
+                <span id="login-text">Login</span>
                 <span id="login-spinner" class="d-none">
                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                     Memproses...
@@ -235,7 +231,9 @@
 
 
             <div class="mt-3 text-center">
-                <a href="<?= site_url('auth/register') ?>" class="text-decoration-none">Belum punya akun? Daftar</a>
+                <a href="<?= base_url('index.php/auth/register') ?>" class="text-decoration-none">
+                    Belum punya akun? Daftar di sini
+                </a>
             </div>
         </div>
         <div class="col-md-6 login-right">
@@ -268,85 +266,39 @@
         function refreshCaptcha() {
             const captchaImage = document.getElementById('captcha-image');
             const captchaInput = document.getElementById('captcha-input');
-            const refreshBtn = document.querySelector('.captcha-refresh');
             const timestamp = new Date().getTime();
 
-            console.log('Refreshing captcha with timestamp:', timestamp);
-
-            // Visual feedback - disable button temporarily
-            refreshBtn.disabled = true;
-            refreshBtn.style.opacity = '0.5';
-
             // Clear captcha input
-            captchaInput.value = '';
+            if (captchaInput) {
+                captchaInput.value = '';
+            }
 
-            // Add loading effect
-            captchaImage.style.opacity = '0.5';
-
-            // Use dedicated refresh endpoint
-            const newSrc = '<?= site_url('auth/refresh_captcha') ?>?' + timestamp;
-            console.log('Loading new captcha:', newSrc);
-
-            captchaImage.onload = function() {
-                console.log('Captcha refreshed successfully');
-                captchaImage.style.opacity = '1';
-                refreshBtn.disabled = false;
-                refreshBtn.style.opacity = '1';
-            };
-
-            captchaImage.onerror = function() {
-                console.error('Failed to refresh captcha, trying fallback');
-                // Fallback to regular captcha endpoint
-                captchaImage.src = '<?= site_url('auth/captcha') ?>?' + timestamp;
-                captchaImage.style.opacity = '1';
-                refreshBtn.disabled = false;
-                refreshBtn.style.opacity = '1';
-            };
-
-            captchaImage.src = newSrc;
+            // Refresh captcha image
+            captchaImage.src = '<?= site_url('auth/captcha') ?>?' + timestamp;
         }
 
         // Auto uppercase captcha input
         document.addEventListener('DOMContentLoaded', function() {
-            const captchaInput = document.getElementById('captcha-input');
-            const captchaImage = document.getElementById('captcha-image');
             const loginForm = document.getElementById('loginForm');
             const loginBtn = document.getElementById('login-btn');
             const loginText = document.getElementById('login-text');
             const loginSpinner = document.getElementById('login-spinner');
+            const captchaInput = document.getElementById('captcha-input');
+            const captchaImage = document.getElementById('captcha-image');
 
-            // Auto uppercase
-            captchaInput.addEventListener('input', function() {
-                this.value = this.value.toUpperCase();
-            });
+            // Auto uppercase for captcha
+            if (captchaInput) {
+                captchaInput.addEventListener('input', function() {
+                    this.value = this.value.toUpperCase();
+                });
+            }
 
             // Refresh captcha on image click
-            captchaImage.addEventListener('click', function() {
-                console.log('Captcha image clicked - refreshing...');
-                refreshCaptcha();
-            });
-
-            // Also add refresh on button click (redundant but safe)
-            const refreshBtn = document.querySelector('.captcha-refresh');
-            refreshBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Refresh button clicked');
-                refreshCaptcha();
-            });
-
-            // Handle captcha load error
-            captchaImage.addEventListener('error', function() {
-                console.log('Captcha failed to load, retrying in 2 seconds...');
-                setTimeout(() => {
-                    const timestamp = new Date().getTime();
-                    captchaImage.src = '<?= site_url('auth/captcha') ?>?' + timestamp;
-                }, 2000);
-            });
-
-            // Handle captcha load success
-            captchaImage.addEventListener('load', function() {
-                console.log('Captcha loaded successfully:', captchaImage.src);
-            });
+            if (captchaImage) {
+                captchaImage.addEventListener('click', function() {
+                    refreshCaptcha();
+                });
+            }
 
             // Prevent multiple form submissions
             loginForm.addEventListener('submit', function(e) {
@@ -366,16 +318,18 @@
                     loginText.classList.remove('d-none');
                     loginSpinner.classList.add('d-none');
                 }, 10000);
-            }); // Security: Clear form on page visibility change
+            });
+
+            // Auto-refresh captcha every 4 minutes
+            setInterval(refreshCaptcha, 240000);
+
+            // Security: Clear form on page visibility change
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden) {
                     // Optional: Clear sensitive data when tab is hidden
                     // document.getElementById('password').value = '';
                 }
             });
-
-            // Auto-refresh captcha every 4 minutes
-            setInterval(refreshCaptcha, 240000);
         });
 
         // SweetAlert notifications
@@ -412,14 +366,12 @@
         function startCooldownTimer(seconds) {
             const loginBtn = document.getElementById('login-btn');
             const loginText = document.getElementById('login-text');
-            const captchaInput = document.getElementById('captcha-input');
 
             const countdown = setInterval(() => {
                 const minutes = Math.floor(seconds / 60);
                 const secs = seconds % 60;
 
                 loginText.textContent = `Menunggu ${minutes}:${secs.toString().padStart(2, '0')}`;
-                captchaInput.placeholder = `Tunggu ${minutes}:${secs.toString().padStart(2, '0')} untuk mencoba lagi`;
 
                 seconds--;
 
@@ -427,7 +379,6 @@
                     clearInterval(countdown);
                     // Update UI untuk menunjukkan cooldown selesai
                     loginText.textContent = 'Cooldown selesai, memuat ulang...';
-                    captchaInput.placeholder = 'Memuat ulang halaman...';
 
                     // Delay reload untuk memastikan server reset attempts
                     setTimeout(() => {
@@ -447,6 +398,17 @@
                 confirmButtonColor: '#28a745',
                 allowOutsideClick: false,
                 allowEscapeKey: false
+            });
+        <?php endif; ?>
+
+        <?php if ($this->session->flashdata('info')): ?>
+            Swal.fire({
+                icon: 'info',
+                title: 'Informasi',
+                text: '<?= addslashes($this->session->flashdata('info')) ?>',
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#006400'
             });
         <?php endif; ?>
     </script>

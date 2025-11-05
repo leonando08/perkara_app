@@ -259,9 +259,13 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
     .table th:nth-child(2),
     .table td:nth-child(2) {
-        width: 150px;
-        min-width: 120px;
+        width: 180px;
+        min-width: 150px;
+        max-width: 200px;
         text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .table th:nth-child(3),
@@ -637,7 +641,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                 ?>
                                     <tr>
                                         <td><?= $no++ ?></td>
-                                        <td style="text-align: left; word-wrap: break-word; max-width: 120px;"><?= htmlspecialchars($row->asal_pengadilan) ?></td>
+                                        <td title="<?= htmlspecialchars($row->asal_pengadilan) ?>"><?= htmlspecialchars($row->asal_pengadilan) ?></td>
                                         <td style="text-align: left; word-wrap: break-word; max-width: 200px;"><?= htmlspecialchars($row->nomor_perkara_tk1) ?></td>
                                         <td>
                                             <?= $row->tgl_register_banding ? date('d-m-Y', strtotime($row->tgl_register_banding)) : '-' ?>

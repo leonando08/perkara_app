@@ -77,6 +77,13 @@ class User extends CI_Controller
         // Ambil data jenis perkara untuk datalist
         $data['jenis_perkara'] = $this->Perkara_model->getAllJenisPerkara();
 
+        // Ambil data pengadilan untuk dropdown
+        $data['pengadilan_list'] = $this->db
+            ->select('id, nama_pengadilan, kode_pengadilan')
+            ->order_by('nama_pengadilan', 'ASC')
+            ->get('pengadilan')
+            ->result();
+
         $this->load->view('user/edit_perkara', $data);
     }
 
