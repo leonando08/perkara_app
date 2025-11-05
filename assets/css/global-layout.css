@@ -66,7 +66,7 @@ body {
     background: var(--main-bg);
     padding-left: var(--main-content-padding) !important;
     padding-right: var(--main-content-padding) !important;
-    padding-bottom: var(--main-content-padding) !important;
+    padding-bottom: 70px !important; /* Space for fixed footer */
     
     /* Layout behavior */
     box-sizing: border-box !important;
@@ -85,7 +85,7 @@ body .main-content {
     width: calc(100% - var(--main-content-margin)) !important;
     padding-left: var(--main-content-padding) !important;
     padding-right: var(--main-content-padding) !important;
-    padding-bottom: var(--main-content-padding) !important;
+    padding-bottom: 70px !important; /* Space for fixed footer */
 }
 
 /* Content container untuk membatasi lebar maksimal */
@@ -101,7 +101,8 @@ body .main-content {
     margin: 0 !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    min-height: calc(100vh - var(--navbar-height) - 40px);
+    min-height: calc(100vh - var(--navbar-height) - 70px); /* Account for footer */
+    padding-bottom: 1rem !important;
 }
 
 /* EMERGENCY FIX: Handle orphaned content-wrapper (without main-content parent) */
@@ -111,7 +112,8 @@ body > .content-wrapper,
     margin-left: var(--main-content-margin) !important;
     padding-top: calc(var(--navbar-height) + 1.5rem) !important;
     width: calc(100% - var(--main-content-margin)) !important;
-    min-height: calc(100vh - var(--navbar-height)) !important;
+    min-height: calc(100vh - var(--navbar-height) - 70px) !important; /* Account for footer */
+    padding-bottom: 70px !important; /* Space for fixed footer */
     background: var(--main-bg);
     box-sizing: border-box !important;
 }
@@ -146,15 +148,32 @@ body > .content-wrapper,
 }
 
 /* =================================
+   NAVBAR POSITIONING - FIXED AT TOP
+   ================================= */
+
+.navbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: var(--navbar-height);
+    z-index: var(--z-navbar);
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* =================================
    SIDEBAR POSITIONING
    ================================= */
 
 .sidebar {
-    position: fixed;
-    top: var(--navbar-height);
-    left: 0;
+    position: fixed !important;
+    top: var(--navbar-height) !important;
+    left: 0 !important;
     width: var(--sidebar-width);
-    height: calc(100vh - var(--navbar-height));
+    height: calc(100vh - var(--navbar-height)) !important;
     background: var(--sidebar-bg);
     border-right: 1px solid rgba(0, 0, 0, 0.125);
     z-index: var(--z-sidebar);
@@ -181,20 +200,6 @@ body > .content-wrapper,
     background: rgba(0, 0, 0, 0.3);
 }
 
-/* =================================
-   NAVBAR POSITIONING
-   ================================= */
-
-.navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--navbar-height);
-    z-index: var(--z-navbar);
-    background-color: #ffffff;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-}
 
 /* =================================
    RESPONSIVE BREAKPOINTS
@@ -208,13 +213,19 @@ body > .content-wrapper,
         width: 100% !important;
         padding-left: 15px !important;
         padding-right: 15px !important;
-        padding-bottom: 15px !important;
+        padding-bottom: 65px !important; /* Space for mobile fixed footer */
     }
     
     body .main-content {
         margin-left: 0 !important;
         padding-top: var(--navbar-height) !important;
         width: 100% !important;
+        padding-bottom: 65px !important;
+    }
+    
+    body > .content-wrapper,
+    .content-wrapper:not(.main-content .content-wrapper) {
+        padding-bottom: 65px !important; /* Mobile footer space */
     }
     
     .sidebar {
@@ -261,13 +272,14 @@ body > .content-wrapper,
         width: calc(100% - var(--main-content-margin-tablet)) !important;
         padding-left: 18px !important;
         padding-right: 18px !important;
-        padding-bottom: 18px !important;
+        padding-bottom: 70px !important; /* Space for fixed footer */
     }
     
     body .main-content {
         margin-left: var(--main-content-margin-tablet) !important;
         padding-top: var(--navbar-height) !important;
         width: calc(100% - var(--main-content-margin-tablet)) !important;
+        padding-bottom: 70px !important;
     }
     
     .sidebar {

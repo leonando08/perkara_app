@@ -8,6 +8,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @property CI_Form_validation $form_validation
  * @property Perkara_model $Perkara_model
  * @property User_model $User_model
+ * @property Pengadilan_model $Pengadilan_model
  */
 class Admin extends CI_Controller
 {
@@ -177,6 +178,9 @@ class Admin extends CI_Controller
 
     public function edit_perkara($id)
     {
+        // Load Pengadilan_model
+        $this->load->model('Pengadilan_model');
+
         // Ambil data perkara berdasarkan ID
         $data['perkara'] = $this->Perkara_model->getById($id);
 
@@ -223,6 +227,9 @@ class Admin extends CI_Controller
 
         // Ambil data jenis perkara untuk datalist
         $data['jenis_perkara'] = $this->Perkara_model->getAllJenisPerkara();
+
+        // Ambil data pengadilan untuk dropdown
+        $data['pengadilan_list'] = $this->Pengadilan_model->get_all();
 
         $this->load->view('admin/edit_perkara', $data);
     }

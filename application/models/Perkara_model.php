@@ -27,12 +27,73 @@ class Perkara_model extends CI_Model
             return;
         }
 
-        // User biasa dan admin hanya bisa melihat data pengadilan mereka
+        // PERBAIKAN: Gunakan pengadilan_id yang lebih akurat
+        $pengadilan_id = $this->session->userdata('pengadilan_id');
         $nama_pengadilan = $this->session->userdata('nama_pengadilan');
-        if ($nama_pengadilan) {
-            // Filter berdasarkan asal_pengadilan (bukan 'pengadilan')
-            $this->db->where('pb.asal_pengadilan', $nama_pengadilan);
+
+        // Log untuk debugging
+        log_message('debug', "Filter pengadilan - ID: {$pengadilan_id}, Nama: {$nama_pengadilan}");
+
+        if ($pengadilan_id) {
+            // Cek apakah kolom pengadilan_id ada di tabel perkara_banding
+            $fields = $this->db->list_fields($this->table);
+
+            if (in_array('pengadilan_id', $fields)) {
+                // Jika ada kolom pengadilan_id, gunakan itu (lebih akurat)
+                $this->db->where('pb.pengadilan_id', $pengadilan_id);
+            } elseif ($nama_pengadilan) {
+                // Fallback: gunakan nama_pengadilan dengan filter LIKE untuk menangani variasi nama
+                // Support untuk SEMUA 13 Pengadilan Negeri di Kalimantan Selatan
+                $keyword = $this->_extract_pengadilan_keyword($nama_pengadilan);
+
+                if ($keyword) {
+                    $this->db->where("(pb.asal_pengadilan LIKE '%{$keyword}%' OR pb.asal_pengadilan = '{$nama_pengadilan}')");
+                    log_message('debug', "Filter menggunakan keyword: {$keyword}");
+                } else {
+                    $this->db->where('pb.asal_pengadilan', $nama_pengadilan);
+                }
+            }
         }
+    }
+
+    /**
+     * Extract keyword dari nama pengadilan untuk filter yang lebih robust
+     * Mendukung 13 Pengadilan Negeri di Kalimantan Selatan
+     */
+    private function _extract_pengadilan_keyword($nama_pengadilan)
+    {
+        // Convert ke uppercase untuk matching yang konsisten
+        $nama_upper = strtoupper($nama_pengadilan);
+
+        // Daftar keyword untuk 13 Pengadilan Negeri + 1 Pengadilan Tinggi
+        $pengadilan_keywords = [
+            'BANJARMASIN' => 'BANJARMASIN',
+            'BANJARBARU'  => 'BANJARBARU',
+            'KANDANGAN'   => 'KANDANGAN',
+            'MARTAPURA'   => 'MARTAPURA',
+            'KOTABARU'    => 'KOTABARU',
+            'BARABAI'     => 'BARABAI',
+            'AMUNTAI'     => 'AMUNTAI',
+            'TANJUNG'     => 'TANJUNG',
+            'RANTAU'      => 'RANTAU',
+            'PELAIHARI'   => 'PELAIHARI',
+            'MARABAHAN'   => 'MARABAHAN',
+            'BATULICIN'   => 'BATULICIN',
+            'PARINGIN'    => 'PARINGIN',
+            // Pengadilan Tinggi
+            'TINGGI'      => 'TINGGI'
+        ];
+
+        // Cari keyword yang match
+        foreach ($pengadilan_keywords as $key => $value) {
+            if (strpos($nama_upper, $key) !== false) {
+                return $value;
+            }
+        }
+
+        // Fallback: ambil kata terakhir dari nama pengadilan
+        $parts = explode(' ', $nama_pengadilan);
+        return strtoupper(end($parts));
     }
 
     // ======================
@@ -153,13 +214,27 @@ class Perkara_model extends CI_Model
     // ======================
     public function add($data)
     {
-        // Auto-assign asal_pengadilan dari session (kecuali super_admin yang bisa pilih manual)
-        if (!isset($data['asal_pengadilan']) && $this->session->userdata('role') !== 'super_admin') {
-            $nama_pengadilan = $this->session->userdata('nama_pengadilan');
-            if ($nama_pengadilan) {
-                $data['asal_pengadilan'] = $nama_pengadilan;
+        // Auto-assign pengadilan_id dan asal_pengadilan dari session (kecuali super_admin yang bisa pilih manual)
+        if ($this->session->userdata('role') !== 'super_admin') {
+            // Set pengadilan_id dari session
+            if (!isset($data['pengadilan_id'])) {
+                $pengadilan_id = $this->session->userdata('pengadilan_id');
+                if ($pengadilan_id) {
+                    $data['pengadilan_id'] = $pengadilan_id;
+                }
+            }
+
+            // Set asal_pengadilan dari session (backward compatibility)
+            if (!isset($data['asal_pengadilan'])) {
+                $nama_pengadilan = $this->session->userdata('nama_pengadilan');
+                if ($nama_pengadilan) {
+                    $data['asal_pengadilan'] = $nama_pengadilan;
+                }
             }
         }
+
+        // Log untuk debugging
+        log_message('debug', "Adding perkara with pengadilan_id: " . ($data['pengadilan_id'] ?? 'NULL'));
 
         return $this->db->insert($this->table, $data);
     }
@@ -173,8 +248,17 @@ class Perkara_model extends CI_Model
 
         // Apply filter pengadilan untuk keamanan (user tidak bisa update data pengadilan lain)
         if ($this->session->userdata('role') !== 'super_admin') {
+            $pengadilan_id = $this->session->userdata('pengadilan_id');
             $nama_pengadilan = $this->session->userdata('nama_pengadilan');
-            if ($nama_pengadilan) {
+
+            // Cek apakah kolom pengadilan_id ada
+            $fields = $this->db->list_fields($this->table);
+
+            if (in_array('pengadilan_id', $fields) && $pengadilan_id) {
+                // Filter berdasarkan pengadilan_id (lebih akurat)
+                $this->db->where('pengadilan_id', $pengadilan_id);
+            } elseif ($nama_pengadilan) {
+                // Fallback: filter berdasarkan nama
                 $this->db->where('asal_pengadilan', $nama_pengadilan);
             }
         }
@@ -191,8 +275,17 @@ class Perkara_model extends CI_Model
 
         // Apply filter pengadilan untuk keamanan (user tidak bisa delete data pengadilan lain)
         if ($this->session->userdata('role') !== 'super_admin') {
+            $pengadilan_id = $this->session->userdata('pengadilan_id');
             $nama_pengadilan = $this->session->userdata('nama_pengadilan');
-            if ($nama_pengadilan) {
+
+            // Cek apakah kolom pengadilan_id ada
+            $fields = $this->db->list_fields($this->table);
+
+            if (in_array('pengadilan_id', $fields) && $pengadilan_id) {
+                // Filter berdasarkan pengadilan_id (lebih akurat)
+                $this->db->where('pengadilan_id', $pengadilan_id);
+            } elseif ($nama_pengadilan) {
+                // Fallback: filter berdasarkan nama
                 $this->db->where('asal_pengadilan', $nama_pengadilan);
             }
         }

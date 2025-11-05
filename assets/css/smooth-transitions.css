@@ -1,0 +1,660 @@
+/*
+ * Smooth Transitions CSS - Sistem Informasi Perkara
+ * File ini mengatur semua transisi dan animasi untuk membuat web terlihat smooth dan profesional
+ * Author: System
+ * Date: 2025-11-05
+ */
+
+/* =================================
+   ROOT VARIABLES - TIMING & EASING
+   ================================= */
+:root {
+    /* Timing Functions - Optimized for no flicker */
+    --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-in-smooth: cubic-bezier(0.4, 0, 1, 1);
+    --ease-out-smooth: cubic-bezier(0, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Duration - Faster for smoother feel */
+    --duration-instant: 0.08s;
+    --duration-fast: 0.12s;
+    --duration-normal: 0.18s;
+    --duration-slow: 0.25s;
+    
+    /* Colors for smooth transitions */
+    --color-primary: #006400;
+    --color-primary-light: #28a745;
+    --color-hover: #f7fafc;
+    --color-active: #e8f5e9;
+}
+
+/* CRITICAL: Force hardware acceleration for smooth rendering */
+* {
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -ms-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    -moz-perspective: 1000;
+    -ms-perspective: 1000;
+    perspective: 1000;
+}
+
+/* =================================
+   PAGE TRANSITION - NO BLANK WHITE SCREEN
+   ================================= */
+
+/* PENTING: HTML dan Body SELALU VISIBLE - tidak ada blank screen */
+html {
+    opacity: 1 !important; /* Selalu visible */
+    background-color: #f8f9fa; /* Match background app */
+}
+
+body {
+    opacity: 1 !important; /* Selalu visible */
+    background-color: #f8f9fa;
+}
+
+/* Animasi smooth hanya untuk content, bukan page */
+.container,
+.main-content,
+.content-wrapper {
+    animation: contentFadeIn 0.2s var(--ease-smooth);
+}
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateZ(0);
+    }
+}
+
+/* Page exit animation - subtle fade saja, tidak blank */
+body.page-transitioning .container,
+body.page-transitioning .main-content,
+body.page-transitioning .content-wrapper {
+    opacity: 0.6; /* Partial fade, tidak full blank */
+    transition: opacity 0.1s var(--ease-smooth);
+}
+
+/* =================================
+   CARD & CONTAINER ANIMATIONS (SMOOTH & SUBTLE)
+   ================================= */
+
+.card {
+    /* Subtle fade-in animation */
+    animation: cardFadeIn var(--duration-normal) var(--ease-smooth) backwards;
+    /* Keep hover transition */
+    transition: transform var(--duration-fast) var(--ease-smooth),
+                box-shadow var(--duration-fast) var(--ease-smooth);
+}
+
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Staggered animation - subtle delays */
+.card:nth-child(1) { animation-delay: 0s; }
+.card:nth-child(2) { animation-delay: 0.04s; }
+.card:nth-child(3) { animation-delay: 0.08s; }
+.card:nth-child(4) { animation-delay: 0.12s; }
+.card:nth-child(5) { animation-delay: 0.16s; }
+.card:nth-child(6) { animation-delay: 0.20s; }
+
+.card:hover {
+    transform: translateY(-2px) translateZ(0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* =================================
+   BUTTON SMOOTH TRANSITIONS (OPTIMIZED - NO FLICKER)
+   ================================= */
+
+.btn,
+button,
+a.btn {
+    /* Use specific properties for better performance */
+    transition: transform var(--duration-fast) var(--ease-smooth),
+                box-shadow var(--duration-fast) var(--ease-smooth),
+                background-color var(--duration-fast) var(--ease-smooth);
+    position: relative;
+    /* Force GPU acceleration */
+    will-change: transform;
+}
+
+.btn:hover,
+button:hover,
+a.btn:hover {
+    transform: translateY(-1px) translateZ(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active,
+button:active,
+a.btn:active {
+    transform: translateY(0) translateZ(0);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    transition-duration: var(--duration-instant);
+}
+
+/* Remove ripple effect - can cause flicker */
+
+/* =================================
+   FORM INPUT SMOOTH TRANSITIONS (OPTIMIZED)
+   ================================= */
+
+.form-control,
+.form-select,
+textarea.form-control {
+    /* Specific transitions only */
+    transition: border-color var(--duration-fast) var(--ease-smooth),
+                box-shadow var(--duration-fast) var(--ease-smooth);
+    border: 1px solid #dee2e6;
+    will-change: border-color;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea.form-control:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(0, 100, 0, 0.15);
+    /* Remove transform - causes layout shift/flicker */
+}
+
+.form-control::placeholder {
+    transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+
+.form-control:focus::placeholder {
+    opacity: 0.5;
+}
+
+/* Form label smooth animation */
+.form-label {
+    transition: color var(--duration-fast) var(--ease-smooth);
+}
+
+.form-control:focus ~ .form-label,
+.form-select:focus ~ .form-label {
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+/* =================================
+   TABLE SMOOTH INTERACTIONS
+   ================================= */
+
+.table {
+    /* Smooth fade-in */
+    animation: tableFadeIn var(--duration-normal) var(--ease-smooth);
+    transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+
+@keyframes tableFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.table tbody tr {
+    transition: background-color var(--duration-fast) var(--ease-smooth),
+                transform var(--duration-fast) var(--ease-smooth);
+}
+
+.table tbody tr:hover {
+    background-color: var(--color-hover);
+    transform: translateX(2px) translateZ(0);
+}
+
+/* Smooth loading state untuk table */
+.table.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+
+/* Row stagger animation on page load */
+.table tbody tr {
+    animation: tableRowFadeIn var(--duration-normal) var(--ease-smooth) backwards;
+}
+
+.table tbody tr:nth-child(1) { animation-delay: 0s; }
+.table tbody tr:nth-child(2) { animation-delay: 0.02s; }
+.table tbody tr:nth-child(3) { animation-delay: 0.04s; }
+.table tbody tr:nth-child(4) { animation-delay: 0.06s; }
+.table tbody tr:nth-child(5) { animation-delay: 0.08s; }
+.table tbody tr:nth-child(6) { animation-delay: 0.10s; }
+.table tbody tr:nth-child(7) { animation-delay: 0.12s; }
+.table tbody tr:nth-child(8) { animation-delay: 0.14s; }
+.table tbody tr:nth-child(9) { animation-delay: 0.16s; }
+.table tbody tr:nth-child(10) { animation-delay: 0.18s; }
+
+@keyframes tableRowFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* =================================
+   MODAL SMOOTH TRANSITIONS (OPTIMIZED)
+   ================================= */
+
+.modal.fade .modal-dialog {
+    transition: transform var(--duration-fast) var(--ease-smooth),
+                opacity var(--duration-fast) var(--ease-smooth);
+    will-change: transform, opacity;
+}
+
+.modal.show .modal-dialog {
+    /* Simpler animation - no scale to avoid flicker */
+    animation: modalSlideDown var(--duration-fast) var(--ease-smooth);
+}
+
+@keyframes modalSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateZ(0);
+    }
+}
+
+/* Modal backdrop smooth fade */
+.modal-backdrop.fade {
+    transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+
+/* =================================
+   ALERT SMOOTH ANIMATIONS (OPTIMIZED)
+   ================================= */
+
+.alert {
+    /* Remove animation - causes flicker on page load */
+    animation: none !important;
+    transition: opacity var(--duration-fast) var(--ease-smooth),
+                transform var(--duration-fast) var(--ease-smooth);
+}
+
+.alert.alert-dismissible {
+    transition: opacity var(--duration-fast) var(--ease-smooth),
+                transform var(--duration-fast) var(--ease-smooth);
+}
+
+.alert.alert-dismissible.fade {
+    opacity: 0;
+    transform: translateX(10px) translateZ(0);
+}
+
+/* =================================
+   BADGE & PILL SMOOTH TRANSITIONS (OPTIMIZED)
+   ================================= */
+
+.badge,
+.badge-pill {
+    /* Subtle transition only */
+    transition: transform var(--duration-fast) var(--ease-smooth),
+                box-shadow var(--duration-fast) var(--ease-smooth);
+}
+
+.badge:hover,
+.badge-pill:hover {
+    transform: scale(1.03) translateZ(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* =================================
+   DROPDOWN SMOOTH ANIMATIONS (OPTIMIZED)
+   ================================= */
+
+.dropdown-menu {
+    /* Simpler fade in - no slide to avoid flicker */
+    animation: dropdownFadeIn var(--duration-fast) var(--ease-smooth);
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    will-change: opacity;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateZ(0);
+    }
+}
+
+.dropdown-item {
+    transition: background-color var(--duration-fast) var(--ease-smooth),
+                transform var(--duration-fast) var(--ease-smooth);
+}
+
+.dropdown-item:hover {
+    background-color: var(--color-hover);
+    transform: translateX(2px) translateZ(0);
+}
+
+/* =================================
+   TOOLTIP SMOOTH ANIMATIONS
+   ================================= */
+
+.tooltip {
+    transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+
+.tooltip.show {
+    animation: tooltipFadeIn var(--duration-fast) var(--ease-smooth);
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* =================================
+   PAGINATION SMOOTH TRANSITIONS
+   ================================= */
+
+.pagination .page-link {
+    transition: transform var(--duration-fast) var(--ease-smooth),
+                box-shadow var(--duration-fast) var(--ease-smooth),
+                background-color var(--duration-fast) var(--ease-smooth);
+}
+
+.pagination .page-link:hover {
+    transform: translateY(-2px) translateZ(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pagination .page-item.active .page-link {
+    transform: scale(1.05) translateZ(0);
+}
+
+/* Pagination fade-in animation */
+.pagination {
+    animation: paginationFadeIn var(--duration-normal) var(--ease-smooth);
+}
+
+@keyframes paginationFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =================================
+   BREADCRUMB SMOOTH ANIMATIONS
+   ================================= */
+
+.breadcrumb {
+    animation: breadcrumbSlideIn var(--duration-normal) var(--ease-smooth);
+}
+
+@keyframes breadcrumbSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.breadcrumb-item {
+    transition: transform var(--duration-fast) var(--ease-smooth),
+                color var(--duration-fast) var(--ease-smooth);
+}
+
+.breadcrumb-item:hover {
+    transform: translateX(3px) translateZ(0);
+}
+
+/* Stagger breadcrumb items */
+.breadcrumb-item:nth-child(1) { animation: breadcrumbItemFade var(--duration-normal) var(--ease-smooth) 0s backwards; }
+.breadcrumb-item:nth-child(2) { animation: breadcrumbItemFade var(--duration-normal) var(--ease-smooth) 0.05s backwards; }
+.breadcrumb-item:nth-child(3) { animation: breadcrumbItemFade var(--duration-normal) var(--ease-smooth) 0.1s backwards; }
+.breadcrumb-item:nth-child(4) { animation: breadcrumbItemFade var(--duration-normal) var(--ease-smooth) 0.15s backwards; }
+
+@keyframes breadcrumbItemFade {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =================================
+   LOADING SPINNER SMOOTH ROTATION
+   ================================= */
+
+.spinner-border,
+.spinner-grow {
+    animation: spinnerRotate 1s linear infinite;
+}
+
+@keyframes spinnerRotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =================================
+   SCROLL SMOOTH BEHAVIOR (OPTIMIZED)
+   ================================= */
+
+html {
+    /* Smooth scroll for anchor links */
+    scroll-behavior: smooth;
+}
+
+/* Smooth scrollbar - simplified */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+    /* Faster transition */
+    transition: background var(--duration-instant) var(--ease-smooth);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* =================================
+   LINK SMOOTH TRANSITIONS (OPTIMIZED)
+   ================================= */
+
+a {
+    /* Only opacity transition */
+    transition: opacity var(--duration-fast) var(--ease-smooth),
+                color var(--duration-fast) var(--ease-smooth);
+}
+
+a:hover {
+    opacity: 0.85;
+}
+
+/* =================================
+   IMAGE SMOOTH LOADING (OPTIMIZED)
+   ================================= */
+
+img {
+    /* Only opacity - transform can cause flicker */
+    transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+
+img:not([src]) {
+    opacity: 0;
+}
+
+img[src] {
+    opacity: 1;
+}
+
+/* Remove hover scale - can cause flicker/reflow */
+
+/* =================================
+   SKELETON LOADING ANIMATION
+   ================================= */
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeletonLoading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeletonLoading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* =================================
+   HOVER GLOW EFFECTS
+   ================================= */
+
+.glow-on-hover {
+    transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+.glow-on-hover:hover {
+    box-shadow: 0 0 20px rgba(0, 100, 0, 0.3);
+}
+
+/* =================================
+   RESPONSIVE ANIMATIONS (SMOOTH ON MOBILE)
+   ================================= */
+
+/* Fast but smooth animations on mobile */
+@media (max-width: 768px) {
+    /* Faster animations for better mobile performance */
+    * {
+        animation-duration: 0.12s !important;
+        transition-duration: 0.12s !important;
+    }
+    
+    /* Keep subtle animations on mobile */
+    body {
+        animation-duration: 0.18s !important;
+    }
+    
+    .card,
+    .table tbody tr,
+    .breadcrumb-item {
+        animation-duration: 0.15s !important;
+    }
+    
+    /* Disable transform on mobile hover - better touch experience */
+    .card:hover,
+    .btn:hover,
+    button:hover,
+    .badge:hover,
+    .dropdown-item:hover,
+    .table tbody tr:hover {
+        transform: none !important;
+    }
+    
+    /* Force hardware acceleration on mobile */
+    * {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+    
+    /* Simplify stagger on mobile */
+    .card:nth-child(n+4),
+    .table tbody tr:nth-child(n+6) {
+        animation-delay: 0s !important;
+    }
+}
+
+/* =================================
+   REDUCED MOTION SUPPORT
+   ================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* =================================
+   DARK MODE SUPPORT (Future Ready)
+   ================================= */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-hover: #2d3748;
+        --color-active: #1a202c;
+    }
+}
+
+/* =================================
+   PRINT OPTIMIZATIONS
+   ================================= */
+
+@media print {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+        box-shadow: none !important;
+    }
+}
