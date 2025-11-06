@@ -1,3 +1,13 @@
+/* Sidebar menu left align fix */
+.sidebar .nav-link,
+.sidebar .submenu-link,
+.sidebar .sidebar-title,
+.sidebar .nav-item,
+.sidebar .sidebar-header {
+    text-align: left !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+}
 /*
  * Global Layout CSS - Sistem Informasi Perkara
  * File ini mengatur positioning dan layout utama untuk semua halaman

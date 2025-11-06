@@ -6,6 +6,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @property CI_Input $input
  * @property CI_DB_query_builder $db
  * @property Perkara_model $Perkara_model
+ * @property User_model $User_model
  */
 class Laporan extends CI_Controller
 {
@@ -13,6 +14,7 @@ class Laporan extends CI_Controller
     {
         parent::__construct();
         $this->load->model('Perkara_model');
+        $this->load->model('User_model');
         $this->load->helper('url');
         $this->load->library('session');
 
@@ -66,7 +68,9 @@ class Laporan extends CI_Controller
 
         $data['filters'] = $filters;
 
-        $this->load->view('navbar/header');
+        $user_id = $this->session->userdata('user_id');
+        $data['user'] = $this->User_model->get_by_id($user_id);
+        $this->load->view('navbar/header', $data);
         $this->load->view('laporan/laporan', $data);
         $this->load->view('navbar/footer');
     }
@@ -661,7 +665,7 @@ class Laporan extends CI_Controller
                                 <td><?= htmlspecialchars($row->klasifikasi) ?></td>
                                 <td class="date-cell"><?= $this->format_tanggal($row->tgl_register_banding) ?></td>
                                 <td><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
-                                <td class="center"><?= htmlspecialchars($row->lama_proses) ?></td>
+                                <td class="center"><?= htmlspecialchars($row->lama_proses) ?> Hari</td>
                                 <td><?= htmlspecialchars($this->format_status_banding($row->status_perkara_tk_banding)) ?></td>
                                 <td class="date-cell"><?= $this->format_tanggal($row->pemberitahuan_putusan_banding) ?></td>
                                 <td class="date-cell"><?= $this->format_tanggal($row->permohonan_kasasi) ?></td>
@@ -1804,7 +1808,18 @@ class Laporan extends CI_Controller
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->klasifikasi) . '</td>';
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->tgl_register_banding ? $this->format_tanggal($row->tgl_register_banding) : '-') . '</td>';
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($row->nomor_perkara_banding) . '</td>';
-            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . $status_waktu . ' - ' . htmlspecialchars($row->lama_proses) . '</td>';
+            // Format lama proses agar selalu ada "Hari"
+            $lama_proses_text = trim($row->lama_proses);
+            if (is_numeric($lama_proses_text)) {
+                $lama_proses_text = htmlspecialchars($lama_proses_text) . ' Hari';
+            } elseif (preg_match('/\d+\s*hari/i', $lama_proses_text)) {
+                $lama_proses_text = htmlspecialchars($lama_proses_text);
+            } elseif (!empty($lama_proses_text)) {
+                $lama_proses_text = htmlspecialchars($lama_proses_text) . ' Hari';
+            } else {
+                $lama_proses_text = '-';
+            }
+            echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . $status_waktu . ' - ' . $lama_proses_text . '</td>';
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . htmlspecialchars($this->format_status_banding($row->status_perkara_tk_banding)) . '</td>';
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->pemberitahuan_putusan_banding ? $this->format_tanggal($row->pemberitahuan_putusan_banding) : '-') . '</td>';
             echo '<td style="background-color: white; color: black; font-family: Calibri, Arial, sans-serif; font-size: 10pt; text-align: center; border: 1px solid black; padding: 5px;">' . ($row->permohonan_kasasi ? $this->format_tanggal($row->permohonan_kasasi) : '-') . '</td>';

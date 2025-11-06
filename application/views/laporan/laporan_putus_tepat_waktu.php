@@ -660,22 +660,35 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                                 <?= htmlspecialchars($row->nomor_perkara_banding) ?>
                                             </td>
                                             <td class="lama-column">
+                                                <?php
+                                                $lama = trim($row->lama_proses);
+                                                $lama_text = '';
+                                                if (is_numeric($lama)) {
+                                                    $lama_text = htmlspecialchars($lama) . ' Hari';
+                                                } elseif (preg_match('/\d+\s*hari/i', $lama)) {
+                                                    $lama_text = htmlspecialchars($lama);
+                                                } elseif (!empty($lama)) {
+                                                    $lama_text = htmlspecialchars($lama) . ' Hari';
+                                                } else {
+                                                    $lama_text = '-';
+                                                }
+                                                ?>
                                                 <?php if ($lama_proses_hari > 0): ?>
                                                     <?php if ($is_tepat_waktu): ?>
                                                         <span class="badge-tepat-waktu">
                                                             <i class="fas fa-check-circle me-1"></i>
-                                                            <?= htmlspecialchars($row->lama_proses) ?>
+                                                            <?= $lama_text ?>
                                                         </span>
                                                     <?php else: ?>
                                                         <span class="badge-tidak-tepat-waktu">
                                                             <i class="fas fa-exclamation-triangle me-1"></i>
-                                                            <?= htmlspecialchars($row->lama_proses) ?>
+                                                            <?= $lama_text ?>
                                                         </span>
                                                     <?php endif; ?>
                                                 <?php else: ?>
                                                     <span class="text-muted">
                                                         <i class="fas fa-clock me-1"></i>
-                                                        <?= !empty($row->lama_proses) ? htmlspecialchars($row->lama_proses) : 'Belum ada data' ?>
+                                                        <?= $lama_text ?>
                                                     </span>
                                                 <?php endif; ?>
                                             </td>

@@ -52,20 +52,12 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Asal Pengadilan<span class="text-danger">*</span></label>
-                        <select name="asal_pengadilan" class="form-select" required>
-                            <option value="">-- Pilih Asal Pengadilan --</option>
-                            <?php if (isset($pengadilan_list) && !empty($pengadilan_list)): ?>
-                                <?php foreach ($pengadilan_list as $pengadilan): ?>
-                                    <option value="<?= htmlspecialchars($pengadilan->nama_pengadilan) ?>"
-                                        <?= ($perkara->asal_pengadilan == $pengadilan->nama_pengadilan) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($pengadilan->nama_pengadilan) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <option value="">Data pengadilan tidak tersedia</option>
-                            <?php endif; ?>
-                        </select>
-                        <div class="invalid-feedback">Asal pengadilan harus dipilih</div>
+                        <input type="text" name="asal_pengadilan" class="form-control" required readonly
+                            value="<?= isset($asal_pengadilan_session) ? htmlspecialchars($asal_pengadilan_session) : (isset($perkara->asal_pengadilan) ? htmlspecialchars($perkara->asal_pengadilan) : '') ?>">
+                        <div class="invalid-feedback">Asal pengadilan harus diisi</div>
+                        <?php if (isset($asal_pengadilan_session) && $asal_pengadilan_session): ?>
+                            <span class="badge bg-info text-dark mt-2">Pengadilan Anda: <?= htmlspecialchars($asal_pengadilan_session) ?></span>
+                        <?php endif; ?>
                     </div>
 
                     <div class="col-md-6">
@@ -120,8 +112,9 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Lama Proses</label>
-                        <input type="text" name="lama_proses" class="form-control"
-                            value="<?= htmlspecialchars($perkara->lama_proses) ?>">
+                        <input type="number" name="lama_proses" id="lama_proses_edit" class="form-control"
+                            value="<?= is_numeric($perkara->lama_proses) ? $perkara->lama_proses : '' ?>" min="0" step="1">
+                        <div class="form-text" id="lamaProsesPreviewEdit"></div>
                     </div>
 
                     <div class="col-md-6">
@@ -235,6 +228,23 @@
                 }
             });
         }
+    });
+
+    // Preview "Hari" untuk input lama proses di edit user
+    document.addEventListener('DOMContentLoaded', function() {
+        const lamaProsesInput = document.getElementById('lama_proses_edit');
+        const preview = document.getElementById('lamaProsesPreviewEdit');
+
+        function updatePreview() {
+            const val = lamaProsesInput.value;
+            if (val && !isNaN(val)) {
+                preview.textContent = val + ' Hari';
+            } else {
+                preview.textContent = '';
+            }
+        }
+        lamaProsesInput.addEventListener('input', updatePreview);
+        updatePreview(); // initial
     });
 </script>
 

@@ -214,16 +214,8 @@ class Perkara_model extends CI_Model
     // ======================
     public function add($data)
     {
-        // Auto-assign pengadilan_id dan asal_pengadilan dari session (kecuali super_admin yang bisa pilih manual)
+        // Auto-assign asal_pengadilan dari session (kecuali super_admin yang bisa pilih manual)
         if ($this->session->userdata('role') !== 'super_admin') {
-            // Set pengadilan_id dari session
-            if (!isset($data['pengadilan_id'])) {
-                $pengadilan_id = $this->session->userdata('pengadilan_id');
-                if ($pengadilan_id) {
-                    $data['pengadilan_id'] = $pengadilan_id;
-                }
-            }
-
             // Set asal_pengadilan dari session (backward compatibility)
             if (!isset($data['asal_pengadilan'])) {
                 $nama_pengadilan = $this->session->userdata('nama_pengadilan');
@@ -234,7 +226,12 @@ class Perkara_model extends CI_Model
         }
 
         // Log untuk debugging
-        log_message('debug', "Adding perkara with pengadilan_id: " . ($data['pengadilan_id'] ?? 'NULL'));
+        log_message('debug', "Adding perkara with asal_pengadilan: " . ($data['asal_pengadilan'] ?? 'NULL'));
+
+        // Pastikan field pengadilan_id tidak dikirim ke database jika kolomnya tidak ada
+        if (isset($data['pengadilan_id'])) {
+            unset($data['pengadilan_id']);
+        }
 
         return $this->db->insert($this->table, $data);
     }
@@ -396,5 +393,62 @@ class Perkara_model extends CI_Model
             ->order_by('nama', 'ASC')
             ->get()
             ->result();
+    }
+
+    /**
+     * Ambil jumlah perkara per bulan untuk grafik statistik
+     * @param int|null $tahun
+     * @return array [ 'bulan' => '01', 'jumlah' => 12 ]
+     */
+    public function get_jumlah_perkara_per_bulan($tahun = null, $user_id = null)
+    {
+        if ($tahun === null) {
+            $tahun = date('Y');
+        }
+        $this->db->select("MONTH(tgl_register_banding) as bulan, COUNT(*) as jumlah");
+        $this->db->from($this->table . ' pb');
+        $this->db->where('YEAR(tgl_register_banding)', $tahun);
+        // REVERT: Jangan filter by created_by, cukup filter pengadilan saja
+        $this->apply_pengadilan_filter();
+        $this->db->group_by('bulan');
+        $this->db->order_by('bulan', 'ASC');
+        $query = $this->db->get();
+        $result = $query->result_array();
+        // Normalisasi agar bulan 1-12 selalu ada
+        $data = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $found = false;
+            foreach ($result as $row) {
+                if ((int)$row['bulan'] === $i) {
+                    $data[] = [
+                        'bulan' => str_pad($i, 2, '0', STR_PAD_LEFT),
+                        'jumlah' => (int)$row['jumlah']
+                    ];
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                $data[] = [
+                    'bulan' => str_pad($i, 2, '0', STR_PAD_LEFT),
+                    'jumlah' => 0
+                ];
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Ambil jumlah perkara per bulan untuk grafik statistik
+     * @param int|null $tahun
+     * @param int|null $user_id
+     * @return array [ 'bulan' => '01', 'jumlah' => 12 ]
+     */
+    public function get_grafik_perkara_bulanan($filters = [])
+    {
+        $tahun = isset($filters['tahun']) ? $filters['tahun'] : date('Y');
+        $user_id = isset($filters['user_id']) ? $filters['user_id'] : null;
+        // Patch: use created_by for user filtering
+        return $this->get_jumlah_perkara_per_bulan($tahun, $user_id);
     }
 }

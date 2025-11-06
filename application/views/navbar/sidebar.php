@@ -1,5 +1,3 @@
-<!-- Pastikan Bootstrap JS sudah di-include sebelum </body> -->
-<!-- Contoh: <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 $role = $this->session->userdata('role');
@@ -14,7 +12,7 @@ $current_url = current_url();
         </h6>
     </div>
 
-    <ul class="nav flex-column">
+    <ul class="nav flex-column" style="text-align:left;">
 
         <!-- DASHBOARD & DATA PERKARA MENU -->
         <li class="nav-item mb-2">
@@ -67,6 +65,15 @@ $current_url = current_url();
                     <li><a class="nav-link submenu-link" href="<?= site_url('laporan/rekapitulasi_bulanan'); ?>" data-menu="laporan">
                             <i class="fas fa-calendar-alt me-2"></i>Rekapitulasi Bulanan
                         </a></li>
+                    <?php if ($role == 'admin'): ?>
+                        <li><a class="nav-link submenu-link" href="<?= site_url('admin/grafik_perkara_bulanan'); ?>" data-menu="grafik">
+                                <i class="fas fa-chart-bar me-2"></i>Grafik Perkara Bulanan
+                            </a></li>
+                    <?php else: ?>
+                        <li><a class="nav-link submenu-link" href="<?= site_url('grafik/perkara_bulanan'); ?>" data-menu="grafik">
+                                <i class="fas fa-chart-bar me-2"></i>Grafik Perkara Bulanan
+                            </a></li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </li>

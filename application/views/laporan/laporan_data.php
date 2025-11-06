@@ -5,6 +5,22 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <?php $this->load->view('navbar/header'); ?>
 
 <style>
+    /* Custom fix for laporan_data.php footer to stay at bottom */
+    .footer {
+        position: fixed !important;
+        left: 280px;
+        right: 0;
+        bottom: 0;
+        width: calc(100% - 280px);
+        z-index: 1000;
+        background: #fff;
+        border-top: 1px solid #e0e0e0;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+        padding: 14px 0 12px 0;
+        text-align: center;
+        font-size: 14px;
+    }
+
     /* Force refresh CSS - Version 7.0 - FIXED LAYOUT */
 
     /* Print styles */
@@ -502,9 +518,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 </p>
             </div>
             <div class="action-buttons">
-                <button onclick="window.print()" class="btn btn-success">
-                    <i class="fas fa-print"></i> Print Laporan
-                </button>
                 <a href="<?= site_url('laporan/cetak_laporan_data_excel?' . $_SERVER['QUERY_STRING']); ?>" class="btn btn-success">
                     <i class="fas fa-file-excel"></i> Export Excel
                 </a>
@@ -647,7 +660,20 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                             <?= $row->tgl_register_banding ? date('d-m-Y', strtotime($row->tgl_register_banding)) : '-' ?>
                                         </td>
                                         <td style="text-align: left; word-wrap: break-word; max-width: 200px;"><?= htmlspecialchars($row->nomor_perkara_banding) ?></td>
-                                        <td><?= htmlspecialchars($row->lama_proses) ?> hari</td>
+                                        <td>
+                                            <?php
+                                            $lama = trim($row->lama_proses);
+                                            if (is_numeric($lama)) {
+                                                echo htmlspecialchars($lama) . ' Hari';
+                                            } elseif (preg_match('/\d+\s*hari/i', $lama)) {
+                                                echo htmlspecialchars($lama);
+                                            } elseif (!empty($lama)) {
+                                                echo htmlspecialchars($lama) . ' Hari';
+                                            } else {
+                                                echo '-';
+                                            }
+                                            ?>
+                                        </td>
                                         <td style="text-align: left; vertical-align: top; word-wrap: break-word; white-space: normal; max-width: 250px; line-height: 1.4; padding: 0.5rem 0.25rem;">
                                             <?= htmlspecialchars(str_replace('Minutas tanggal', 'Putusan Banding PT tanggal', $row->status_perkara_tk_banding)) ?>
                                         </td>

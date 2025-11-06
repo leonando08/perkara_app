@@ -52,3 +52,4 @@ defined('BASEPATH') or exit('No direct script access allowed');
 $route['default_controller'] = 'auth/login';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
+$route['admin/grafik_perkara_bulanan'] = 'dashboard_admin/grafik_perkara_bulanan';

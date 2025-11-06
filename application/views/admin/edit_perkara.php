@@ -52,20 +52,12 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Asal Pengadilan<span class="text-danger">*</span></label>
-                        <select name="asal_pengadilan" class="form-select" required>
-                            <option value="">-- Pilih Asal Pengadilan --</option>
-                            <?php if (isset($pengadilan_list) && !empty($pengadilan_list)): ?>
-                                <?php foreach ($pengadilan_list as $pengadilan): ?>
-                                    <option value="<?= htmlspecialchars($pengadilan->nama_pengadilan) ?>"
-                                        <?= ($perkara->asal_pengadilan == $pengadilan->nama_pengadilan) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($pengadilan->nama_pengadilan) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <option value="">Data pengadilan tidak tersedia</option>
-                            <?php endif; ?>
-                        </select>
-                        <div class="invalid-feedback">Asal pengadilan harus dipilih</div>
+                        <input type="text" name="asal_pengadilan" class="form-control" required readonly
+                            value="<?= isset($asal_pengadilan_session) ? htmlspecialchars($asal_pengadilan_session) : (isset($perkara->asal_pengadilan) ? htmlspecialchars($perkara->asal_pengadilan) : '') ?>">
+                        <div class="invalid-feedback">Asal pengadilan harus diisi</div>
+                        <?php if (isset($asal_pengadilan_session) && $asal_pengadilan_session): ?>
+                            <span class="badge bg-info text-dark mt-2">Pengadilan Anda: <?= htmlspecialchars($asal_pengadilan_session) ?></span>
+                        <?php endif; ?>
                     </div>
 
                     <div class="col-md-6">

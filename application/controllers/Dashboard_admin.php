@@ -45,4 +45,16 @@ class Dashboard_admin extends CI_Controller
 
         $this->load->view('admin/dashboard_admin', $data);
     }
+
+    public function grafik_perkara_bulanan()
+    {
+        // Proteksi hanya untuk admin
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
+            redirect('auth/login');
+        }
+        $tahun = $this->input->get('tahun') ?: date('Y');
+        $data['tahun'] = $tahun;
+        $data['grafik'] = $this->Perkara_model->get_jumlah_perkara_per_bulan($tahun);
+        $this->load->view('admin/grafik_perkara_bulanan', $data);
+    }
 }

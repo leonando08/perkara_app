@@ -127,7 +127,18 @@ class Laporan extends CI_Controller
                 $pdf->Cell($header['Klasifikasi'], $height, $row->klasifikasi, 1, 0, 'L', $fillRow);
                 $pdf->Cell($header['Tgl Register'], $height, !empty($row->tgl_register_banding) ? date('d-m-Y', strtotime($row->tgl_register_banding)) : '-', 1, 0, 'C', $fillRow);
                 $pdf->Cell($header['Nomor Banding'], $height, $row->nomor_perkara_banding, 1, 0, 'L', $fillRow);
-                $pdf->Cell($header['Lama Proses'], $height, $row->lama_proses, 1, 0, 'C', $fillRow);
+
+                $lama = trim($row->lama_proses);
+                if (is_numeric($lama)) {
+                    $lama_proses_text = $lama . ' Hari';
+                } elseif (preg_match('/\d+\s*hari/i', $lama)) {
+                    $lama_proses_text = $lama;
+                } elseif (!empty($lama)) {
+                    $lama_proses_text = $lama . ' Hari';
+                } else {
+                    $lama_proses_text = '-';
+                }
+                $pdf->Cell($header['Lama Proses'], $height, $lama_proses_text, 1, 0, 'C', $fillRow);
                 $pdf->Cell($header['Status Tk Banding'], $height, $row->status_perkara_tk_banding, 1, 0, 'L', $fillRow);
                 $pdf->Cell($header['Pemberitahuan Putusan'], $height, !empty($row->pemberitahuan_putusan_banding) ? date('d-m-Y', strtotime($row->pemberitahuan_putusan_banding)) : '-', 1, 0, 'C', $fillRow);
                 $pdf->Cell($header['Permohonan Kasasi'], $height, !empty($row->permohonan_kasasi) ? date('d-m-Y', strtotime($row->permohonan_kasasi)) : '-', 1, 0, 'C', $fillRow);
