@@ -505,7 +505,7 @@ CREATE TABLE IF NOT EXISTS `pengadilan` (
   UNIQUE KEY `kode_pengadilan` (`kode_pengadilan`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table perkara_db.pengadilan: ~14 rows (approximately)
+-- Dumping data for table perkara_db.pengadilan: ~13 rows (approximately)
 DELETE FROM `pengadilan`;
 INSERT INTO `pengadilan` (`id`, `kode_pengadilan`, `nama_pengadilan`, `alamat`, `telepon`, `email`, `created_at`) VALUES
 	(1, 'PN-BJM', 'Pengadilan Negeri Banjarmasin', 'Jl. Brig Jend. Hasan Basri No.3, Banjarmasin', NULL, NULL, '2025-11-03 07:26:15'),
@@ -546,21 +546,22 @@ CREATE TABLE IF NOT EXISTS `perkara_banding` (
   KEY `fk_perkara_banding_klasifikasi` (`klasifikasi`),
   CONSTRAINT `fk_perkara_banding_klasifikasi` FOREIGN KEY (`klasifikasi`) REFERENCES `jenis_perkara` (`nama`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_perkara_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table perkara_db.perkara_banding: ~10 rows (approximately)
+-- Dumping data for table perkara_db.perkara_banding: ~9 rows (approximately)
 DELETE FROM `perkara_banding`;
 INSERT INTO `perkara_banding` (`id`, `no`, `asal_pengadilan`, `perkara`, `nomor_perkara_tk1`, `klasifikasi`, `tgl_register_banding`, `nomor_perkara_banding`, `lama_proses`, `status_perkara_tk_banding`, `pemberitahuan_putusan_banding`, `permohonan_kasasi`, `pengiriman_berkas_kasasi`, `status`, `created_by`) VALUES
 	(10, 1, 'Pengadilan Negeri Paringin', 'PIDANA', '78/Pid.Sus/2024/PN Prn', 'Narkotika', '2025-11-04', '369/PID.SUS/2024/PT BJM', '25 hari', 'Putusan Banding PT tanggal : 03-11-2025', '2025-01-13', '2025-11-04', '2025-02-19', 'Proses', NULL),
-	(11, 2, 'Pengadilan Negeri Paringin', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Lalu-Lintas', '2025-11-03', '369/PID.SUS/2024/PT BJM', '17 Hari', 'Putusan Banding PT tanggal : 03-11-2025', NULL, '2025-11-03', '2025-02-13', 'Selesai', NULL),
+	(11, 2, 'Pengadilan Negeri Paringin', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Lalu-Lintas', '2025-02-07', '369/PID.SUS/2024/PT BJM', '30', 'Putusan Banding PT tanggal : 06-11-2025', '2025-11-06', '2025-11-06', '2025-11-06', 'Selesai', NULL),
 	(12, NULL, 'Pengadilan Negeri Kandangan', 'PERDATA', '80/Pid.Sus/2024/PN Prn', 'Narkotika', '2025-09-10', '400/PID.SUS/2024/PT BJM', '28 hari', 'Minutas tanggal : 2025-01-10', '2025-09-16', '2025-09-16', '2025-09-16', 'Selesai', NULL),
 	(13, NULL, 'Pengadilan Negeri Martapura', 'ANAK', '64724', 'Asal Usul Anak', '2025-09-09', '410/PID.SUS/2024/PT BJM', '27 hari', 'Putusan Banding PT tanggal : 16-09-2025', '2025-09-13', '2025-09-14', '2025-09-14', 'Proses', NULL),
 	(14, NULL, 'Pengadilan Negeri Kotabaru', 'TIPIKOR', '100/Pid.Sus/2024/PN Prn', 'Korupsi', '2025-09-03', '400/PID.SUS/2024/PT BJM', '28 hari', 'Minutas tanggal : 2025-01-06', '2025-09-08', '2025-09-02', '2025-09-03', 'Selesai', NULL),
-	(15, NULL, 'Pengadilan Negeri Banjarmasin', 'PIDANA', '40/Pid.Sus/2024/PN Prn', 'Pembunuhan', '2025-10-02', '2131637613', '25 hari', 'Minutas tanggal : 2025-01-09', '2025-10-08', NULL, '2025-10-15', 'Selesai', NULL),
-	(20, NULL, 'Jawa', 'PIDANA', '71/Pid.Sus/2024/PN Prn', 'BPSK', '2025-09-17', '300/PID.SUS/2024/PT BJM', '93 Hari', 'Minutas tanggal : 2025-01-19', '2025-09-16', '2025-09-17', '2025-09-16', 'Selesai', NULL),
+	(15, NULL, 'Pengadilan Negeri Banjarbaru', 'PIDANA', '40/Pid.Sus/2024/PN Prn', 'Pembunuhan', '2025-11-06', '2131637613', '25 hari', 'Minutas tanggal : 2025-01-09', '2025-10-08', NULL, '2025-10-15', 'Selesai', NULL),
+	(20, NULL, 'Pengadilan Negeri Banjarbaru', 'PIDANA', '71/Pid.Sus/2024/PN Prn', 'BPSK', '2025-09-17', '300/PID.SUS/2024/PT BJM', '93 Hari', 'Minutas tanggal : 2025-01-19', '2025-09-16', '2025-09-17', '2025-09-16', 'Selesai', NULL),
 	(21, NULL, 'Pengadilan Negeri Marabahan', 'PIDANA', '64724', 'Asuransi', '2025-11-04', '400/PID.SUS/2024/PT BJM', '25 hari', 'Minutas tanggal : 2025-01-06', '2025-11-04', '2025-11-04', '2025-11-04', 'Proses', NULL),
 	(22, NULL, 'Pengadilan Negeri Martapura', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Asuransi', '2025-11-04', '369/PID.SUS/2024/PT BJM', '25 hari', 'Putusan Banding PT tanggal : 04-11-2025', '2025-11-04', NULL, '2025-11-04', 'Proses', NULL),
-	(23, NULL, 'Pengadilan Negeri Paringin', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Asal Usul Anak', '2025-11-04', '300/PID.SUS/2024/PT BJM', '17 Hari', 'Putusan Banding PT tanggal : 04-11-2025', '2025-11-04', '2025-11-04', '2025-11-04', 'Proses', NULL);
+	(23, NULL, 'Pengadilan Negeri Banjarmasin', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Asal Usul Anak', '2025-11-04', '300/PID.SUS/2024/PT BJM', '30', 'Putusan Banding PT tanggal : 04-11-2025', '2025-11-04', '2025-11-04', '2025-11-04', 'Proses', NULL),
+	(24, NULL, 'Pengadilan Negeri Banjarbaru', 'ANAK', '80/Pid.Sus/2024/PN Prn', 'Narkotika', '2025-11-06', '300/PID.SUS/2024/PT BJM', '10', 'Putusan Banding PT tanggal : 06-11-2025', '2025-11-06', '2025-11-06', '2025-11-06', 'Proses', NULL);
 
 -- Dumping structure for table perkara_db.users
 DROP TABLE IF EXISTS `users`;
@@ -578,18 +579,21 @@ CREATE TABLE IF NOT EXISTS `users` (
   `nama` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `foto_profil` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table perkara_db.users: ~5 rows (approximately)
+-- Dumping data for table perkara_db.users: ~7 rows (approximately)
 DELETE FROM `users`;
-INSERT INTO `users` (`id`, `username`, `password`, `role`, `pengadilan_id`, `aktif`, `nip`, `jabatan`, `email`, `nama_lengkap`, `nama`, `created_at`, `updated_at`) VALUES
-	(3, 'ptbanjarmasin', '$2y$10$hh1IY7XbShBl0Gy8qmn4Gu.4hupqCpFAvA7PnEeen1NEcPCssTPoS', 'admin', NULL, 'Y', NULL, NULL, 'admin1@gmail.com', 'PT Banjarmasin', NULL, '2025-09-16 02:23:57', '2025-11-04 00:30:29'),
-	(4, 'user', '$2y$10$XApdDBg8hNcaKjkL.76U9e/R9MneJbN8Nu/MsjTM24Bar3aQAd90.', 'user', NULL, 'Y', NULL, NULL, 'user@example.com', 'User user', NULL, '2025-09-16 03:10:50', '2025-10-17 02:27:07'),
-	(9, 'pnbanjarbaru', '$2y$10$tc1wpDdbZeHlFfHjk48A0ODeMplFRF.F7G0xk90gVP7nHgYdrurti', 'user', 1, 'Y', '198501012010011001', 'Administrator', 'admin@pn-banjarbaru.go.id', 'Pengadilan Negeri Banjarbaru', 'Admin Banjarbaru', '2025-11-03 06:33:24', '2025-11-04 07:07:32'),
-	(11, 'pnmartapura', '$2y$10$j7RPUU6knE/.xqQh9zSrs.wgLtY9JXTNnFd.iYltCftUnValnV9Dq', 'user', 3, 'Y', NULL, NULL, 'pnmartapura@gmail.go.id', 'Pengadilan Tinggi Martapura', NULL, '2025-11-03 07:33:57', '2025-11-03 07:34:59'),
-	(12, 'pnparingin', '$2y$10$wOfKEi6QQ5zEuMi.KTpXRuoMcvuO25IU7DZEnvOjrjvzehHrgZoR.', 'user', 13, 'Y', NULL, NULL, 'pnparingin@gmail.go.id', NULL, NULL, '2025-11-03 07:56:51', NULL);
+INSERT INTO `users` (`id`, `username`, `password`, `role`, `pengadilan_id`, `aktif`, `nip`, `jabatan`, `email`, `nama_lengkap`, `nama`, `created_at`, `updated_at`, `foto_profil`) VALUES
+	(3, 'ptbanjarmasin', '$2y$10$hh1IY7XbShBl0Gy8qmn4Gu.4hupqCpFAvA7PnEeen1NEcPCssTPoS', 'admin', NULL, 'Y', NULL, NULL, 'admin1@gmail.com', 'PT Banjarmasin', NULL, '2025-09-16 02:23:57', '2025-11-06 02:28:56', 'fb7a736e0f20aacb34870070b3ba6508.jpg'),
+	(4, 'user', '$2y$10$XApdDBg8hNcaKjkL.76U9e/R9MneJbN8Nu/MsjTM24Bar3aQAd90.', 'user', NULL, 'Y', NULL, NULL, 'user@example.com', 'User user', NULL, '2025-09-16 03:10:50', '2025-10-17 02:27:07', NULL),
+	(11, 'pnmartapura', '$2y$10$j7RPUU6knE/.xqQh9zSrs.wgLtY9JXTNnFd.iYltCftUnValnV9Dq', 'user', 3, 'Y', NULL, NULL, 'pnmartapura@gmail.go.id', 'Pengadilan Tinggi Martapura', NULL, '2025-11-03 07:33:57', '2025-11-03 07:34:59', NULL),
+	(12, 'pnparingin', '$2y$10$wOfKEi6QQ5zEuMi.KTpXRuoMcvuO25IU7DZEnvOjrjvzehHrgZoR.', 'user', 13, 'Y', NULL, NULL, 'pnparingin@gmail.go.id', NULL, NULL, '2025-11-03 07:56:51', NULL, NULL),
+	(13, 'pnbanjarmasin', '$2y$10$0KBW1vDd..fUhBrgGsY2FuMndryI0bFIzdyeLKtm/SlADLOFmYkL6', 'user', 1, 'Y', NULL, NULL, 'pnbanjarmasin@gmail.go.id', 'Pengadilan Negeri Banjarmasin', NULL, '2025-11-05 07:57:01', '2025-11-06 06:43:48', NULL),
+	(14, 'pnbanjarbaru', '$2y$10$gQRqxEBmZm6RBoqaqKJPzu14lC1tEUS/3XIucKVjWkkIBVXEdU4tS', 'user', 11, 'Y', NULL, NULL, 'banjarbaru@gmail.go.id', 'Pengadilan Negeri Banjarbaru', NULL, '2025-11-05 08:09:42', '2025-11-06 03:15:02', '55179735afb6d4902dc06206a2c57cd8.png'),
+	(15, 'pnkotabaru', '$2y$10$BSUEbSqmsFcnn1R8GsZUzeEh0mJ8GyZNlK.1qYIKWmLLS034Rtqhi', 'user', 4, 'Y', NULL, NULL, 'pnkotabaru@gmail.go.id', NULL, NULL, '2025-11-05 08:11:48', NULL, NULL);
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

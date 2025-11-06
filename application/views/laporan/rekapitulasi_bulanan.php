@@ -433,9 +433,6 @@ $this->load->view('navbar/header');
                 </p>
             </div>
             <div class="action-buttons">
-                <button onclick="window.print()" class="btn btn-success">
-                    <i class="fas fa-print"></i> Print Laporan
-                </button>
                 <a href="<?= site_url('laporan/export_rekapitulasi_bulanan_excel?' . http_build_query(['tahun' => $tahun, 'periode' => $periode, 'bulan' => $bulan])); ?>" class="btn btn-success">
                     <i class="fas fa-file-excel"></i> Export Excel
                 </a>

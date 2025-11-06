@@ -74,9 +74,40 @@ class Profile extends CI_Controller
                 $update_data = [
                     'username' => $this->input->post('username', TRUE),
                     'email' => $this->input->post('email', TRUE),
-                    'nama_lengkap' => $this->input->post('nama_lengkap', TRUE),
-                    'updated_at' => date('Y-m-d H:i:s')
+                    'nama_lengkap' => $this->input->post('nama_lengkap', TRUE)
                 ];
+
+                // Proses upload foto profil
+                if (!empty($_FILES['foto_profil']['name'])) {
+                    // Coba path absolut dulu
+                    $config['upload_path']   = FCPATH . 'assets/img/profile/';
+                    $config['allowed_types'] = 'jpg|jpeg|png';
+                    $config['max_size']      = 1024; // 1MB
+                    $config['file_ext_tolower'] = TRUE;
+                    $config['encrypt_name']  = TRUE;
+                    log_message('error', 'Upload path (absolut): ' . $config['upload_path']);
+
+                    $this->load->library('upload', $config);
+                    if (!$this->upload->do_upload('foto_profil')) {
+                        // Jika gagal, coba path relatif
+                        $config['upload_path'] = 'assets/img/profile/';
+                        log_message('error', 'Upload path (relatif): ' . $config['upload_path']);
+                        $this->upload->initialize($config);
+                    }
+
+                    if ($this->upload->do_upload('foto_profil')) {
+                        $file_data = $this->upload->data();
+                        $update_data['foto_profil'] = $file_data['file_name'];
+
+                        // Hapus foto lama jika ada dan berbeda
+                        $old_path = FCPATH . 'assets/img/profile/' . $data['user']->foto_profil;
+                        if (!empty($data['user']->foto_profil) && file_exists($old_path)) {
+                            @unlink($old_path);
+                        }
+                    } else {
+                        $data['error'] = $this->upload->display_errors('', '');
+                    }
+                }
 
                 // Jika password diisi, validasi password lama dan update password baru
                 if ($this->input->post('password')) {

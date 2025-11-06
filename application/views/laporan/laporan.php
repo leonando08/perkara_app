@@ -489,7 +489,20 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                     <td class="text-column" title="<?= htmlspecialchars($row->nomor_perkara_banding) ?>">
                                         <?= htmlspecialchars($row->nomor_perkara_banding) ?>
                                     </td>
-                                    <td class="lama-column"><?= htmlspecialchars($row->lama_proses) ?></td>
+                                    <td class="lama-column">
+                                        <?php
+                                        $lama = trim($row->lama_proses);
+                                        if (is_numeric($lama)) {
+                                            echo htmlspecialchars($lama) . ' Hari';
+                                        } elseif (preg_match('/\d+\s*hari/i', $lama)) {
+                                            echo htmlspecialchars($lama);
+                                        } elseif (!empty($lama)) {
+                                            echo htmlspecialchars($lama) . ' Hari';
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>
+                                    </td>
                                     <td class="status-column"><?= str_replace('Minutas tanggal', 'Putusan Banding PT tanggal', htmlspecialchars($row->status_perkara_tk_banding)) ?></td>
                                     <td class="date-column">
                                         <?php

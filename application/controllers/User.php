@@ -2,6 +2,7 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 /**
  * @property Perkara_model $Perkara_model
+ * @property User_model $User_model
  * @property CI_Session $session
  * @property CI_Input $input
  * @property CI_DB_query_builder $db

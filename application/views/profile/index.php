@@ -50,7 +50,11 @@
             <div class="content-card">
                 <div class="d-flex align-items-center mb-4">
                     <div class="avatar-lg me-3">
-                        <i class="fas fa-user-circle text-primary" style="font-size: 4rem;"></i>
+                        <?php if (!empty($user->foto_profil)): ?>
+                            <img src="<?= base_url('assets/img/profile/' . $user->foto_profil) ?>" alt="Foto Profil" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;">
+                        <?php else: ?>
+                            <i class="fas fa-user-circle text-primary" style="font-size: 4rem;"></i>
+                        <?php endif; ?>
                     </div>
                     <div>
                         <h5 class="mb-1"><?= htmlspecialchars($user->nama_lengkap ?: $user->username); ?></h5>

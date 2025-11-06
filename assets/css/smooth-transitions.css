@@ -635,6 +635,50 @@ img[src] {
 }
 
 /* =================================
+   FOOTER ANIMATIONS - STICKY & SMOOTH
+   ================================= */
+
+.footer {
+    /* Smooth slide up on page load */
+    animation: footerSlideUp 0.3s var(--ease-smooth) 0.2s both;
+    /* Smooth transitions for all properties */
+    transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+@keyframes footerSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateZ(0);
+    }
+}
+
+/* Footer text smooth fade */
+.footer small,
+.footer .text-muted {
+    animation: footerTextFade 0.4s var(--ease-smooth) 0.3s both;
+}
+
+@keyframes footerTextFade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Mobile footer optimization */
+@media (max-width: 768px) {
+    .footer {
+        animation-duration: 0.2s;
+    }
+}
+
+/* =================================
    DARK MODE SUPPORT (Future Ready)
    ================================= */
 

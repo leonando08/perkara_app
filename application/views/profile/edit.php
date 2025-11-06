@@ -49,7 +49,24 @@
                     Informasi Dasar
                 </h5>
 
-                <?= form_open('profile/edit', ['class' => 'needs-validation', 'novalidate' => '']); ?>
+                <?= form_open_multipart('profile/edit', ['class' => 'needs-validation', 'novalidate' => '']); ?>
+
+
+                <!-- Foto Profil di bagian atas -->
+                <div class="mb-4">
+                    <label for="foto_profil" class="form-label">
+                        <i class="fas fa-image me-1"></i> Foto Profil
+                    </label>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <?php if (!empty($user->foto_profil)): ?>
+                            <img src="<?= base_url('assets/img/profile/' . $user->foto_profil) ?>" alt="Foto Profil" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;">
+                        <?php else: ?>
+                            <span class="avatar-lg"><i class="fas fa-user-circle text-secondary" style="font-size:3rem;"></i></span>
+                        <?php endif; ?>
+                    </div>
+                    <input type="file" class="form-control" id="foto_profil" name="foto_profil" accept="image/*">
+                    <small class="text-muted">Format: JPG, PNG. Maksimal 1MB.</small>
+                </div>
 
                 <div class="row">
                     <div class="col-md-6">

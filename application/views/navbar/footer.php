@@ -1,8 +1,15 @@
         <!-- Footer -->
 
-        <footer class="footer d-flex justify-content-end align-items-center">
-            <small class="text-muted me-3">Pengadilan Tinggi Banjarmasin</small>
-        </footer>
+        <?php if (basename($_SERVER['PHP_SELF']) === 'laporan_data.php'): ?>
+            <footer class="footer custom-footer-laporan" style="background:#fff;border-top:1px solid #e0e0e0;padding:14px 0 12px 0;text-align:center;position:fixed;left:280px;right:0;bottom:0;width:calc(100% - 280px);z-index:1000;box-shadow:0 -2px 8px rgba(0,0,0,0.04);font-size:14px;">
+                <span style="color:#198754;font-weight:500;letter-spacing:0.5px;">Sistem Informasi Perkara &mdash; Pengadilan Tinggi Banjarmasin</span>
+                <span style="color:#6c757d;margin-left:12px;">Exported <?= date('d-m-Y H:i') ?></span>
+            </footer>
+        <?php else: ?>
+            <footer class="footer d-flex justify-content-end align-items-center">
+                <small class="text-muted me-3">Pengadilan Tinggi Banjarmasin</small>
+            </footer>
+        <?php endif; ?>
 
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

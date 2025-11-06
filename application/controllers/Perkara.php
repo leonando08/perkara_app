@@ -8,6 +8,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @property CI_Session $session
  * @property Perkara_model $Perkara_model
  * @property CI_DB_query_builder $db
+ * @property User_model $User_model
  */
 class Perkara extends CI_Controller
 {
@@ -15,6 +16,7 @@ class Perkara extends CI_Controller
     {
         parent::__construct();
         $this->load->model('Perkara_model');
+        $this->load->model('User_model');
         $this->load->helper(['url', 'form']);
         $this->load->library('session');
 
@@ -54,7 +56,9 @@ class Perkara extends CI_Controller
         $data['filters']  = $filters;
         $data['username'] = $this->session->userdata('username');
 
-        $this->load->view('navbar/header');
+        $user_id = $this->session->userdata('user_id');
+        $data['user'] = $this->User_model->get_by_id($user_id);
+        $this->load->view('navbar/header', $data);
         if ($this->session->userdata('role') === 'admin') {
             $this->load->view('admin/dashboard_admin', $data);
         } else {
@@ -129,6 +133,9 @@ class Perkara extends CI_Controller
                 }
             }
         }
+
+        // Ambil nama pengadilan dari session untuk input otomatis
+        $data['asal_pengadilan_session'] = $this->session->userdata('nama_pengadilan');
 
         // Load view
         $this->load->view('perkara/tambah_perkara', $data);
