@@ -29,17 +29,18 @@ $current_url = current_url();
                                 <i class="fas fa-home me-2"></i>Data Perkara
                             </a></li>
                     <?php else: ?>
-                        <li><a class="nav-link submenu-link" href="<?= site_url('user/dashboard_user'); ?>" data-menu="dashboard">
-                                <i class="fas fa-home me-2"></i>Data Perkara
-                            </a></li>
                         <li><a class="nav-link submenu-link" href="<?= site_url('perkara/tambah'); ?>" data-menu="dashboard">
                                 <i class="fas fa-plus me-2"></i>Tambah Perkara
                             </a></li>
+                        <li><a class="nav-link submenu-link" href="<?= site_url('user/dashboard_user'); ?>" data-menu="dashboard">
+                                <i class="fas fa-home me-2"></i>Data Perkara
+                            </a></li>
+                        
                     <?php endif; ?>
                 </ul>
             </div>
         </li>
-
+        
         <!-- LAPORAN MENU -->
         <li class="nav-item mb-2">
             <a class="nav-link d-flex justify-content-between align-items-center menu-toggle"
