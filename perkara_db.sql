@@ -546,7 +546,7 @@ CREATE TABLE IF NOT EXISTS `perkara_banding` (
   KEY `fk_perkara_banding_klasifikasi` (`klasifikasi`),
   CONSTRAINT `fk_perkara_banding_klasifikasi` FOREIGN KEY (`klasifikasi`) REFERENCES `jenis_perkara` (`nama`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_perkara_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table perkara_db.perkara_banding: ~9 rows (approximately)
 DELETE FROM `perkara_banding`;
@@ -555,13 +555,16 @@ INSERT INTO `perkara_banding` (`id`, `no`, `asal_pengadilan`, `perkara`, `nomor_
 	(11, 2, 'Pengadilan Negeri Paringin', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Lalu-Lintas', '2025-02-07', '369/PID.SUS/2024/PT BJM', '30', 'Putusan Banding PT tanggal : 06-11-2025', '2025-11-06', '2025-11-06', '2025-11-06', 'Selesai', NULL),
 	(12, NULL, 'Pengadilan Negeri Kandangan', 'PERDATA', '80/Pid.Sus/2024/PN Prn', 'Narkotika', '2025-09-10', '400/PID.SUS/2024/PT BJM', '28 hari', 'Minutas tanggal : 2025-01-10', '2025-09-16', '2025-09-16', '2025-09-16', 'Selesai', NULL),
 	(13, NULL, 'Pengadilan Negeri Martapura', 'ANAK', '64724', 'Asal Usul Anak', '2025-09-09', '410/PID.SUS/2024/PT BJM', '27 hari', 'Putusan Banding PT tanggal : 16-09-2025', '2025-09-13', '2025-09-14', '2025-09-14', 'Proses', NULL),
-	(14, NULL, 'Pengadilan Negeri Kotabaru', 'TIPIKOR', '100/Pid.Sus/2024/PN Prn', 'Korupsi', '2025-09-03', '400/PID.SUS/2024/PT BJM', '28 hari', 'Minutas tanggal : 2025-01-06', '2025-09-08', '2025-09-02', '2025-09-03', 'Selesai', NULL),
+	(14, NULL, 'Pengadilan Negeri Kotabaru', 'TIPIKOR', '100/Pid.Sus/2024/PN Prn', 'Korupsi', '2025-09-03', '400/PID.SUS/2024/PT BJM', '11', 'Minutas tanggal : 2025-01-06', '2025-09-08', '2025-09-02', '2025-09-03', 'Selesai', NULL),
 	(15, NULL, 'Pengadilan Negeri Banjarbaru', 'PIDANA', '40/Pid.Sus/2024/PN Prn', 'Pembunuhan', '2025-11-06', '2131637613', '25 hari', 'Minutas tanggal : 2025-01-09', '2025-10-08', NULL, '2025-10-15', 'Selesai', NULL),
-	(20, NULL, 'Pengadilan Negeri Banjarbaru', 'PIDANA', '71/Pid.Sus/2024/PN Prn', 'BPSK', '2025-09-17', '300/PID.SUS/2024/PT BJM', '93 Hari', 'Minutas tanggal : 2025-01-19', '2025-09-16', '2025-09-17', '2025-09-16', 'Selesai', NULL),
+	(20, NULL, 'Pengadilan Negeri Banjarbaru', 'PIDANA', '71/Pid.Sus/2024/PN Prn', 'BPSK', '2025-09-17', '300/PID.SUS/2024/PT BJM', '20', 'Minutas tanggal : 2025-01-19', '2025-09-16', '2025-09-17', '2025-09-16', 'Selesai', NULL),
 	(21, NULL, 'Pengadilan Negeri Marabahan', 'PIDANA', '64724', 'Asuransi', '2025-11-04', '400/PID.SUS/2024/PT BJM', '25 hari', 'Minutas tanggal : 2025-01-06', '2025-11-04', '2025-11-04', '2025-11-04', 'Proses', NULL),
 	(22, NULL, 'Pengadilan Negeri Martapura', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Asuransi', '2025-11-04', '369/PID.SUS/2024/PT BJM', '25 hari', 'Putusan Banding PT tanggal : 04-11-2025', '2025-11-04', NULL, '2025-11-04', 'Proses', NULL),
 	(23, NULL, 'Pengadilan Negeri Banjarmasin', 'PIDANA', '93/Pid.Sus/2024/PN Prn', 'Asal Usul Anak', '2025-11-04', '300/PID.SUS/2024/PT BJM', '30', 'Putusan Banding PT tanggal : 04-11-2025', '2025-11-04', '2025-11-04', '2025-11-04', 'Proses', NULL),
-	(24, NULL, 'Pengadilan Negeri Banjarbaru', 'ANAK', '80/Pid.Sus/2024/PN Prn', 'Narkotika', '2025-11-06', '300/PID.SUS/2024/PT BJM', '10', 'Putusan Banding PT tanggal : 06-11-2025', '2025-11-06', '2025-11-06', '2025-11-06', 'Proses', NULL);
+	(24, NULL, 'Pengadilan Negeri Banjarbaru', 'ANAK', '80/Pid.Sus/2024/PN Prn', 'Narkotika', '2025-11-06', '300/PID.SUS/2024/PT BJM', '10', 'Putusan Banding PT tanggal : 06-11-2025', '2025-11-06', '2025-11-06', '2025-11-06', 'Proses', NULL),
+	(26, NULL, 'Pengadilan Negeri Banjarbaru', 'TIPIKOR', 'kskflskls', 'Tindak Pidana Korupsi', '2025-11-07', '2131637613', '16', 'Putusan Banding PT tanggal : 07-11-2025', '0000-00-00', '0000-00-00', '0000-00-00', 'Proses', NULL),
+	(27, NULL, 'Pengadilan Negeri Kotabaru', 'PIDANA', '78/Pid.Sus/2024/PN Prn', 'Pidana Lingkungan Hidup', '2025-11-07', '2131637613', '15', 'Putusan Banding PT tanggal : 07-11-2025', '2025-11-07', '0000-00-00', '0000-00-00', 'Proses', NULL),
+	(28, NULL, 'Pengadilan Negeri Kotabaru', 'PIDANA', '78/Pid.Sus/2024/PN Prn', 'Pidana Lingkungan Hidup', '2025-11-07', '2131637613', '15', 'Putusan Banding PT tanggal : 07-11-2025', '2025-11-07', '0000-00-00', '0000-00-00', 'Proses', NULL);
 
 -- Dumping structure for table perkara_db.users
 DROP TABLE IF EXISTS `users`;

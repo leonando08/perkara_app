@@ -44,7 +44,8 @@ class User extends CI_Controller
             $pengiriman_berkas = $this->input->post('pengiriman_berkas_kasasi');
 
             $update_data = [
-                'asal_pengadilan' => $this->input->post('asal_pengadilan'),
+                // Ambil asal_pengadilan dari session agar tidak bergantung pada input disabled
+                'asal_pengadilan' => $this->session->userdata('nama_pengadilan'),
                 'perkara' => $this->input->post('perkara'),
                 'nomor_perkara_tk1' => $this->input->post('nomor_perkara_tk1'),
                 'klasifikasi' => $this->input->post('klasifikasi'),

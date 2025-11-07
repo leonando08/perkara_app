@@ -83,133 +83,138 @@
                 <div class="content-card mb-6">
                     <h5>Tingkat Pertama</h5>
                     <hr>
-                    <div class="col-md-12">
-                        <label class="form-label">Asal Pengadilan<span class="text-danger">*</span></label>
-                        <input type="text" name="asal_pengadilan" class="form-control" required readonly
-                            value="<?= isset($asal_pengadilan_session) ? htmlspecialchars($asal_pengadilan_session) : '' ?>">
-                        <div class="invalid-feedback">Asal pengadilan harus diisi</div>
-                        <?php if (isset($asal_pengadilan_session) && $asal_pengadilan_session): ?>
-                            <span class="badge bg-info text-dark mt-2">Pengadilan Anda: <?= htmlspecialchars($asal_pengadilan_session) ?></span>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="col-md-12">
-                        <label class="form-label">Nomor Perkara Tk1<span class="text-danger">*</span></label>
-                        <input type="text" name="nomor_perkara_tk1" class="form-control" required
-                            value="<?= htmlspecialchars($this->input->post('nomor_perkara_tk1')) ?>">
-                        <div class="invalid-feedback">Nomor perkara tk1 harus diisi</div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <label class="form-label">Jenis Perkara<span class="text-danger">*</span></label>
-                        <select name="perkara" class="form-select" required>
-                            <option value="">-- Pilih Jenis Perkara --</option>
-                            <option value="PIDANA" <?= ($this->input->post('perkara') == 'PIDANA') ? 'selected' : '' ?>>PIDANA</option>
-                            <option value="PERDATA" <?= ($this->input->post('perkara') == 'PERDATA') ? 'selected' : '' ?>>PERDATA</option>
-                            <option value="ANAK" <?= ($this->input->post('perkara') == 'ANAK') ? 'selected' : '' ?>>ANAK</option>
-                            <option value="TIPIKOR" <?= ($this->input->post('perkara') == 'TIPIKOR') ? 'selected' : '' ?>>TIPIKOR</option>
-                        </select>
-                        <div class="invalid-feedback">Jenis perkara harus dipilih</div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <label class="form-label">Klasifikasi<span class="text-danger">*</span></label>
-                        <div class="position-relative">
-                            <input type="text"
-                                name="klasifikasi"
-                                id="klasifikasi"
-                                class="form-control"
-                                list="klasifikasi-options"
-                                value="<?= htmlspecialchars($this->input->post('klasifikasi')) ?>"
-                                placeholder="Pilih atau ketik klasifikasi..."
-                                autocomplete="off"
-                                required>
-                            <datalist id="klasifikasi-options">
-                                <?php if (isset($jenis_perkara) && is_array($jenis_perkara) && count($jenis_perkara) > 0): ?>
-                                    <?php foreach ($jenis_perkara as $jp): ?>
-                                        <option value="<?= htmlspecialchars($jp->nama) ?>"></option>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <!-- Fallback hardcode data -->
-                                    <option value="Perdata"></option>
-                                    <option value="Pidana"></option>
-                                    <option value="Gugatan"></option>
-                                    <option value="Permohonan"></option>
-                                    <option value="Tindak Pidana Korupsi"></option>
-                                    <option value="Penganiayaan"></option>
-                                    <option value="Pencurian"></option>
-                                    <option value="Penipuan"></option>
-                                    <option value="Pemerasan dan Pengancaman"></option>
-                                    <option value="Penggelapan"></option>
-                                <?php endif; ?>
-                            </datalist>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Asal Pengadilan</label>
+                            <!-- Tampilkan kosong di frontend sesuai permintaan pembimbing; nilai sebenarnya diambil dari session di backend -->
+                             <br>
+                             <span class="badge text-bg-primary">
+                            <?= $this->session->userdata('nama_pengadilan')?>
+                            </span>
                         </div>
-                        <div class="invalid-feedback">Klasifikasi harus diisi</div>
-                        <small class="form-text text-muted">Klik untuk melihat semua pilihan atau ketik untuk mencari</small>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Nomor Perkara Tk1<span class="text-danger">*</span></label>
+                            <input type="text" name="nomor_perkara_tk1" class="form-control" required
+                                value="<?= htmlspecialchars($this->input->post('nomor_perkara_tk1')) ?>">
+                            <div class="invalid-feedback">Nomor perkara tk1 harus diisi</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Jenis Perkara<span class="text-danger">*</span></label>
+                            <select name="perkara" class="form-select" required>
+                                <option value="">-- Pilih Jenis Perkara --</option>
+                                <option value="PIDANA" <?= ($this->input->post('perkara') == 'PIDANA') ? 'selected' : '' ?>>PIDANA</option>
+                                <option value="PERDATA" <?= ($this->input->post('perkara') == 'PERDATA') ? 'selected' : '' ?>>PERDATA</option>
+                                <option value="ANAK" <?= ($this->input->post('perkara') == 'ANAK') ? 'selected' : '' ?>>ANAK</option>
+                                <option value="TIPIKOR" <?= ($this->input->post('perkara') == 'TIPIKOR') ? 'selected' : '' ?>>TIPIKOR</option>
+                            </select>
+                            <div class="invalid-feedback">Jenis perkara harus dipilih</div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Klasifikasi<span class="text-danger">*</span></label>
+                            <div class="position-relative">
+                                <input type="text"
+                                    name="klasifikasi"
+                                    id="klasifikasi"
+                                    class="form-control"
+                                    list="klasifikasi-options"
+                                    value="<?= htmlspecialchars($this->input->post('klasifikasi')) ?>"
+                                    placeholder="Pilih atau ketik klasifikasi..."
+                                    autocomplete="off"
+                                    required>
+                                <datalist id="klasifikasi-options">
+                                    <?php if (isset($jenis_perkara) && is_array($jenis_perkara) && count($jenis_perkara) > 0): ?>
+                                        <?php foreach ($jenis_perkara as $jp): ?>
+                                            <option value="<?= htmlspecialchars($jp->nama) ?>"></option>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <!-- Fallback hardcode data -->
+                                        <option value="Perdata"></option>
+                                        <option value="Pidana"></option>
+                                        <option value="Gugatan"></option>
+                                        <option value="Permohonan"></option>
+                                        <option value="Tindak Pidana Korupsi"></option>
+                                        <option value="Penganiayaan"></option>
+                                        <option value="Pencurian"></option>
+                                        <option value="Penipuan"></option>
+                                        <option value="Pemerasan dan Pengancaman"></option>
+                                        <option value="Penggelapan"></option>
+                                    <?php endif; ?>
+                                </datalist>
+                            </div>
+                            <div class="invalid-feedback">Klasifikasi harus diisi</div>
+                            <small class="form-text text-muted">Klik untuk melihat semua pilihan atau ketik untuk mencari</small>
+                        </div>
                     </div>
                 </div>
 
                 <div class="content-card mb-6">
                     <h5>Tingkat Banding</h5>
                     <hr>
-                    <div class="col-md-12">
-                        <label class="form-label">Tanggal Register Banding</label>
-                        <input type="date" name="tgl_register_banding" class="form-control"
-                            value="<?= htmlspecialchars($this->input->post('tgl_register_banding')) ?>" required>
-                        <div class="invalid-feedback">Tanggal register banding harus diisi</div>
-                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tanggal Register Banding</label>
+                            <input type="date" name="tgl_register_banding" class="form-control"
+                                value="<?= htmlspecialchars($this->input->post('tgl_register_banding')) ?>" required>
+                            <div class="invalid-feedback">Tanggal register banding harus diisi</div>
+                        </div>
 
-                    <div class="col-md-12">
-                        <label class="form-label">Nomor Perkara Banding</label>
-                        <input type="text" name="nomor_perkara_banding" class="form-control"
-                            value="<?= htmlspecialchars($this->input->post('nomor_perkara_banding')) ?>">
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Nomor Perkara Banding</label>
+                            <input type="text" name="nomor_perkara_banding" class="form-control"
+                                value="<?= htmlspecialchars($this->input->post('nomor_perkara_banding')) ?>">
+                        </div>
 
-                    <div class="col-md-12">
-                        <label class="form-label">Lama Proses</label>
-                        <input type="number" name="lama_proses" id="lama_proses" class="form-control"
-                            value="<?= htmlspecialchars($this->input->post('lama_proses')) ?>" min="0" step="1">
-                        <div class="form-text" id="lamaProsesPreview"></div>
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Lama Proses</label>
+                            <input type="number" name="lama_proses" id="lama_proses" class="form-control"
+                                value="<?= htmlspecialchars($this->input->post('lama_proses')) ?>" min="0" step="1">
+                            <div class="form-text" id="lamaProsesPreview"></div>
+                        </div>
 
-                    <div class="col-md-12">
-                        <label class="form-label">Status Perkara Tk Banding</label>
-                        <input type="date" name="status_perkara_tk_banding_date" id="status_perkara_tk_banding_date" class="form-control">
-                        <input type="hidden" name="status_perkara_tk_banding" id="status_perkara_tk_banding"
-                            value="<?= htmlspecialchars($this->input->post('status_perkara_tk_banding')) ?>">
-                        <small class="form-text text-muted">Format otomatis: Putusan Banding PT tanggal : [tanggal yang Anda pilih]</small>
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status Perkara Tk Banding</label>
+                            <input type="date" name="status_perkara_tk_banding_date" id="status_perkara_tk_banding_date" class="form-control">
+                            <input type="hidden" name="status_perkara_tk_banding" id="status_perkara_tk_banding"
+                                value="<?= htmlspecialchars($this->input->post('status_perkara_tk_banding')) ?>">
+                            <small class="form-text text-muted">Format otomatis: Putusan Banding PT tanggal : [tanggal yang Anda pilih]</small>
+                        </div>
 
-                    <div class="col-md-12">
-                        <label class="form-label">Pemberitahuan Putusan Banding</label>
-                        <input type="date" name="pemberitahuan_putusan_banding" class="form-control"
-                            value="<?= htmlspecialchars($this->input->post('pemberitahuan_putusan_banding')) ?>">
+                        <div class="col-md-12">
+                            <label class="form-label">Pemberitahuan Putusan Banding</label>
+                            <input type="date" name="pemberitahuan_putusan_banding" class="form-control"
+                                value="<?= htmlspecialchars($this->input->post('pemberitahuan_putusan_banding')) ?>">
+                        </div>
                     </div>
                 </div>
 
                 <div class="content-card mb-6">
                     <h5>Tingkat Kasasi</h5>
                     <hr>
-                    <div class="col-md-12">
-                        <label class="form-label">Permohonan Kasasi</label>
-                        <input type="date" name="permohonan_kasasi" class="form-control"
-                            value="<?= htmlspecialchars($this->input->post('permohonan_kasasi')) ?>">
-                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Permohonan Kasasi</label>
+                            <input type="date" name="permohonan_kasasi" class="form-control"
+                                value="<?= htmlspecialchars($this->input->post('permohonan_kasasi')) ?>">
+                        </div>
 
-                    <div class="col-md-12">
-                        <label class="form-label">Pengiriman Berkas Kasasi</label>
-                        <input type="date" name="pengiriman_berkas_kasasi" class="form-control"
-                            value="<?= htmlspecialchars($this->input->post('pengiriman_berkas_kasasi')) ?>">
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Pengiriman Berkas Kasasi</label>
+                            <input type="date" name="pengiriman_berkas_kasasi" class="form-control"
+                                value="<?= htmlspecialchars($this->input->post('pengiriman_berkas_kasasi')) ?>">
+                        </div>
 
-                    <div class="col-md-12">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-select" required>
-                            <option value="">-- Pilih Status --</option>
-                            <option value="Proses" <?= ($this->input->post('status') == 'Proses') ? 'selected' : '' ?>>Proses</option>
-                            <option value="Selesai" <?= ($this->input->post('status') == 'Selesai') ? 'selected' : '' ?>>Selesai</option>
-                        </select>
-                        <div class="invalid-feedback">Status harus dipilih</div>
+                        <div class="col-md-12">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select" required>
+                                <option value="">-- Pilih Status --</option>
+                                <option value="Proses" <?= ($this->input->post('status') == 'Proses') ? 'selected' : '' ?>>Proses</option>
+                                <option value="Selesai" <?= ($this->input->post('status') == 'Selesai') ? 'selected' : '' ?>>Selesai</option>
+                            </select>
+                            <div class="invalid-feedback">Status harus dipilih</div>
+                        </div>
                     </div>
                 </div>
             </div>
