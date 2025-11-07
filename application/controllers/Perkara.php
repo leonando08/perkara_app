@@ -95,9 +95,16 @@ class Perkara extends CI_Controller
         $has_user_id = in_array('user_id', $fields);
         if ($this->input->post()) {
             // Validasi sederhana
+            // Untuk 'asal_pengadilan' kita gunakan nilai dari session (tidak dikirim lewat POST)
             $required = ['asal_pengadilan', 'klasifikasi', 'tgl_register_banding', 'status'];
             foreach ($required as $field) {
-                if (empty($this->input->post($field))) {
+                if ($field === 'asal_pengadilan') {
+                    $value = $this->session->userdata('nama_pengadilan');
+                } else {
+                    $value = $this->input->post($field);
+                }
+
+                if (empty($value)) {
                     $data['error'] = "Kolom '" . ucfirst(str_replace("_", " ", $field)) . "' tidak boleh kosong.";
                     break;
                 }
@@ -107,7 +114,8 @@ class Perkara extends CI_Controller
                 $klasifikasi = $this->input->post('klasifikasi');
 
                 $insertData = [
-                    'asal_pengadilan'               => $this->input->post('asal_pengadilan'),
+                    // Ambil asal_pengadilan dari session, bukan dari input
+                    'asal_pengadilan'               => $this->session->userdata('nama_pengadilan'),
                     'nomor_perkara_tk1'             => $this->input->post('nomor_perkara_tk1'),
                     'perkara'                       => $this->input->post('perkara'),
                     'klasifikasi'                   => $klasifikasi,
@@ -181,6 +189,11 @@ class Perkara extends CI_Controller
             $data = [];
             foreach ($fields as $field) {
                 $data[$field] = $this->input->post($field, true);
+            }
+
+            // Pastikan asal_pengadilan selalu berasal dari session (kecuali super_admin)
+            if ($this->session->userdata('role') !== 'super_admin') {
+                $data['asal_pengadilan'] = $this->session->userdata('nama_pengadilan');
             }
 
             if ($this->Perkara_model->update($id, $data)) {
